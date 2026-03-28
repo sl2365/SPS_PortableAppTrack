@@ -44,6 +44,7 @@ Partial Class Form1
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
         Me.SPS_P_Tracker_Name = New System.Windows.Forms.TextBox()
         Me.Help = New System.Windows.Forms.Button()
+        Me.Toggle_SplitOrientation = New System.Windows.Forms.Button()
         Me.SPS_P_ImageList = New System.Windows.Forms.ImageList(Me.components)
         Me.ToolTip1Form1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ContextMenuStrip1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
@@ -378,11 +379,23 @@ Partial Class Form1
         Me.ToolTip1Form2.SetToolTip(Me.Toggle_RightPane, "Toggle right panel visibility")
         Me.Toggle_RightPane.UseVisualStyleBackColor = True
         '
+        'Toggle_SplitOrientation
+        '
+        Me.Toggle_SplitOrientation.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.Toggle_SplitOrientation.Location = New System.Drawing.Point(1357, 38)
+        Me.Toggle_SplitOrientation.Name = "Toggle_SplitOrientation"
+        Me.Toggle_SplitOrientation.Size = New System.Drawing.Size(40, 40)
+        Me.Toggle_SplitOrientation.TabIndex = 28
+        Me.Toggle_SplitOrientation.Text = ""
+        Me.ToolTip1Form2.SetToolTip(Me.Toggle_SplitOrientation, "Toggle between vertical and horizontal split layout")
+        Me.Toggle_SplitOrientation.UseVisualStyleBackColor = True
+        '
         'Help
         '
         Me.Help.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Help.Location = New System.Drawing.Point(1357, 38)
+        Me.Help.Location = New System.Drawing.Point(1402, 38)
         Me.Help.Name = "Help"
         Me.Help.Size = New System.Drawing.Size(40, 40)
         Me.Help.TabIndex = 9
@@ -982,10 +995,11 @@ Partial Class Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1422, 795)
+        Me.ClientSize = New System.Drawing.Size(1467, 795)
         Me.Controls.Add(Me.MenuStrip1)
         Me.Controls.Add(Me.SplitContainer1)
         Me.Controls.Add(Me.Toggle_RightPane)
+        Me.Controls.Add(Me.Toggle_SplitOrientation)
         Me.Controls.Add(Me.Toggle_HTMLView)
         Me.Controls.Add(Me.Help)
         Me.Controls.Add(Me.SPS_P_Tracker_Name)
@@ -1038,6 +1052,7 @@ Partial Class Form1
     Friend WithEvents SaveFileDialog1 As System.Windows.Forms.SaveFileDialog
     Friend WithEvents SPS_P_Tracker_Name As System.Windows.Forms.TextBox
     Friend WithEvents Toggle_RightPane As System.Windows.Forms.Button
+    Friend WithEvents Toggle_SplitOrientation As System.Windows.Forms.Button
     Friend WithEvents Help As System.Windows.Forms.Button
     Friend WithEvents SPS_P_ImageList As System.Windows.Forms.ImageList
     Friend WithEvents ToolTip1Form1 As ToolTip

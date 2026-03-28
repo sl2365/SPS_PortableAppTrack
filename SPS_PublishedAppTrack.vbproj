@@ -169,6 +169,7 @@
     <EmbeddedResource Include="Icons\SearchDown.png" />
     <EmbeddedResource Include="Icons\SearchUp.png" />
     <EmbeddedResource Include="Icons\Sidebar.png" />
+    <EmbeddedResource Include="Icons\SplitHorizontal.png" />
     <EmbeddedResource Include="Icons\UpdateCheck.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
