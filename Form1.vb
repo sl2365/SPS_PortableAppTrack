@@ -1157,9 +1157,9 @@ Public Class Form1
     End Sub
 
     Private Sub ApplyLayoutOrientation()
+        ' Step 1: Change SplitContainer orientation and splitter distance, then immediately
+        ' resume layout so Panel2 gets its correct new dimensions before we record anchor margins.
         Me.SplitContainer1.SuspendLayout()
-        Me.SplitContainer1.Panel2.SuspendLayout()
-
         If b_HorizontalLayout Then
             Me.SplitContainer1.Orientation = Orientation.Horizontal
             Dim newDist As Integer = CInt(Me.SplitContainer1.Height * 0.5)
@@ -1179,125 +1179,248 @@ Public Class Form1
             Catch ex As ArgumentOutOfRangeException
             End Try
         End If
+        Me.SplitContainer1.ResumeLayout(True)
 
-        ' Label1 - Track URL label
-        Label1.Anchor = AnchorStyles.None
-        Label1.Location = If(b_HorizontalLayout, New Point(0, 0), New Point(5, 0))
-        Label1.Size = If(b_HorizontalLayout, New Size(395, 18), New Size(984, 55))
-        Label1.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right)
+        ' Step 2: Now Panel2 has its correct new dimensions — reposition controls with accurate anchor margins.
+        Me.SplitContainer1.Panel2.SuspendLayout()
 
-        ' Track_URL textbox
-        Track_URL.Anchor = AnchorStyles.None
-        Track_URL.Location = If(b_HorizontalLayout, New Point(0, 19), New Point(15, 22))
-        Track_URL.Size = If(b_HorizontalLayout, New Size(265, 27), New Size(825, 27))
-        Track_URL.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right)
+        If b_HorizontalLayout Then
+            ' Horizontal layout: left column (~400px wide) for labels/fields, RichTextBox fills the right.
 
-        ' Browser_TrackURL button
-        Browser_TrackURL.Anchor = AnchorStyles.None
-        Browser_TrackURL.Location = If(b_HorizontalLayout, New Point(267, 9), New Point(849, 8))
-        Browser_TrackURL.Size = New Size(40, 40)
-        Browser_TrackURL.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Right)
+            ' Label1 - Track URL label
+            Label1.Anchor = AnchorStyles.None
+            Label1.Location = New Point(0, 0)
+            Label1.Size = New Size(395, 18)
+            Label1.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Download_Track_URL button
-        Download_Track_URL.Anchor = AnchorStyles.None
-        Download_Track_URL.Location = If(b_HorizontalLayout, New Point(309, 9), New Point(895, 8))
-        Download_Track_URL.Size = New Size(40, 40)
-        Download_Track_URL.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Right)
+            ' Track_URL textbox
+            Track_URL.Anchor = AnchorStyles.None
+            Track_URL.Location = New Point(0, 19)
+            Track_URL.Size = New Size(265, 27)
+            Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Save_Track button
-        Save_Track.Anchor = AnchorStyles.None
-        Save_Track.Location = If(b_HorizontalLayout, New Point(351, 9), New Point(940, 8))
-        Save_Track.Size = New Size(40, 40)
-        Save_Track.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Right)
+            ' Browser_TrackURL button
+            Browser_TrackURL.Anchor = AnchorStyles.None
+            Browser_TrackURL.Location = New Point(267, 9)
+            Browser_TrackURL.Size = New Size(40, 40)
+            Browser_TrackURL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Label2 - Start String label
-        Label2.Anchor = AnchorStyles.None
-        Label2.Location = If(b_HorizontalLayout, New Point(0, 55), New Point(5, 60))
-        Label2.Size = If(b_HorizontalLayout, New Size(395, 18), New Size(984, 55))
-        Label2.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right)
+            ' Download_Track_URL button
+            Download_Track_URL.Anchor = AnchorStyles.None
+            Download_Track_URL.Location = New Point(309, 9)
+            Download_Track_URL.Size = New Size(40, 40)
+            Download_Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Start_String textbox
-        Start_String.Anchor = AnchorStyles.None
-        Start_String.Location = If(b_HorizontalLayout, New Point(0, 74), New Point(15, 82))
-        Start_String.Size = If(b_HorizontalLayout, New Size(352, 27), New Size(915, 27))
-        Start_String.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right)
+            ' Save_Track button
+            Save_Track.Anchor = AnchorStyles.None
+            Save_Track.Location = New Point(351, 9)
+            Save_Track.Size = New Size(40, 40)
+            Save_Track.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Go_To_Start_String button
-        Go_To_Start_String.Anchor = AnchorStyles.None
-        Go_To_Start_String.Location = If(b_HorizontalLayout, New Point(354, 64), New Point(940, 68))
-        Go_To_Start_String.Size = New Size(40, 40)
-        Go_To_Start_String.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Right)
+            ' Label2 - Start String label
+            Label2.Anchor = AnchorStyles.None
+            Label2.Location = New Point(0, 55)
+            Label2.Size = New Size(395, 18)
+            Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Label3 - Stop String label
-        Label3.Anchor = AnchorStyles.None
-        Label3.Location = If(b_HorizontalLayout, New Point(0, 110), New Point(5, 120))
-        Label3.Size = If(b_HorizontalLayout, New Size(395, 18), New Size(984, 55))
-        Label3.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right)
+            ' Start_String textbox
+            Start_String.Anchor = AnchorStyles.None
+            Start_String.Location = New Point(0, 74)
+            Start_String.Size = New Size(352, 27)
+            Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Stop_String textbox
-        Stop_String.Anchor = AnchorStyles.None
-        Stop_String.Location = If(b_HorizontalLayout, New Point(0, 129), New Point(15, 143))
-        Stop_String.Size = If(b_HorizontalLayout, New Size(352, 27), New Size(915, 27))
-        Stop_String.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right)
+            ' Go_To_Start_String button
+            Go_To_Start_String.Anchor = AnchorStyles.None
+            Go_To_Start_String.Location = New Point(354, 64)
+            Go_To_Start_String.Size = New Size(40, 40)
+            Go_To_Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Go_To_Stop_String button
-        Go_To_Stop_String.Anchor = AnchorStyles.None
-        Go_To_Stop_String.Location = If(b_HorizontalLayout, New Point(354, 119), New Point(940, 128))
-        Go_To_Stop_String.Size = New Size(40, 40)
-        Go_To_Stop_String.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Top Or AnchorStyles.Right)
+            ' Label3 - Stop String label
+            Label3.Anchor = AnchorStyles.None
+            Label3.Location = New Point(0, 110)
+            Label3.Size = New Size(395, 18)
+            Label3.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Label4 - Search label
-        Label4.Anchor = AnchorStyles.None
-        Label4.Location = If(b_HorizontalLayout, New Point(0, 165), New Point(5, 635))
-        Label4.Size = If(b_HorizontalLayout, New Size(395, 18), New Size(984, 55))
-        Label4.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right)
+            ' Stop_String textbox
+            Stop_String.Anchor = AnchorStyles.None
+            Stop_String.Location = New Point(0, 129)
+            Stop_String.Size = New Size(352, 27)
+            Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Find_String textbox
-        Find_String.Anchor = AnchorStyles.None
-        Find_String.Location = If(b_HorizontalLayout, New Point(0, 184), New Point(15, 658))
-        Find_String.Size = If(b_HorizontalLayout, New Size(185, 27), New Size(780, 27))
-        Find_String.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right)
+            ' Go_To_Stop_String button
+            Go_To_Stop_String.Anchor = AnchorStyles.None
+            Go_To_Stop_String.Location = New Point(354, 119)
+            Go_To_Stop_String.Size = New Size(40, 40)
+            Go_To_Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Search_From_Top button
-        Search_From_Top.Anchor = AnchorStyles.None
-        Search_From_Top.Location = If(b_HorizontalLayout, New Point(187, 174), New Point(804, 643))
-        Search_From_Top.Size = New Size(40, 40)
-        Search_From_Top.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Bottom Or AnchorStyles.Right)
+            ' Label4 - Search label
+            Label4.Anchor = AnchorStyles.None
+            Label4.Location = New Point(0, 165)
+            Label4.Size = New Size(395, 18)
+            Label4.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Search_From_CARET button
-        Search_From_CARET.Anchor = AnchorStyles.None
-        Search_From_CARET.Location = If(b_HorizontalLayout, New Point(229, 174), New Point(849, 643))
-        Search_From_CARET.Size = New Size(40, 40)
-        Search_From_CARET.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Bottom Or AnchorStyles.Right)
+            ' Find_String textbox
+            Find_String.Anchor = AnchorStyles.None
+            Find_String.Location = New Point(0, 184)
+            Find_String.Size = New Size(185, 27)
+            Find_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Reverse_From_CARET button
-        Reverse_From_CARET.Anchor = AnchorStyles.None
-        Reverse_From_CARET.Location = If(b_HorizontalLayout, New Point(271, 174), New Point(895, 643))
-        Reverse_From_CARET.Size = New Size(40, 40)
-        Reverse_From_CARET.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Bottom Or AnchorStyles.Right)
+            ' Search_From_Top button
+            Search_From_Top.Anchor = AnchorStyles.None
+            Search_From_Top.Location = New Point(187, 174)
+            Search_From_Top.Size = New Size(40, 40)
+            Search_From_Top.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Reverse_From_BOTTOM button
-        Reverse_From_BOTTOM.Anchor = AnchorStyles.None
-        Reverse_From_BOTTOM.Location = If(b_HorizontalLayout, New Point(313, 174), New Point(940, 643))
-        Reverse_From_BOTTOM.Size = New Size(40, 40)
-        Reverse_From_BOTTOM.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Bottom Or AnchorStyles.Right)
+            ' Search_From_CARET button
+            Search_From_CARET.Anchor = AnchorStyles.None
+            Search_From_CARET.Location = New Point(229, 174)
+            Search_From_CARET.Size = New Size(40, 40)
+            Search_From_CARET.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' Label_FindCount
-        Label_FindCount.Anchor = AnchorStyles.None
-        Label_FindCount.Location = If(b_HorizontalLayout, New Point(0, 216), New Point(62, 637))
-        Label_FindCount.Size = If(b_HorizontalLayout, New Size(395, 18), New Size(738, 18))
-        Label_FindCount.Anchor = If(b_HorizontalLayout, AnchorStyles.Top Or AnchorStyles.Left, AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right)
+            ' Reverse_From_CARET button
+            Reverse_From_CARET.Anchor = AnchorStyles.None
+            Reverse_From_CARET.Location = New Point(271, 174)
+            Reverse_From_CARET.Size = New Size(40, 40)
+            Reverse_From_CARET.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        ' RichTextBox1
-        RichTextBox1.Anchor = AnchorStyles.None
-        RichTextBox1.Location = If(b_HorizontalLayout, New Point(400, 0), New Point(5, 185))
-        RichTextBox1.Size = If(b_HorizontalLayout, New Size(Math.Max(100, Me.SplitContainer1.Panel2.ClientSize.Width - 405), Me.SplitContainer1.Panel2.ClientSize.Height), New Size(984, 440))
-        RichTextBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+            ' Reverse_From_BOTTOM button
+            Reverse_From_BOTTOM.Anchor = AnchorStyles.None
+            Reverse_From_BOTTOM.Location = New Point(313, 174)
+            Reverse_From_BOTTOM.Size = New Size(40, 40)
+            Reverse_From_BOTTOM.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-        Me.SplitContainer1.Panel2.ResumeLayout(False)
-        Me.SplitContainer1.ResumeLayout(False)
-        Me.SplitContainer1.Panel2.PerformLayout()
-        Me.SplitContainer1.PerformLayout()
+            ' Label_FindCount
+            Label_FindCount.Anchor = AnchorStyles.None
+            Label_FindCount.Location = New Point(0, 216)
+            Label_FindCount.Size = New Size(395, 18)
+            Label_FindCount.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+
+            ' RichTextBox1 fills the right side — Panel2 now has its correct horizontal dimensions.
+            RichTextBox1.Anchor = AnchorStyles.None
+            RichTextBox1.Location = New Point(400, 0)
+            RichTextBox1.Size = New Size(Math.Max(100, Me.SplitContainer1.Panel2.ClientSize.Width - 405), Me.SplitContainer1.Panel2.ClientSize.Height)
+            RichTextBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+
+        Else
+            ' Vertical layout: exact Designer values — Panel2 is the right pane with correct height.
+
+            ' Label1 - Track URL label
+            Label1.Anchor = AnchorStyles.None
+            Label1.Location = New Point(5, 0)
+            Label1.Size = New Size(984, 55)
+            Label1.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' Track_URL textbox
+            Track_URL.Anchor = AnchorStyles.None
+            Track_URL.Location = New Point(15, 22)
+            Track_URL.Size = New Size(825, 27)
+            Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' Browser_TrackURL button
+            Browser_TrackURL.Anchor = AnchorStyles.None
+            Browser_TrackURL.Location = New Point(849, 8)
+            Browser_TrackURL.Size = New Size(40, 40)
+            Browser_TrackURL.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+
+            ' Download_Track_URL button
+            Download_Track_URL.Anchor = AnchorStyles.None
+            Download_Track_URL.Location = New Point(895, 8)
+            Download_Track_URL.Size = New Size(40, 40)
+            Download_Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+
+            ' Save_Track button
+            Save_Track.Anchor = AnchorStyles.None
+            Save_Track.Location = New Point(940, 8)
+            Save_Track.Size = New Size(40, 40)
+            Save_Track.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+
+            ' Label2 - Start String label
+            Label2.Anchor = AnchorStyles.None
+            Label2.Location = New Point(5, 60)
+            Label2.Size = New Size(984, 55)
+            Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' Start_String textbox
+            Start_String.Anchor = AnchorStyles.None
+            Start_String.Location = New Point(15, 82)
+            Start_String.Size = New Size(915, 27)
+            Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' Go_To_Start_String button
+            Go_To_Start_String.Anchor = AnchorStyles.None
+            Go_To_Start_String.Location = New Point(940, 68)
+            Go_To_Start_String.Size = New Size(40, 40)
+            Go_To_Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+
+            ' Label3 - Stop String label
+            Label3.Anchor = AnchorStyles.None
+            Label3.Location = New Point(5, 120)
+            Label3.Size = New Size(984, 55)
+            Label3.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' Stop_String textbox
+            Stop_String.Anchor = AnchorStyles.None
+            Stop_String.Location = New Point(15, 143)
+            Stop_String.Size = New Size(915, 27)
+            Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' Go_To_Stop_String button
+            Go_To_Stop_String.Anchor = AnchorStyles.None
+            Go_To_Stop_String.Location = New Point(940, 128)
+            Go_To_Stop_String.Size = New Size(40, 40)
+            Go_To_Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+
+            ' Label4 - Search label (bottom-anchored)
+            Label4.Anchor = AnchorStyles.None
+            Label4.Location = New Point(5, 635)
+            Label4.Size = New Size(984, 55)
+            Label4.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' Find_String textbox (bottom-anchored)
+            Find_String.Anchor = AnchorStyles.None
+            Find_String.Location = New Point(15, 658)
+            Find_String.Size = New Size(780, 27)
+            Find_String.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' Search_From_Top button (bottom-anchored)
+            Search_From_Top.Anchor = AnchorStyles.None
+            Search_From_Top.Location = New Point(804, 643)
+            Search_From_Top.Size = New Size(40, 40)
+            Search_From_Top.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+
+            ' Search_From_CARET button (bottom-anchored)
+            Search_From_CARET.Anchor = AnchorStyles.None
+            Search_From_CARET.Location = New Point(849, 643)
+            Search_From_CARET.Size = New Size(40, 40)
+            Search_From_CARET.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+
+            ' Reverse_From_CARET button (bottom-anchored)
+            Reverse_From_CARET.Anchor = AnchorStyles.None
+            Reverse_From_CARET.Location = New Point(895, 643)
+            Reverse_From_CARET.Size = New Size(40, 40)
+            Reverse_From_CARET.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+
+            ' Reverse_From_BOTTOM button (bottom-anchored)
+            Reverse_From_BOTTOM.Anchor = AnchorStyles.None
+            Reverse_From_BOTTOM.Location = New Point(940, 643)
+            Reverse_From_BOTTOM.Size = New Size(40, 40)
+            Reverse_From_BOTTOM.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+
+            ' Label_FindCount (bottom-anchored)
+            Label_FindCount.Anchor = AnchorStyles.None
+            Label_FindCount.Location = New Point(62, 637)
+            Label_FindCount.Size = New Size(738, 18)
+            Label_FindCount.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+
+            ' RichTextBox1 fills the center (top+bottom+left+right anchored)
+            RichTextBox1.Anchor = AnchorStyles.None
+            RichTextBox1.Location = New Point(5, 185)
+            RichTextBox1.Size = New Size(984, 440)
+            RichTextBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+
+        End If
+
+        Me.SplitContainer1.Panel2.ResumeLayout(True)
     End Sub
     
     Private Function StripHtmlTags(html As String) As String
