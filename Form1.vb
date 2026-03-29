@@ -61,6 +61,8 @@ Public Class Form1
     Private bln_SortAscending As Boolean = True
     Private b_ShowRenderedHTML As Boolean = False
     Private b_HorizontalLayout As Boolean = False
+    Private m_OriginalPanel2Layouts As Dictionary(Of Control, Tuple(Of Point, Size, AnchorStyles)) = Nothing
+    Private m_OriginalSplitterDistance As Integer = -1
 
     REM Manage the correspondence between SPS_P_ListView column header and Subitem Info
     Public Const c_SPS_Name = 0
@@ -1160,6 +1162,16 @@ Public Class Form1
         Me.SplitContainer1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
 
+        ' On the very first call, snapshot every Panel2 control's Designer layout
+        ' and the original splitter distance so we can restore them exactly.
+        If m_OriginalPanel2Layouts Is Nothing Then
+            m_OriginalPanel2Layouts = New Dictionary(Of Control, Tuple(Of Point, Size, AnchorStyles))
+            For Each ctrl As Control In Me.SplitContainer1.Panel2.Controls
+                m_OriginalPanel2Layouts(ctrl) = Tuple.Create(ctrl.Location, ctrl.Size, ctrl.Anchor)
+            Next
+            m_OriginalSplitterDistance = Me.SplitContainer1.SplitterDistance
+        End If
+
         If b_HorizontalLayout Then
             ' Switch to horizontal (top/bottom) split
             Me.SplitContainer1.Orientation = Orientation.Horizontal
@@ -1278,125 +1290,28 @@ Public Class Form1
             RichTextBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
 
         Else
-            ' Switch back to vertical (left/right) split - restore original positions
+            ' Switch back to vertical (left/right) split - restore original Designer positions.
             Me.SplitContainer1.Orientation = Orientation.Vertical
-            ' Restore splitter distance for vertical mode
-            Dim newDist As Integer = CInt(Me.SplitContainer1.Width * 0.45)
-            If newDist < 200 Then newDist = 200
+            ' Restore splitter distance to the original Designer/startup value so Panel2 is
+            ' wide enough to display all controls at their Designer positions.
+            Dim restoreDist As Integer = If(m_OriginalSplitterDistance <> -1, m_OriginalSplitterDistance, CInt(Me.SplitContainer1.Width * 0.45))
+            If restoreDist < Me.SplitContainer1.Panel1MinSize Then restoreDist = Me.SplitContainer1.Panel1MinSize
+            Dim maxAllowed As Integer = Me.SplitContainer1.Width - Me.SplitContainer1.Panel2MinSize - Me.SplitContainer1.SplitterWidth
+            If restoreDist > maxAllowed Then restoreDist = maxAllowed
             Try
-                Me.SplitContainer1.SplitterDistance = newDist
+                Me.SplitContainer1.SplitterDistance = restoreDist
             Catch ex As ArgumentOutOfRangeException
             End Try
 
-            ' Restore all Panel2 controls to original Designer positions.
-            ' Clear each control's Anchor to None first so WinForms does not
-            ' reposition them using stale offsets from horizontal mode, then set
-            ' the correct Location/Size, and finally restore the real Anchor.
-
-            ' Label1
-            Label1.Anchor = AnchorStyles.None
-            Label1.Location = New Point(5, 0)
-            Label1.Size = New Size(935, 55)
-            Label1.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Track_URL
-            Track_URL.Anchor = AnchorStyles.None
-            Track_URL.Location = New Point(15, 22)
-            Track_URL.Size = New Size(775, 27)
-            Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Browser_TrackURL
-            Browser_TrackURL.Anchor = AnchorStyles.None
-            Browser_TrackURL.Location = New Point(800, 8)
-            Browser_TrackURL.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-
-            ' Download_Track_URL
-            Download_Track_URL.Anchor = AnchorStyles.None
-            Download_Track_URL.Location = New Point(845, 8)
-            Download_Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-
-            ' Save_Track
-            Save_Track.Anchor = AnchorStyles.None
-            Save_Track.Location = New Point(890, 8)
-            Save_Track.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-
-            ' Label2
-            Label2.Anchor = AnchorStyles.None
-            Label2.Location = New Point(5, 60)
-            Label2.Size = New Size(935, 55)
-            Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Start_String
-            Start_String.Anchor = AnchorStyles.None
-            Start_String.Location = New Point(15, 82)
-            Start_String.Size = New Size(865, 27)
-            Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Go_To_Start_String
-            Go_To_Start_String.Anchor = AnchorStyles.None
-            Go_To_Start_String.Location = New Point(890, 68)
-            Go_To_Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-
-            ' Label3
-            Label3.Anchor = AnchorStyles.None
-            Label3.Location = New Point(5, 120)
-            Label3.Size = New Size(935, 55)
-            Label3.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Stop_String
-            Stop_String.Anchor = AnchorStyles.None
-            Stop_String.Location = New Point(15, 143)
-            Stop_String.Size = New Size(865, 27)
-            Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Go_To_Stop_String
-            Go_To_Stop_String.Anchor = AnchorStyles.None
-            Go_To_Stop_String.Location = New Point(890, 128)
-            Go_To_Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Right
-
-            ' RichTextBox1
-            RichTextBox1.Anchor = AnchorStyles.None
-            RichTextBox1.Location = New Point(5, 185)
-            RichTextBox1.Size = New Size(935, 440)
-            RichTextBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Label4
-            Label4.Anchor = AnchorStyles.None
-            Label4.Location = New Point(5, 635)
-            Label4.Size = New Size(935, 55)
-            Label4.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Label_FindCount
-            Label_FindCount.Anchor = AnchorStyles.None
-            Label_FindCount.Location = New Point(62, 637)
-            Label_FindCount.Size = New Size(683, 18)
-            Label_FindCount.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Find_String
-            Find_String.Anchor = AnchorStyles.None
-            Find_String.Location = New Point(15, 658)
-            Find_String.Size = New Size(730, 27)
-            Find_String.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
-
-            ' Search_From_Top
-            Search_From_Top.Anchor = AnchorStyles.None
-            Search_From_Top.Location = New Point(755, 643)
-            Search_From_Top.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
-
-            ' Search_From_CARET
-            Search_From_CARET.Anchor = AnchorStyles.None
-            Search_From_CARET.Location = New Point(800, 643)
-            Search_From_CARET.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
-
-            ' Reverse_From_CARET
-            Reverse_From_CARET.Anchor = AnchorStyles.None
-            Reverse_From_CARET.Location = New Point(845, 643)
-            Reverse_From_CARET.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
-
-            ' Reverse_From_BOTTOM
-            Reverse_From_BOTTOM.Anchor = AnchorStyles.None
-            Reverse_From_BOTTOM.Location = New Point(890, 643)
-            Reverse_From_BOTTOM.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+            ' Restore all Panel2 controls from the saved Designer snapshot.
+            For Each kvp As KeyValuePair(Of Control, Tuple(Of Point, Size, AnchorStyles)) In m_OriginalPanel2Layouts
+                Dim ctrl As Control = kvp.Key
+                Dim savedLayout As Tuple(Of Point, Size, AnchorStyles) = kvp.Value
+                ctrl.Anchor = AnchorStyles.None
+                ctrl.Location = savedLayout.Item1
+                ctrl.Size = savedLayout.Item2
+                ctrl.Anchor = savedLayout.Item3
+            Next
         End If
 
         Me.SplitContainer1.Panel2.ResumeLayout(False)
