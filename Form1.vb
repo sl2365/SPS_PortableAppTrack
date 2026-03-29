@@ -171,7 +171,7 @@ Public Class Form1
                 Me.Top = S_GetsNBlockFromText(s_ConfigPAT_text, "<Form1_y>", "</Form1_y>", 1)
                 Me.Width = S_GetsNBlockFromText(s_ConfigPAT_text, "<Form1_w>", "</Form1_w>", 1)
                 Me.Height = S_GetsNBlockFromText(s_ConfigPAT_text, "<Form1_h>", "</Form1_h>", 1)
-                Me.MinimumSize = New System.Drawing.Size(900, 500)
+                Me.MinimumSize = New System.Drawing.Size(900, 550)
                 Me.SplitContainer1.SplitterWidth = 5
             Catch ex As Exception
                 ShowThemedMessageBox("Error setting form size: " & ex.Message, "Config Error")

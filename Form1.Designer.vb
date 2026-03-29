@@ -170,7 +170,7 @@ Partial Class Form1
         Me.Label_CurrentFile.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label_CurrentFile.Location = New System.Drawing.Point(12, 30)
         Me.Label_CurrentFile.Name = "Label_CurrentFile"
-        Me.Label_CurrentFile.Size = New System.Drawing.Size(1443, 55)
+        Me.Label_CurrentFile.Size = New System.Drawing.Size(1442, 55)
         Me.Label_CurrentFile.TabIndex = 101
         Me.Label_CurrentFile.Text = "Current File:"
         '
@@ -307,7 +307,7 @@ Partial Class Form1
         Me.Label_SearchBar.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Label_SearchBar.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label_SearchBar.Location = New System.Drawing.Point(917, 32)
+        Me.Label_SearchBar.Location = New System.Drawing.Point(920, 32)
         Me.Label_SearchBar.Name = "Label_SearchBar"
         Me.Label_SearchBar.Size = New System.Drawing.Size(90, 18)
         Me.Label_SearchBar.TabIndex = 113
@@ -321,7 +321,7 @@ Partial Class Form1
 '         Me.SPS_P_Publisher_Number.BackColor = System.Drawing.SystemColors.Control
         Me.SPS_P_Publisher_Number.Font = New System.Drawing.Font("Arial", 7.8!, CType((System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Italic), System.Drawing.FontStyle), System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.SPS_P_Publisher_Number.ForeColor = System.Drawing.SystemColors.HotTrack
-        Me.SPS_P_Publisher_Number.Location = New System.Drawing.Point(1015, 32)
+        Me.SPS_P_Publisher_Number.Location = New System.Drawing.Point(1020, 32)
         Me.SPS_P_Publisher_Number.Name = "SPS_P_Publisher_Number"
         Me.SPS_P_Publisher_Number.Size = New System.Drawing.Size(200, 18)
         Me.SPS_P_Publisher_Number.TabIndex = 106
@@ -335,7 +335,7 @@ Partial Class Form1
         Me.SPS_P_Tracker_Name.Font = New System.Drawing.Font("Arial", 9.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.SPS_P_Tracker_Name.Location = New System.Drawing.Point(925, 50)
         Me.SPS_P_Tracker_Name.Name = "SPS_P_Tracker_Name"
-        Me.SPS_P_Tracker_Name.Size = New System.Drawing.Size(286, 22)
+        Me.SPS_P_Tracker_Name.Size = New System.Drawing.Size(289, 22)
         Me.SPS_P_Tracker_Name.TabIndex = 6
         Me.SPS_P_Tracker_Name.Text = "SPS_P_Tracker_Name"
         Me.ToolTip1Form2.SetToolTip(Me.SPS_P_Tracker_Name, "SPS Publisher Name." & vbCrLf & "Add one or more names." & vbCrLf & "Leave empty to show All Publishers.")
@@ -345,7 +345,7 @@ Partial Class Form1
         Me.ReBuild_SPS_List.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.ReBuild_SPS_List.Font = New System.Drawing.Font("Arial", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ReBuild_SPS_List.Location = New System.Drawing.Point(1222, 38)
+        Me.ReBuild_SPS_List.Location = New System.Drawing.Point(1224, 38)
         Me.ReBuild_SPS_List.Name = "ReBuild_SPS_List"
         Me.ReBuild_SPS_List.Size = New System.Drawing.Size(40, 40)
         Me.ReBuild_SPS_List.TabIndex = 7
@@ -358,7 +358,7 @@ Partial Class Form1
         Me.Toggle_HTMLView = New System.Windows.Forms.Button()
         Me.Toggle_HTMLView.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Toggle_HTMLView.Location = New System.Drawing.Point(1267, 38)
+        Me.Toggle_HTMLView.Location = New System.Drawing.Point(1270, 38)
         Me.Toggle_HTMLView.Name = "Toggle_HTMLView"
         Me.Toggle_HTMLView.Size = New System.Drawing.Size(40, 40)
         Me.Toggle_HTMLView.TabIndex = 27
@@ -371,7 +371,7 @@ Partial Class Form1
         Me.Toggle_RightPane.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Toggle_RightPane.Font = New System.Drawing.Font("Arial", 10.2!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Toggle_RightPane.Location = New System.Drawing.Point(1312, 38)
+        Me.Toggle_RightPane.Location = New System.Drawing.Point(1315, 38)
         Me.Toggle_RightPane.Name = "Toggle_RightPane"
         Me.Toggle_RightPane.Size = New System.Drawing.Size(40, 40)
         Me.Toggle_RightPane.TabIndex = 8
@@ -383,7 +383,7 @@ Partial Class Form1
         '
         Me.Toggle_SplitOrientation.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Toggle_SplitOrientation.Location = New System.Drawing.Point(1357, 38)
+        Me.Toggle_SplitOrientation.Location = New System.Drawing.Point(1360, 38)
         Me.Toggle_SplitOrientation.Name = "Toggle_SplitOrientation"
         Me.Toggle_SplitOrientation.Size = New System.Drawing.Size(40, 40)
         Me.Toggle_SplitOrientation.TabIndex = 28
@@ -395,7 +395,7 @@ Partial Class Form1
         '
         Me.Help.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Help.Location = New System.Drawing.Point(1402, 38)
+        Me.Help.Location = New System.Drawing.Point(1405, 38)
         Me.Help.Name = "Help"
         Me.Help.Size = New System.Drawing.Size(40, 40)
         Me.Help.TabIndex = 9
@@ -742,7 +742,7 @@ Partial Class Form1
         Me.Label1.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.Location = New System.Drawing.Point(5, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(935, 55)
+        Me.Label1.Size = New System.Drawing.Size(984, 55) ' was 935
         Me.Label1.TabIndex = 108
         Me.Label1.Text = "Track URL:"
         '
@@ -755,7 +755,7 @@ Partial Class Form1
         Me.Label2.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label2.Location = New System.Drawing.Point(5, 60)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(935, 55)
+        Me.Label2.Size = New System.Drawing.Size(984, 55)
         Me.Label2.TabIndex = 109
         Me.Label2.Text = "Start String:"
         '
@@ -768,7 +768,7 @@ Partial Class Form1
         Me.Label3.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label3.Location = New System.Drawing.Point(5, 120)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(935, 55)
+        Me.Label3.Size = New System.Drawing.Size(984, 55)
         Me.Label3.TabIndex = 110
         Me.Label3.Text = "Stop String:"
         '
@@ -781,7 +781,7 @@ Partial Class Form1
         Me.Label4.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label4.Location = New System.Drawing.Point(5, 635)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(935, 55)
+        Me.Label4.Size = New System.Drawing.Size(984, 55)
         Me.Label4.TabIndex = 111
         Me.Label4.Text = "Search:"
         '
@@ -795,7 +795,7 @@ Partial Class Form1
         Me.Label_FindCount.ForeColor = System.Drawing.SystemColors.HotTrack
         Me.Label_FindCount.Location = New System.Drawing.Point(62, 637)
         Me.Label_FindCount.Name = "Label_FindCount"
-        Me.Label_FindCount.Size = New System.Drawing.Size(683, 18)
+        Me.Label_FindCount.Size = New System.Drawing.Size(738, 18)
         Me.Label_FindCount.TabIndex = 112
         Me.Label_FindCount.Text = ""
         Me.Label_FindCount.TextAlign = System.Drawing.ContentAlignment.TopRight
@@ -808,7 +808,7 @@ Partial Class Form1
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.RichTextBox1.Location = New System.Drawing.Point(5, 185)
         Me.RichTextBox1.Name = "RichTextBox1"
-        Me.RichTextBox1.Size = New System.Drawing.Size(935, 440)
+        Me.RichTextBox1.Size = New System.Drawing.Size(984, 440)
         Me.RichTextBox1.TabIndex = 20
         Me.RichTextBox1.Text = ""
         Me.RichTextBox1.Font = New System.Drawing.Font("Consolas", 9.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -822,7 +822,7 @@ Partial Class Form1
         Me.Track_URL.Location = New System.Drawing.Point(15, 22)
         Me.Track_URL.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Track_URL.Name = "Track_URL"
-        Me.Track_URL.Size = New System.Drawing.Size(775, 27)
+        Me.Track_URL.Size = New System.Drawing.Size(825, 27)
         Me.Track_URL.TabIndex = 12
         Me.ToolTip1Form2.SetToolTip(Me.Track_URL, "Enter URL page for tracking the SPS app version")
         '
@@ -830,7 +830,7 @@ Partial Class Form1
         '
         Me.Browser_TrackURL.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Browser_TrackURL.Location = New System.Drawing.Point(800, 8)
+        Me.Browser_TrackURL.Location = New System.Drawing.Point(849, 8)
         Me.Browser_TrackURL.Name = "Browser_TrackURL"
         Me.Browser_TrackURL.Size = New System.Drawing.Size(40, 40)
         Me.Browser_TrackURL.TabIndex = 13
@@ -842,7 +842,7 @@ Partial Class Form1
         '
         Me.Download_Track_URL.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Download_Track_URL.Location = New System.Drawing.Point(845, 8)
+        Me.Download_Track_URL.Location = New System.Drawing.Point(895, 8)
         Me.Download_Track_URL.Name = "Download_Track_URL"
         Me.Download_Track_URL.Size = New System.Drawing.Size(40, 40)
         Me.Download_Track_URL.TabIndex = 14
@@ -854,7 +854,7 @@ Partial Class Form1
         '
         Me.Save_Track.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Save_Track.Location = New System.Drawing.Point(890, 8)
+        Me.Save_Track.Location = New System.Drawing.Point(940, 8)
         Me.Save_Track.Name = "Save_Track"
         Me.Save_Track.Size = New System.Drawing.Size(40, 40)
         Me.Save_Track.TabIndex = 15
@@ -871,7 +871,7 @@ Partial Class Form1
         Me.Start_String.Location = New System.Drawing.Point(15, 82)
         Me.Start_String.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Start_String.Name = "Start_String"
-        Me.Start_String.Size = New System.Drawing.Size(865, 27)
+        Me.Start_String.Size = New System.Drawing.Size(915, 27)
         Me.Start_String.TabIndex = 16
         Me.ToolTip1Form2.SetToolTip(Me.Start_String, "Type the string where monitoring starts")
         '
@@ -879,7 +879,7 @@ Partial Class Form1
         '
         Me.Go_To_Start_String.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Go_To_Start_String.Location = New System.Drawing.Point(890, 68)
+        Me.Go_To_Start_String.Location = New System.Drawing.Point(940, 68)
         Me.Go_To_Start_String.Name = "Go_To_Start_String"
         Me.Go_To_Start_String.Size = New System.Drawing.Size(40, 40)
         Me.Go_To_Start_String.TabIndex = 17
@@ -896,7 +896,7 @@ Partial Class Form1
         Me.Stop_String.Location = New System.Drawing.Point(15, 143)
         Me.Stop_String.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Stop_String.Name = "Stop_String"
-        Me.Stop_String.Size = New System.Drawing.Size(865, 27)
+        Me.Stop_String.Size = New System.Drawing.Size(915, 27)
         Me.Stop_String.TabIndex = 18
         Me.ToolTip1Form2.SetToolTip(Me.Stop_String, "Type the string where monitoring stops")
         '
@@ -904,7 +904,7 @@ Partial Class Form1
         '
         Me.Go_To_Stop_String.Anchor = CType((System.Windows.Forms.AnchorStyles.Top _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Go_To_Stop_String.Location = New System.Drawing.Point(890, 128)
+        Me.Go_To_Stop_String.Location = New System.Drawing.Point(940, 128)
         Me.Go_To_Stop_String.Name = "Go_To_Stop_String"
         Me.Go_To_Stop_String.Size = New System.Drawing.Size(40, 40)
         Me.Go_To_Stop_String.TabIndex = 19
@@ -921,7 +921,7 @@ Partial Class Form1
         Me.Find_String.Location = New System.Drawing.Point(15, 658)
         Me.Find_String.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
         Me.Find_String.Name = "Find_String"
-        Me.Find_String.Size = New System.Drawing.Size(730, 27)
+        Me.Find_String.Size = New System.Drawing.Size(780, 27)
         Me.Find_String.TabIndex = 21
         Me.ToolTip1Form2.SetToolTip(Me.Find_String, "Type text to Search page")
         '
@@ -930,7 +930,7 @@ Partial Class Form1
         Me.Search_From_Top.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Search_From_Top.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Search_From_Top.Location = New System.Drawing.Point(755, 643)
+        Me.Search_From_Top.Location = New System.Drawing.Point(804, 643)
         Me.Search_From_Top.Name = "Search_From_Top"
         Me.Search_From_Top.Size = New System.Drawing.Size(40, 40)
         Me.Search_From_Top.TabIndex = 22
@@ -943,7 +943,7 @@ Partial Class Form1
         Me.Search_From_CARET.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Search_From_CARET.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Search_From_CARET.Location = New System.Drawing.Point(800, 643)
+        Me.Search_From_CARET.Location = New System.Drawing.Point(849, 643)
         Me.Search_From_CARET.Name = "Search_From_CARET"
         Me.Search_From_CARET.Size = New System.Drawing.Size(40, 40)
         Me.Search_From_CARET.TabIndex = 23
@@ -956,7 +956,7 @@ Partial Class Form1
         Me.Reverse_From_CARET.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Reverse_From_CARET.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Reverse_From_CARET.Location = New System.Drawing.Point(845, 643)
+        Me.Reverse_From_CARET.Location = New System.Drawing.Point(895, 643)
         Me.Reverse_From_CARET.Name = "Reverse_From_CARET"
         Me.Reverse_From_CARET.Size = New System.Drawing.Size(40, 40)
         Me.Reverse_From_CARET.TabIndex = 24
@@ -969,7 +969,7 @@ Partial Class Form1
         Me.Reverse_From_BOTTOM.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.Reverse_From_BOTTOM.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Reverse_From_BOTTOM.Location = New System.Drawing.Point(890, 643)
+        Me.Reverse_From_BOTTOM.Location = New System.Drawing.Point(940, 643)
         Me.Reverse_From_BOTTOM.Name = "Reverse_From_BOTTOM"
         Me.Reverse_From_BOTTOM.Size = New System.Drawing.Size(40, 40)
         Me.Reverse_From_BOTTOM.TabIndex = 25
