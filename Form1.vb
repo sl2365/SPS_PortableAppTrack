@@ -1186,116 +1186,118 @@ Public Class Form1
 
         If b_HorizontalLayout Then
             ' Horizontal layout: left column (~400px wide) for labels/fields, RichTextBox fills the right.
+            ' Labels use the same 55px height as vertical/Designer mode.
+            ' Textbox and button y-offsets within each section match the Designer relative positions.
 
-            ' Label1 - Track URL label
+            ' Label1 - Track URL label (same 55px height as Designer)
             Label1.Anchor = AnchorStyles.None
             Label1.Location = New Point(0, 0)
-            Label1.Size = New Size(395, 18)
+            Label1.Size = New Size(395, 55)
             Label1.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Track_URL textbox
+            ' Track_URL textbox (inside Label1, y-offset = 22 matches Designer)
             Track_URL.Anchor = AnchorStyles.None
-            Track_URL.Location = New Point(0, 19)
-            Track_URL.Size = New Size(265, 27)
+            Track_URL.Location = New Point(5, 22)
+            Track_URL.Size = New Size(260, 27)
             Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Browser_TrackURL button
+            ' Browser_TrackURL button (inside Label1, y-offset = 8 matches Designer)
             Browser_TrackURL.Anchor = AnchorStyles.None
-            Browser_TrackURL.Location = New Point(267, 9)
+            Browser_TrackURL.Location = New Point(268, 8)
             Browser_TrackURL.Size = New Size(40, 40)
             Browser_TrackURL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
             ' Download_Track_URL button
             Download_Track_URL.Anchor = AnchorStyles.None
-            Download_Track_URL.Location = New Point(309, 9)
+            Download_Track_URL.Location = New Point(310, 8)
             Download_Track_URL.Size = New Size(40, 40)
             Download_Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
             ' Save_Track button
             Save_Track.Anchor = AnchorStyles.None
-            Save_Track.Location = New Point(351, 9)
+            Save_Track.Location = New Point(352, 8)
             Save_Track.Size = New Size(40, 40)
             Save_Track.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Label2 - Start String label
+            ' Label2 - Start String label (y=60 matches Designer section start)
             Label2.Anchor = AnchorStyles.None
-            Label2.Location = New Point(0, 55)
-            Label2.Size = New Size(395, 18)
+            Label2.Location = New Point(0, 60)
+            Label2.Size = New Size(395, 55)
             Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Start_String textbox
+            ' Start_String textbox (inside Label2, y-offset = 22 matches Designer)
             Start_String.Anchor = AnchorStyles.None
-            Start_String.Location = New Point(0, 74)
-            Start_String.Size = New Size(352, 27)
+            Start_String.Location = New Point(5, 82)
+            Start_String.Size = New Size(344, 27)
             Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Go_To_Start_String button
+            ' Go_To_Start_String button (inside Label2, y-offset = 8 matches Designer)
             Go_To_Start_String.Anchor = AnchorStyles.None
-            Go_To_Start_String.Location = New Point(354, 64)
+            Go_To_Start_String.Location = New Point(352, 68)
             Go_To_Start_String.Size = New Size(40, 40)
             Go_To_Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Label3 - Stop String label
+            ' Label3 - Stop String label (y=120 matches Designer section start)
             Label3.Anchor = AnchorStyles.None
-            Label3.Location = New Point(0, 110)
-            Label3.Size = New Size(395, 18)
+            Label3.Location = New Point(0, 120)
+            Label3.Size = New Size(395, 55)
             Label3.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Stop_String textbox
+            ' Stop_String textbox (inside Label3, y-offset = 23 matches Designer)
             Stop_String.Anchor = AnchorStyles.None
-            Stop_String.Location = New Point(0, 129)
-            Stop_String.Size = New Size(352, 27)
+            Stop_String.Location = New Point(5, 143)
+            Stop_String.Size = New Size(344, 27)
             Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Go_To_Stop_String button
+            ' Go_To_Stop_String button (inside Label3, y-offset = 8 matches Designer)
             Go_To_Stop_String.Anchor = AnchorStyles.None
-            Go_To_Stop_String.Location = New Point(354, 119)
+            Go_To_Stop_String.Location = New Point(352, 128)
             Go_To_Stop_String.Size = New Size(40, 40)
             Go_To_Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Label4 - Search label
+            ' Label4 - Search label (y=180: after 120+55+5 gap, same spacing as Designer)
             Label4.Anchor = AnchorStyles.None
-            Label4.Location = New Point(0, 165)
-            Label4.Size = New Size(395, 18)
+            Label4.Location = New Point(0, 180)
+            Label4.Size = New Size(395, 55)
             Label4.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Find_String textbox
+            ' Label_FindCount (inside Label4, y-offset = 2 matches Designer: 637-635=2)
+            Label_FindCount.Anchor = AnchorStyles.None
+            Label_FindCount.Location = New Point(5, 182)
+            Label_FindCount.Size = New Size(388, 18)
+            Label_FindCount.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+
+            ' Find_String textbox (inside Label4, y-offset = 23 matches Designer)
             Find_String.Anchor = AnchorStyles.None
-            Find_String.Location = New Point(0, 184)
-            Find_String.Size = New Size(185, 27)
+            Find_String.Location = New Point(5, 203)
+            Find_String.Size = New Size(180, 27)
             Find_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Search_From_Top button
+            ' Search_From_Top button (inside Label4, y-offset = 8 matches Designer)
             Search_From_Top.Anchor = AnchorStyles.None
-            Search_From_Top.Location = New Point(187, 174)
+            Search_From_Top.Location = New Point(188, 188)
             Search_From_Top.Size = New Size(40, 40)
             Search_From_Top.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
             ' Search_From_CARET button
             Search_From_CARET.Anchor = AnchorStyles.None
-            Search_From_CARET.Location = New Point(229, 174)
+            Search_From_CARET.Location = New Point(230, 188)
             Search_From_CARET.Size = New Size(40, 40)
             Search_From_CARET.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
             ' Reverse_From_CARET button
             Reverse_From_CARET.Anchor = AnchorStyles.None
-            Reverse_From_CARET.Location = New Point(271, 174)
+            Reverse_From_CARET.Location = New Point(272, 188)
             Reverse_From_CARET.Size = New Size(40, 40)
             Reverse_From_CARET.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
             ' Reverse_From_BOTTOM button
             Reverse_From_BOTTOM.Anchor = AnchorStyles.None
-            Reverse_From_BOTTOM.Location = New Point(313, 174)
+            Reverse_From_BOTTOM.Location = New Point(314, 188)
             Reverse_From_BOTTOM.Size = New Size(40, 40)
             Reverse_From_BOTTOM.Anchor = AnchorStyles.Top Or AnchorStyles.Left
 
-            ' Label_FindCount
-            Label_FindCount.Anchor = AnchorStyles.None
-            Label_FindCount.Location = New Point(0, 216)
-            Label_FindCount.Size = New Size(395, 18)
-            Label_FindCount.Anchor = AnchorStyles.Top Or AnchorStyles.Left
-
-            ' RichTextBox1 fills the right side — Panel2 now has its correct horizontal dimensions.
+            ' RichTextBox1 fills the right side
             RichTextBox1.Anchor = AnchorStyles.None
             RichTextBox1.Location = New Point(400, 0)
             RichTextBox1.Size = New Size(Math.Max(100, Me.SplitContainer1.Panel2.ClientSize.Width - 405), Me.SplitContainer1.Panel2.ClientSize.Height)
@@ -1420,7 +1422,10 @@ Public Class Form1
 
         End If
 
-        Me.SplitContainer1.Panel2.ResumeLayout(True)
+        Me.SplitContainer1.Panel2.ResumeLayout(False)
+        Me.SplitContainer1.Panel2.PerformLayout()
+        Me.SplitContainer1.ResumeLayout(False)
+        Me.SplitContainer1.PerformLayout()
     End Sub
     
     Private Function StripHtmlTags(html As String) As String
