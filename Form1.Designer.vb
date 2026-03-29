@@ -126,7 +126,7 @@ Partial Class Form1
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.SplitContainer1.Location = New System.Drawing.Point(12, 90)
-        Me.SplitContainer1.Size = New System.Drawing.Size(1397, 691)
+        Me.SplitContainer1.Size = New System.Drawing.Size(1443, 691)
         Me.SplitContainer1.Name = "SplitContainer1"
         Me.SplitContainer1.SplitterDistance = 450
         Me.SplitContainer1.TabIndex = 100
@@ -170,7 +170,7 @@ Partial Class Form1
         Me.Label_CurrentFile.Font = New System.Drawing.Font("Arial", 7.8!, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label_CurrentFile.Location = New System.Drawing.Point(12, 30)
         Me.Label_CurrentFile.Name = "Label_CurrentFile"
-        Me.Label_CurrentFile.Size = New System.Drawing.Size(1395, 55)
+        Me.Label_CurrentFile.Size = New System.Drawing.Size(1443, 55)
         Me.Label_CurrentFile.TabIndex = 101
         Me.Label_CurrentFile.Text = "Current File:"
         '
