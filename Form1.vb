@@ -60,6 +60,10 @@ Public Class Form1
     Private i_SortColumn As Integer = -1
     Private bln_SortAscending As Boolean = True
     Private b_ShowRenderedHTML As Boolean = False
+    Private b_HorizontalLayout As Boolean = False
+'     Private SplitContainer_Horizontal As SplitContainer = Nothing
+    ' Store original positions/sizes/anchors for restoring vertical layout
+    Private originalControlData As New Dictionary(Of Control, Tuple(Of Point, Size, AnchorStyles))
 
     REM Manage the correspondence between SPS_P_ListView column header and Subitem Info
     Public Const c_SPS_Name = 0
@@ -234,6 +238,19 @@ Public Class Form1
             Catch ex As Exception
                 DarkModeToolStripMenuItem.Checked = False
                 ApplyLightMode()
+            End Try
+            
+            ' Load Horizontal Layout setting from config
+            Try
+                Dim horizontalValue As String = S_GetsNBlockFromText(s_ConfigPAT_text, "<HorizontalLayout>", "</HorizontalLayout>", 1)
+                If horizontalValue = "True" Then
+                    HorizontalLayoutToolStripMenuItem.Checked = True
+                    SwitchToHorizontalLayout()
+                Else
+                    HorizontalLayoutToolStripMenuItem.Checked = False
+                End If
+            Catch ex As Exception
+                HorizontalLayoutToolStripMenuItem.Checked = False
             End Try
             
             REM Wire up ListView selection event to populate right pane
@@ -1600,6 +1617,7 @@ Public Class Form1
             End If
             s_ConfigPAT_text &= "<SyMenuSuitePath>" & s_SyMenuSuite_Path & "</SyMenuSuitePath>" & vbCrLf
             s_ConfigPAT_text &= "<DarkMode>" & DarkModeToolStripMenuItem.Checked.ToString() & "</DarkMode>" & vbCrLf
+            s_ConfigPAT_text &= "<HorizontalLayout>" & HorizontalLayoutToolStripMenuItem.Checked.ToString() & "</HorizontalLayout>" & vbCrLf
             File.WriteAllText(s_ConfigPAT_FilePath, s_ConfigPAT_text, Encoding.UTF8)
         End If
 
@@ -1820,7 +1838,8 @@ Public Class Form1
             Next
             s_ConfigPAT_text &= "<ColumnOrder>" & colOrder & "</ColumnOrder>" & vbCrLf
         End If
-        s_ConfigPAT_text &= "<DarkMode>" & DarkModeToolStripMenuItem.Checked.ToString() & "</DarkMode>" & vbCrLf        'Write the file
+        s_ConfigPAT_text &= "<DarkMode>" & DarkModeToolStripMenuItem.Checked.ToString() & "</DarkMode>" & vbCrLf
+        s_ConfigPAT_text &= "<HorizontalLayout>" & HorizontalLayoutToolStripMenuItem.Checked.ToString() & "</HorizontalLayout>" & vbCrLf
         File.WriteAllText(s_ConfigPAT_FilePath, s_ConfigPAT_text, Encoding.UTF8)
         ShowThemedMessageBox("Configuration saved!", "Save Config", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
@@ -1890,6 +1909,11 @@ Public Class Form1
         ViewSPSModificationDateToolStripMenuItem.Checked = True
         ViewSPSPublisherNameToolStripMenuItem.Checked = True
         ViewSuiteNameToolStripMenuItem.Checked = True
+        ' Reset horizontal layout to vertical
+        If HorizontalLayoutToolStripMenuItem.Checked Then
+            HorizontalLayoutToolStripMenuItem.Checked = False
+            SwitchToVerticalLayout()
+        End If
     End Sub
 
     'ListView ToolStrip Subroutines
@@ -2436,6 +2460,218 @@ Public Class Form1
         End If
     End Sub
     
+    Private Sub HorizontalLayoutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles HorizontalLayoutToolStripMenuItem.Click
+        If HorizontalLayoutToolStripMenuItem.Checked Then
+            SwitchToHorizontalLayout()
+        Else
+            SwitchToVerticalLayout()
+        End If
+    End Sub
+    
+    Private Sub SwitchToHorizontalLayout()
+        b_HorizontalLayout = True
+        SplitContainer1.Panel2.SuspendLayout()
+        
+        ' Save original control data
+        originalControlData.Clear()
+        For Each ctrl As Control In SplitContainer1.Panel2.Controls
+            originalControlData(ctrl) = Tuple.Create(ctrl.Location, ctrl.Size, ctrl.Anchor)
+        Next
+        
+        ' Switch to horizontal orientation
+        SplitContainer1.Orientation = Orientation.Horizontal
+        Dim newDist As Integer = CInt(SplitContainer1.Height * 0.5)
+        If newDist > SplitContainer1.Height - 200 Then newDist = SplitContainer1.Height - 200
+        If newDist < 100 Then newDist = 100
+        SplitContainer1.SplitterDistance = newDist
+        
+        ' Fixed width for left column of fields
+        Dim fieldW As Integer = 400
+        Dim btnSize As Integer = 35
+        Dim y As Integer = 0
+        Dim panelH As Integer = SplitContainer1.Panel2.ClientSize.Height
+        Dim panelW As Integer = SplitContainer1.Panel2.ClientSize.Width
+        
+        ' --- Track URL label ---
+        Label1.Location = New Point(0, y)
+        Label1.Size = New Size(fieldW, 45)
+        Label1.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Track_URL textbox ---
+        Track_URL.Location = New Point(5, y + 16)
+        Track_URL.Size = New Size(fieldW - 120, 22)
+        Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Browser_TrackURL button ---
+        Browser_TrackURL.Location = New Point(fieldW - 130, y + 5)
+        Browser_TrackURL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Download_Track_URL button ---
+        Download_Track_URL.Location = New Point(fieldW - 85, y + 5)
+        Download_Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Save_Track button ---
+        Save_Track.Location = New Point(fieldW - 40, y + 5)
+        Save_Track.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        
+        y += 50
+        
+        ' --- Label2 (Start String label) ---
+        Label2.Location = New Point(0, y)
+        Label2.Size = New Size(fieldW, 45)
+        Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Start_String textbox ---
+        Start_String.Location = New Point(5, y + 16)
+        Start_String.Size = New Size(fieldW - 45, 22)
+        Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Go_To_Start_String button ---
+        Go_To_Start_String.Location = New Point(fieldW - 42, y + 5)
+        Go_To_Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        
+        y += 50
+        
+        ' --- Stop String row ---
+        Label3.Location = New Point(0, y)
+        Label3.Size = New Size(fieldW, 45)
+        Label3.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Stop_String textbox ---
+        Stop_String.Location = New Point(5, y + 16)
+        Stop_String.Size = New Size(fieldW - 45, 22)
+        Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Go_To_Stop_String button ---
+        Go_To_Stop_String.Location = New Point(fieldW - 42, y + 5)
+        Go_To_Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        
+        y += 50
+        
+        ' --- Label4 (Search label) ---
+        Label4.Location = New Point(0, y)
+        Label4.Size = New Size(fieldW, 45)
+        Label4.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Label_FindCount ---
+        Label_FindCount.Location = New Point(50, y + 2)
+        Label_FindCount.Size = New Size(fieldW - 55, 14)
+        Label_FindCount.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        ' --- Find_String textbox ---
+        Find_String.Location = New Point(5, y + 16)
+        Find_String.Size = New Size(fieldW - 10, 22)
+        Find_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        
+        y += 5
+        
+        ' --- Search buttons ---
+        Search_From_Top.Location = New Point(205, y)
+        Search_From_Top.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        Search_From_CARET.Location = New Point(250, y)
+        Search_From_CARET.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        Reverse_From_CARET.Location = New Point(295, y)
+        Reverse_From_CARET.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        Reverse_From_BOTTOM.Location = New Point(340, y)
+        Reverse_From_BOTTOM.Anchor = AnchorStyles.Top Or AnchorStyles.Left
+        
+        ' --- RichTextBox on the right ---
+        RichTextBox1.Location = New Point(fieldW + 5, 0)
+        RichTextBox1.Size = New Size(panelW - fieldW - 10, panelH - 5)
+        RichTextBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+        RichTextBox1.Dock = DockStyle.None
+        
+        SplitContainer1.Panel2.ResumeLayout(True)
+    End Sub
+
+    Private Sub SwitchToVerticalLayout()
+        b_HorizontalLayout = False
+        
+        ' MUST set orientation first
+        SplitContainer1.Orientation = Orientation.Vertical
+        
+        ' Set a reasonable splitter distance for vertical mode
+        Dim newDist As Integer = CInt(SplitContainer1.Width * 0.55)
+        If newDist > SplitContainer1.Width - 250 Then newDist = SplitContainer1.Width - 250
+        If newDist < 200 Then newDist = 200
+        Try
+            SplitContainer1.SplitterDistance = newDist
+        Catch
+            SplitContainer1.SplitterDistance = 450
+        End Try
+        
+        ' Force layout AFTER setting distance so Panel2 has correct dimensions
+        SplitContainer1.PerformLayout()
+        Application.DoEvents()
+        
+        SplitContainer1.Panel2.SuspendLayout()
+        
+        Dim pw As Integer = SplitContainer1.Panel2.ClientSize.Width
+        Dim ph As Integer = SplitContainer1.Panel2.ClientSize.Height
+        
+        ' --- Restore Label1 (Track URL label) ---
+        Label1.Location = New Point(5, 0)
+        Label1.Size = New Size(pw - 6, 45)
+        Label1.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Track_URL textbox ---
+        Track_URL.Location = New Point(15, 22)
+        Track_URL.Size = New Size(pw - 170, 27)
+        Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Browser_TrackURL button ---
+        Browser_TrackURL.Location = New Point(pw - 145, 8)
+        Browser_TrackURL.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        ' --- Download_Track_URL button ---
+        Download_Track_URL.Location = New Point(pw - 100, 8)
+        Download_Track_URL.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        ' --- Save_Track button ---
+        Save_Track.Location = New Point(pw - 55, 8)
+        Save_Track.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        
+        ' --- Label2 (Start String label) ---
+        Label2.Location = New Point(5, 50)
+        Label2.Size = New Size(pw - 6, 45)
+        Label2.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Start_String textbox ---
+        Start_String.Location = New Point(15, 82)
+        Start_String.Size = New Size(pw - 80, 27)
+        Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Go_To_Start_String button ---
+        Go_To_Start_String.Location = New Point(pw - 55, 68)
+        Go_To_Start_String.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        
+        ' --- Label3 (Stop String label) ---
+        Label3.Location = New Point(5, 100)
+        Label3.Size = New Size(pw - 6, 45)
+        Label3.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Stop_String textbox ---
+        Stop_String.Location = New Point(15, 143)
+        Stop_String.Size = New Size(pw - 80, 27)
+        Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Go_To_Stop_String button ---
+        Go_To_Stop_String.Location = New Point(pw - 55, 128)
+        Go_To_Stop_String.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        
+        ' --- RichTextBox1 ---
+        RichTextBox1.Dock = DockStyle.None
+        RichTextBox1.Location = New Point(5, 150)
+        RichTextBox1.Size = New Size(pw - 6, ph - 200)
+        RichTextBox1.Anchor = AnchorStyles.Top Or AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+        
+        ' --- Label4 (Search label) ---
+        Label4.Location = New Point(5, ph - 45)
+        Label4.Size = New Size(pw - 6, 45)
+        Label4.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Label_FindCount ---
+        Label_FindCount.Location = New Point(62, ph - 58)
+        Label_FindCount.Size = New Size(pw - 75, 18)
+        Label_FindCount.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Find_String textbox ---
+        Find_String.Location = New Point(15, ph - 37)
+        Find_String.Size = New Size(pw - 200, 27)
+        Find_String.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
+        ' --- Search buttons ---
+        Search_From_Top.Location = New Point(pw - 190, ph - 52)
+        Search_From_Top.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        Search_From_CARET.Location = New Point(pw - 145, ph - 52)
+        Search_From_CARET.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        Reverse_From_CARET.Location = New Point(pw - 100, ph - 52)
+        Reverse_From_CARET.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        Reverse_From_BOTTOM.Location = New Point(pw - 55, ph - 52)
+        Reverse_From_BOTTOM.Anchor = AnchorStyles.Bottom Or AnchorStyles.Right
+        
+        SplitContainer1.Panel2.ResumeLayout(True)
+    End Sub
+                
     Private Sub DarkModeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DarkModeToolStripMenuItem.Click
         If DarkModeToolStripMenuItem.Checked Then
             ApplyDarkMode()
@@ -2493,7 +2729,7 @@ Public Class Form1
             End If
         Next
         SPS_P_ListView.Refresh()
-
+        
         ' Panels
         Panel_Left.BackColor = m_DarkModeBackground30
         Panel_Right.BackColor = m_DarkModeBackground30
@@ -2677,7 +2913,7 @@ Public Class Form1
             End If
         Next
         SPS_P_ListView.Refresh()
-
+        
         ' Panels
         Panel_Left.BackColor = Color.FromKnownColor(KnownColor.Control)
         Panel_Right.BackColor = Color.FromKnownColor(KnownColor.Control)

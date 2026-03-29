@@ -79,6 +79,11 @@ Partial Class Form1
         Me.DarkModeToolStripMenuItem.Name = "DarkModeToolStripMenuItem"
         Me.DarkModeToolStripMenuItem.Size = New System.Drawing.Size(187, 26)
         Me.DarkModeToolStripMenuItem.Text = "Dark Mode"
+        Me.HorizontalLayoutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.HorizontalLayoutToolStripMenuItem.CheckOnClick = True
+        Me.HorizontalLayoutToolStripMenuItem.Name = "HorizontalLayoutToolStripMenuItem"
+        Me.HorizontalLayoutToolStripMenuItem.Size = New System.Drawing.Size(187, 26)
+        Me.HorizontalLayoutToolStripMenuItem.Text = "Horizontal Layout"
         
         ' SplitContainer and Right Pane Controls
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
@@ -375,7 +380,7 @@ Partial Class Form1
         Me.Toggle_RightPane.Size = New System.Drawing.Size(40, 40)
         Me.Toggle_RightPane.TabIndex = 8
         Me.Toggle_RightPane.Text = ""
-        Me.ToolTip1Form2.SetToolTip(Me.Toggle_RightPane, "Toggle right panel visibility")
+        Me.ToolTip1Form2.SetToolTip(Me.Toggle_RightPane, "Toggle panel")
         Me.Toggle_RightPane.UseVisualStyleBackColor = True
         '
         'Help
@@ -699,7 +704,7 @@ Partial Class Form1
         '
         'ConfigToolStripMenuItem
         '
-        Me.ConfigToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SaveToolStripMenuItem1, Me.RestoreDefaultToolStripMenuItem, Me.DarkModeToolStripMenuItem})
+        Me.ConfigToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SaveToolStripMenuItem1, Me.RestoreDefaultToolStripMenuItem, Me.DarkModeToolStripMenuItem, Me.HorizontalLayoutToolStripMenuItem})
         Me.ConfigToolStripMenuItem.Name = "ConfigToolStripMenuItem"
         Me.ConfigToolStripMenuItem.Size = New System.Drawing.Size(65, 24)
         Me.ConfigToolStripMenuItem.Text = "Config"
@@ -1085,6 +1090,7 @@ Partial Class Form1
     Friend WithEvents ToolStripSeparator6 As ToolStripSeparator
     Friend WithEvents RestoreDefaultToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents DarkModeToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents HorizontalLayoutToolStripMenuItem As ToolStripMenuItem
     
     ' SplitContainer
     Friend WithEvents SplitContainer1 As System.Windows.Forms.SplitContainer
