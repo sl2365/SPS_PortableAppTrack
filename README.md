@@ -27,9 +27,8 @@ Major upgrade — now compiled as **x64**.
 - Updated text and buttons
 - Added icons to buttons
 - Rearranged layout
-- Added ListView selection methods
 - Added new columns
-- Added column moving, sorting, sizing, and hiding
+- Added ListView column moving, sorting, sizing, and hiding
 - Improved search functions to search all suites
 - Can now press Enter to search
 - Publisher search now uses fuzzy matching
