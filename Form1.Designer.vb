@@ -871,7 +871,8 @@ Partial Class Form1
         Me.Save_Track.TabIndex = 16
         Me.Save_Track.Text = ""
         Me.Save_Track.UseVisualStyleBackColor = True
-        Me.ToolTip1Form2.SetToolTip(Me.Save_Track, "Save changes")
+        Me.ToolTip1Form2.SetToolTip(Me.Save_Track, "Save changes to" & vbcrlf &
+        "Track URL and Strings")
         '
         'Start_String
         '
