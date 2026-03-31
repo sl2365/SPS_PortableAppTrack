@@ -845,7 +845,7 @@ Public Class Form1
             IniPos = IniPos + Start_String.Text.Length
             Dim EndPos As Integer = InStr(IniPos, RichTextBox1.Text, Stop_String.Text)
             If EndPos = 0 Then 'Set IniPos at begining
-                ShowThemedMessageBox("Stop String not found after Start Stop!", "Go To Stop String")
+                ShowThemedMessageBox("Stop String not found!", "Go To Stop String")
                 Me.Stop_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeRed, m_LightModeRed)
             Else 'Redraw with the present form values
                 Put_WebPage_in_Form(Me.Track_URL.Text, Me.Start_String.Text, Me.Stop_String.Text)
@@ -3697,36 +3697,41 @@ Public Class HelpForm
             "\cf1\b\fs24 Quick Start Guide\b0\fs22\par" &
             "\par" &
             "\cf2\b Getting Started\b0\cf3\par" &
-            "  \bullet  First, you need to set up your own \b AppSuite \b0 and \b SPS files \b0 if using PAT to update your own files.\par" &
-            "  \bullet  Type the \b Publisher Name(s) \b0 in the top \b Search Bar \b0 for the software you want to track. Press Enter.\par" &
-            "  \bullet  Select an item and type the web address into the \b Track URL \b0 field - this is the webpage where the version number or update information is published.\par" &
-            "  \bullet  Click the \b Download Track URL \b0 button to obtain the page source.\par" &
-            "  \bullet  Click the \b Save \b0 or \b Save As... \b0 buttons to save the PAT file at any time where changes have been detected.\par" &
+            "  \bullet  First, you need to set up your own \b AppSuite \b0 and \b SPS files \b0 in order to use PAT to check for updates. SPS files \b MUST \b0 be kept in a zip file within: \b SSPSuite/(YourSuite)/_Cache\b0.\par" &
+            "  \bullet  Type the \b Publisher Name(s) \b0 in the top \b Search Bar \b0 for the software you want to track, this should be your own user suite or SPS files you created. Press Enter.\par" &
+            "  \bullet  Select a list view item, its web address will be loaded from the SPS file into the \b Track URL \b0 field - this is the webpage where the version number or update information is obtained.\par" &
             "\par" &
             "\cf2\b Finding Version Strings\b0\cf3\par" &
-            "  \bullet  Open the \b Track URL \b0 in your browser using the \b Visit URL \b0 button. Locate the version number and type this into the \b Search \b0 field at the bottom right of the window.\par" &
-            "  \bullet  Copy a unique text string that appears \b BEFORE\b0  the version number and paste it into the \b Start String \b0 field.\par" &
+            "  \bullet  Two methods for this:\par" &
+            "       - 1. Select an item in list view, the source appears in the text box. It should be done automatically, but if not, Click the \b Download Track URL \b0 button to obtain the page source. You can use the button to toggle between HTML and RTF view. This removes HTML tags and makes it easier to read.\par" &
+            "       - 2. Open the \b Track URL \b0 in your browser using the \b Visit URL \b0 button. Locate the version number and type this into the \b Search \b0 field at the bottom of the window.\par" &
+            "  \bullet  Once you locate the version number, type this into the \b Search \b0 field at the bottom right of the window.\par" &
+            "  \bullet  Copy a unique text string that appears \b BEFORE\b0  the version number and paste it into the \b Start String \b0 field. Mulit-line string is accepted in start and stop strings.\par" &
             "  \bullet  Copy a unique text string that appears \b AFTER\b0  the version number and paste it into the \b Stop String \b0 field.\par" &
-            "  \bullet  \cf5\b IMPORTANT! \b0\cf3 Click the \b Save changes \b0 button \b BEFORE \b0 clicking a new item in the list or changes will be lost!.\par" &
+            "  \bullet  \cf5\b IMPORTANT! \b0\cf3 Click the \b Save Track \b0 button \b BEFORE \b0 clicking a new item in the list or changes will be lost! You need to do this for each item, then its content is written to the list view. When you've finished editing listed items, then click the \b Save \b0 or \b Save As... \b0 buttons to save the PAT file at any time where changes have been detected.\par" &
             "\par" &
             "\cf2\b Checking for Updates\b0\cf3\par" &
             "  \bullet  Check (tick) the items you want to verify, then click \b Check for updates\b0. This will only get info for 'checked' items, unchecked items are ignored.\par" &
-            "  \bullet  Results are colour coded:\par" &
+            "  \bullet  Results are colour coded, see the cell Colour Guide below.\par" &
             "      \cf4\b Green\b0\cf3  = no change detected (up to date).\par" &
-            "      \cf5\b Red\b0\cf3  = change detected (possible update available). If other fields are Red, then its likely you need to update or save that info.\par" &
-            "  \bullet  Save your tracking list using \b File > Save\b0  or \b File > Save As\b0 .\par" &
+            "      \cf6\b Orange\b0\cf3  = change detected (possible update available).\par" &
+            "      \cf5\b Red\b0\cf3  = Error of some kind.\par" &
+            "  \bullet  Save your tracking list using \b File > Save \b0 or \b File > Save As... \b0 or use the toolbar save buttons.\par" &
             "\par" &
             "\cf2\b Tips\b0\cf3\par" &
+            "  \bullet  Once you've finished editing your SPS files, you can use the list view context menu item: '\b Save Checked to Zip\b0' which will save your checked item back into the zip archive.\par" &
             "  \bullet  Use \b Check All\b0  / \b Uncheck All\b0  to quickly select or deselect all items.\par" &
             "  \bullet  Use \b Shift+Click \b0 to select items between first and second shift+click. Then Right click and select \b Check/Uncheck Selected\b0  to quickly select or deselect groups of items.\par" &
             "  \bullet  Use \b Ctrl+Click \b0 to select multiple items. Again, Right click and select \b Check/Uncheck Selected \b0 to quickly select or deselect groups of items.\par" &
-            "  \bullet  Columns can be reordered by dragging the column headers.\par" &
+            "  \bullet  Columns can be reordered & resized by dragging the column headers.\par" &
             "  \bullet  Column visibility can be changed from the \b View \b0 menu.\par" &
-            "  \bullet  Use \b File > Restore Defaults\b0  to reset window size, position, and column layout.\par" &
+            "  \bullet  Use \b Config > Restore Defaults\b0  to reset window size, position, and column layout.\par" &
             "  \bullet  All window settings are saved on \b Exit \b0. Settings related to PAT files, requires manual save.\par" &
+            "  \bullet  Save / Save As (File menu and toolbar buttons) — saves from the ListView to disk.\par" &
+            "  \bullet  Save Track (panel Save button) — Copies the panel textbox values (Track_URL.Text, Start_String.Text, Stop_String.Text) into the ListView first, then marks the file as unsaved (red), you need to save each listview change before clicking the next or changes will be lost. After this, the use the main save buttons to save the full content to your PAT file.\par" &
             "\par" &
             "\cf2\b Colour Guide\b0\cf3\par" &
-            "\cf3 After checking for updates, columns are colour coded:\par" &
+            "\cf3 After checking for updates, column cells are colour coded:\par" &
             "\par" &
             "\tx2000\tx4100\tx5800" &
             "\cf3\b Column\tab \cf5Red\tab \cf6Orange\tab \cf4Green\b0\par" &

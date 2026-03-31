@@ -420,17 +420,17 @@ Partial Class Form1
         Me.ToolTip1Form2.InitialDelay = 500
         Me.ToolTip1Form2.ReshowDelay = 100
         '
-        'ContextMenuStrip1
+        'ContextMenuStrip1 - Rearrange items here:
         '
         Me.ContextMenuStrip1.ImageScalingSize = New System.Drawing.Size(20, 20)
         Me.ContextMenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() { _
             Me.ToolStrip_OpenInBrowser, Me.ToolStripSeparator3, _
             Me.ToolStrip_OpenInSPSBuilder, Me.ToolStrip_OpenCheckedSPS, Me.ToolStripSeparator2, _
             Me.ToolStrip_RefreshSelectedHash, Me.ToolStripSeparator1, _
-            Me.ToolStrip_DeleteSelectedTrack, Me.ToolStripSeparator7, _
             Me.ToolStrip_SaveCheckedToZip, Me.ToolStripSeparator9, _
             Me.ToolStrip_CheckSelected, Me.ToolStrip_UncheckSelected, Me.ToolStripSeparator8, _
-            Me.ToolStrip_CheckAll, Me.ToolStrip_UncheckAll})
+            Me.ToolStrip_CheckAll, Me.ToolStrip_UncheckAll, _
+            Me.ToolStripSeparator7, Me.ToolStrip_DeleteSelectedTrack})
         Me.ContextMenuStrip1.Name = "ContextMenuStrip1"
         Me.ContextMenuStrip1.Size = New System.Drawing.Size(279, 210)
         '
@@ -740,7 +740,7 @@ Partial Class Form1
         Me.RestoreDefaultToolStripMenuItem.Image = CType(resources.GetObject("RestoreDefaultToolStripMenuItem.Image"), System.Drawing.Image)
         Me.RestoreDefaultToolStripMenuItem.Name = "RestoreDefaultToolStripMenuItem"
         Me.RestoreDefaultToolStripMenuItem.Size = New System.Drawing.Size(187, 26)
-        Me.RestoreDefaultToolStripMenuItem.Text = "Restore Default"
+        Me.RestoreDefaultToolStripMenuItem.Text = "Restore Defaults"
         '
         ' RIGHT PANE CONTROLS (from Form2)
         '
