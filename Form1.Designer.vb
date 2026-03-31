@@ -52,6 +52,8 @@ Partial Class Form1
         Me.ToolStrip_CheckSelected = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStrip_UncheckSelected = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator8 = New System.Windows.Forms.ToolStripSeparator()
+        Me.ToolStrip_SaveCheckedToZip = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator9 = New System.Windows.Forms.ToolStripSeparator()
         Me.ToolStrip_CheckAll = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStrip_UncheckAll = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
@@ -84,6 +86,10 @@ Partial Class Form1
         Me.HorizontalLayoutToolStripMenuItem.Name = "HorizontalLayoutToolStripMenuItem"
         Me.HorizontalLayoutToolStripMenuItem.Size = New System.Drawing.Size(187, 26)
         Me.HorizontalLayoutToolStripMenuItem.Text = "Horizontal Layout"
+        Me.SelectSuitesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SelectSuitesToolStripMenuItem.Name = "SelectSuitesToolStripMenuItem"
+        Me.SelectSuitesToolStripMenuItem.Size = New System.Drawing.Size(187, 26)
+        Me.SelectSuitesToolStripMenuItem.Text = "Select Suites..."
         
         ' SplitContainer and Right Pane Controls
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
@@ -422,6 +428,7 @@ Partial Class Form1
             Me.ToolStrip_OpenInSPSBuilder, Me.ToolStrip_OpenCheckedSPS, Me.ToolStripSeparator2, _
             Me.ToolStrip_RefreshSelectedHash, Me.ToolStripSeparator1, _
             Me.ToolStrip_DeleteSelectedTrack, Me.ToolStripSeparator7, _
+            Me.ToolStrip_SaveCheckedToZip, Me.ToolStripSeparator9, _
             Me.ToolStrip_CheckSelected, Me.ToolStrip_UncheckSelected, Me.ToolStripSeparator8, _
             Me.ToolStrip_CheckAll, Me.ToolStrip_UncheckAll})
         Me.ContextMenuStrip1.Name = "ContextMenuStrip1"
@@ -500,6 +507,18 @@ Partial Class Form1
         Me.ToolStrip_UncheckAll.Name = "ToolStrip_UncheckAll"
         Me.ToolStrip_UncheckAll.Size = New System.Drawing.Size(278, 26)
         Me.ToolStrip_UncheckAll.Text = "Uncheck All"
+        '
+        'ToolStripSeparator9
+        '
+        Me.ToolStripSeparator9.Name = "ToolStripSeparator9"
+        Me.ToolStripSeparator9.Size = New System.Drawing.Size(275, 6)
+        '
+        'ToolStrip_SaveCheckedToZip
+        '
+        Me.ToolStrip_SaveCheckedToZip.Image = CType(resources.GetObject("ToolStrip_SaveCheckedToZip.Image"), System.Drawing.Image)
+        Me.ToolStrip_SaveCheckedToZip.Name = "ToolStrip_SaveCheckedToZip"
+        Me.ToolStrip_SaveCheckedToZip.Size = New System.Drawing.Size(278, 26)
+        Me.ToolStrip_SaveCheckedToZip.Text = "Save checked SPS to Zip"
         '
         'ViewSPS_NameToolStripMenuItem
         '
@@ -704,7 +723,7 @@ Partial Class Form1
         '
         'ConfigToolStripMenuItem
         '
-        Me.ConfigToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SaveToolStripMenuItem1, Me.RestoreDefaultToolStripMenuItem, Me.DarkModeToolStripMenuItem, Me.HorizontalLayoutToolStripMenuItem})
+        Me.ConfigToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SaveToolStripMenuItem1, Me.RestoreDefaultToolStripMenuItem, Me.DarkModeToolStripMenuItem, Me.HorizontalLayoutToolStripMenuItem, Me.SelectSuitesToolStripMenuItem})
         Me.ConfigToolStripMenuItem.Name = "ConfigToolStripMenuItem"
         Me.ConfigToolStripMenuItem.Size = New System.Drawing.Size(65, 24)
         Me.ConfigToolStripMenuItem.Text = "Config"
@@ -1058,6 +1077,8 @@ Partial Class Form1
     Friend WithEvents ToolStripSeparator8 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents ToolStrip_CheckAll As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ToolStrip_UncheckAll As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStrip_SaveCheckedToZip As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator9 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents ToolStripSeparator3 As ToolStripSeparator
     Friend WithEvents ToolStripSeparator2 As ToolStripSeparator
     Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
@@ -1091,6 +1112,7 @@ Partial Class Form1
     Friend WithEvents RestoreDefaultToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents DarkModeToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents HorizontalLayoutToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents SelectSuitesToolStripMenuItem As ToolStripMenuItem
     
     ' SplitContainer
     Friend WithEvents SplitContainer1 As System.Windows.Forms.SplitContainer

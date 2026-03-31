@@ -51,6 +51,7 @@ Public Class Form1
     Private Shared Function SendMessage(ByVal hWnd As IntPtr, ByVal Msg As Integer, ByVal wParam As Boolean, ByVal lParam As Integer) As Integer
     End Function
     Private Const WM_SETREDRAW As Integer = &HB
+    Private EnabledSuites As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
 
     REM Manage the correspondence between SPS_P_ListView column header and Subitem Info
     Public Const c_SPS_Name = 0
@@ -434,7 +435,21 @@ Public Class Form1
             Catch ex As Exception
                 ShowThemedMessageBox("Error loading SearchBottom icon: " & ex.Message)
             End Try
-                        
+
+            ' Load HTML view setting from config
+            Try
+                Dim htmlViewValue As String = S_GetsNBlockFromText(s_ConfigPAT_text, "<ShowRenderedHTML>", "</ShowRenderedHTML>", 1)
+                If htmlViewValue = "True" Then
+                    b_ShowRenderedHTML = True
+                    Toggle_HTMLView.Image = img_RTFView
+                Else
+                    b_ShowRenderedHTML = False
+                    Toggle_HTMLView.Image = img_HTMLView
+                End If
+            Catch ex As Exception
+                b_ShowRenderedHTML = False
+            End Try
+
             ' Load Horizontal Layout setting from config
             Try
                 Dim horizontalValue As String = S_GetsNBlockFromText(s_ConfigPAT_text, "<HorizontalLayout>", "</HorizontalLayout>", 1)
@@ -447,6 +462,15 @@ Public Class Form1
             Catch ex As Exception
                 HorizontalLayoutToolStripMenuItem.Checked = False
             End Try
+
+            ' Load enabled suites setting from config
+            Dim savedSuites As String = S_GetsNBlockFromText(s_ConfigPAT_text, "<EnabledSuites>", "</EnabledSuites>", 1)
+            If savedSuites <> "" Then
+                EnabledSuites.Clear()
+                For Each s In savedSuites.Split("|"c)
+                    If s.Trim() <> "" Then EnabledSuites.Add(s.Trim())
+                Next
+            End If
 
         Catch ex As Exception
             ShowThemedMessageBox("Error loading form: " & ex.Message & vbCrLf & ex.StackTrace, "Error")
@@ -577,11 +601,11 @@ Public Class Form1
             Dim s_TrackURL As String = SPS_P_ListView.Items(i_TrackInEdit).SubItems(c_TrackURL).Text
             Dim s_StartString As String = SPS_P_ListView.Items(i_TrackInEdit).SubItems(c_TrackStartString).Text
             Dim s_StopString As String = SPS_P_ListView.Items(i_TrackInEdit).SubItems(c_TrackStopString).Text
-            Me.Track_URL.BackColor = Color.Empty
+            Me.Track_URL.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
             Me.Track_URL.Text = s_TrackURL
-            Me.Start_String.BackColor = Color.Empty
+            Me.Start_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
             Me.Start_String.Text = s_StartString
-            Me.Stop_String.BackColor = Color.Empty
+            Me.Stop_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
             Me.Stop_String.Text = s_StopString
             Me.RichTextBox1.Clear()
             Me.RichTextBox1.Text = "Loading..."
@@ -600,6 +624,7 @@ Public Class Form1
             ToolStrip_DeleteSelectedTrack.Enabled = (item IsNot Nothing)
             ToolStrip_CheckSelected.Enabled = (SPS_P_ListView.SelectedItems.Count > 0)
             ToolStrip_UncheckSelected.Enabled = (SPS_P_ListView.SelectedItems.Count > 0)
+            ToolStrip_SaveCheckedToZip.Enabled = (SPS_P_ListView.CheckedItems.Count > 0)
             SPS_P_ListView.ContextMenuStrip = ContextMenuStrip1
         End If
     End Sub
@@ -612,13 +637,13 @@ Public Class Form1
         Dim s_StartString As String = SPS_P_ListView.Items(_SPS_order).SubItems(c_TrackStartString).Text
         Dim s_StopString As String = SPS_P_ListView.Items(_SPS_order).SubItems(c_TrackStopString).Text
         ' Write track values in form
-        Me.Track_URL.BackColor = Color.Empty
+        Me.Track_URL.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
         Me.Track_URL.Clear()
         Me.Track_URL.Text = s_TrackURL
-        Me.Start_String.BackColor = Color.Empty
+        Me.Start_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
         Me.Start_String.Clear()
         Me.Start_String.Text = s_StartString
-        Me.Stop_String.BackColor = Color.Empty
+        Me.Stop_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
         Me.Stop_String.Clear()
         Me.Stop_String.Text = s_StopString
         Put_WebPage_in_Form(s_TrackURL, s_StartString, s_StopString)
@@ -666,8 +691,8 @@ Public Class Form1
             REM Web process error
             Beep()
             Me.Track_URL.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeRed, m_LightModeRed)
-            Me.Start_String.BackColor = Color.Empty
-            Me.Stop_String.BackColor = Color.Empty
+            Me.Start_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
+            Me.Stop_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
         End Try
     End Sub
     
@@ -723,8 +748,8 @@ Public Class Form1
         Else
             Beep()
             Me.Track_URL.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeRed, m_LightModeRed)
-            Me.Start_String.BackColor = Color.Empty
-            Me.Stop_String.BackColor = Color.Empty
+            Me.Start_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
+            Me.Stop_String.BackColor = If(DarkModeToolStripMenuItem.Checked, m_DarkModeBackground45, Color.Empty)
             Me.RichTextBox1.Text = "Failed to download page."
         End If
     End Sub
@@ -1268,6 +1293,7 @@ Public Class Form1
                 Case DialogResult.No
                     ' Continue without saving
                 Case DialogResult.Cancel
+                    ReBuild_SPS_List.Enabled = True
                     Return
             End Select
         End If
@@ -1277,6 +1303,7 @@ Public Class Form1
             Dim result As Integer
             result = ShowThemedMessageBox("The search bar is empty. This will load ALL SPS files from all suites," & vbCrLf & "which may take a long time if there are many files." & vbCrLf & vbCrLf & "Do you want to continue?", "Load All SPS Files", MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
             If result = DialogResult.No Then
+                ReBuild_SPS_List.Enabled = True
                 Return
             End If
         End If
@@ -1324,6 +1351,12 @@ Public Class Form1
         
         ' For each suite, extract zips into its own _TmpPAT and scan for .sps files
         For Each currentSuitePath In allSuitePaths
+            ' Skip suites not enabled in Config > Select Suites
+            Dim currentSuiteName As String = Path.GetFileName(currentSuitePath)
+            If EnabledSuites.Count > 0 AndAlso Not EnabledSuites.Contains(currentSuiteName) Then
+                Continue For
+            End If
+
             Dim cachePath As String = Path.Combine(currentSuitePath, "_Cache")
             If Not Directory.Exists(cachePath) Then Continue For
             
@@ -1335,22 +1368,51 @@ Public Class Form1
             If hasZips Then
                 ' This suite has zip files - extract them to a temp folder
                 CloseAllSPSBuilderWindows()
-                If IO.Directory.Exists(tmpPath) Then
-                    My.Computer.FileSystem.DeleteDirectory(tmpPath, FileIO.DeleteDirectoryOption.DeleteAllContents)
-                End If
+                
                 If Not IO.Directory.Exists(Path.Combine(currentSuitePath, "_Trash")) Then
                     IO.Directory.CreateDirectory(Path.Combine(currentSuitePath, "_Trash"))
                 End If
-                IO.Directory.CreateDirectory(tmpPath)
-                ' Extract zips
-                For Each s_fileName In cacheFiles
-                    thisFile = My.Computer.FileSystem.GetFileInfo(s_fileName)
-                    If thisFile.Extension = ".zip" Then
-                        Dim outputFolder As Object = shellType.InvokeMember("NameSpace", BindingFlags.InvokeMethod, Nothing, shellObj, New [Object]() {tmpPath})
-                        Dim inputZipFile As Object = shellType.InvokeMember("NameSpace", BindingFlags.InvokeMethod, Nothing, shellObj, New [Object]() {thisFile.FullName})
-                        outputFolder.CopyHere((inputZipFile.Items), 4)
+                
+                ' Determine extraction mode
+                Dim extractSwitch As String = "-aoa"  ' Default: overwrite all
+                Dim skipExtraction As Boolean = False
+                If IO.Directory.Exists(tmpPath) AndAlso IO.Directory.GetFiles(tmpPath).Length > 0 Then
+                    Dim answer As DialogResult = ShowThemedMessageBox(
+                        "Temp folder already contains extracted files for suite:" & vbCrLf &
+                        Path.GetFileName(currentSuitePath) & vbCrLf & vbCrLf &
+                        "Yes = Extract all files (overwrite existing)" & vbCrLf &
+                        "No = Extract only new files (keep existing)" & vbCrLf &
+                        "Cancel = Skip extraction",
+                        "Extract Files", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
+                    If answer = DialogResult.Cancel Then
+                        skipExtraction = True
+                    ElseIf answer = DialogResult.No Then
+                        extractSwitch = "-aos"  ' Skip existing files
                     End If
-                Next
+                    ' Yes = keep "-aoa" (overwrite all)
+                End If
+                
+                If Not skipExtraction Then
+                    If Not IO.Directory.Exists(tmpPath) Then
+                        IO.Directory.CreateDirectory(tmpPath)
+                    End If
+                    
+                    ' Extract zips using 7-Zip
+                    Dim sevenZipPath As String = Path.Combine(s_PAT_Path, "7z", "7z.exe")
+                    For Each s_fileName In cacheFiles
+                        thisFile = My.Computer.FileSystem.GetFileInfo(s_fileName)
+                        If thisFile.Extension = ".zip" Then
+                            Dim proc As New Process()
+                            proc.StartInfo.FileName = sevenZipPath
+                            proc.StartInfo.Arguments = "x """ & thisFile.FullName & """ -o""" & tmpPath & """ " & extractSwitch & " -y"
+                            proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden
+                            proc.StartInfo.CreateNoWindow = True
+                            proc.Start()
+                            proc.WaitForExit()
+                        End If
+                    Next
+                End If
+                
                 ' Also copy any loose .sps files from _Cache
                 For Each s_fileName In cacheFiles
                     thisFile = My.Computer.FileSystem.GetFileInfo(s_fileName)
@@ -1464,14 +1526,6 @@ Public Class Form1
                 Next s_fileName
             End If
         Next currentSuitePath
-        'Delete the _TmpPAT folders for all suites
-        CloseAllSPSBuilderWindows()
-        For Each suitePath In allSuitePaths
-            Dim tmpCleanup As String = Path.Combine(suitePath, "_Trash", "_TmpPAT")
-            If IO.Directory.Exists(tmpCleanup) Then
-                My.Computer.FileSystem.DeleteDirectory(tmpCleanup, FileIO.DeleteDirectoryOption.DeleteAllContents)
-            End If
-        Next
         
         'Remove Multiple Selected Items 
         For Each item As ListViewItem In SPS_P_ListView.SelectedItems
@@ -1619,8 +1673,7 @@ Public Class Form1
             Select Case result
                 Case DialogResult.Yes
                     SaveToolStripMenuItem_Click(sender, e)
-                    e.Cancel = True
-                    Return
+                    e.Cancel = False
                 Case DialogResult.No
                     e.Cancel = False
                 Case DialogResult.Cancel
@@ -1663,20 +1716,10 @@ Public Class Form1
             s_ConfigPAT_text &= "<SyMenuSuitePath>" & s_SyMenuSuite_Path & "</SyMenuSuitePath>" & vbCrLf
             s_ConfigPAT_text &= "<DarkMode>" & DarkModeToolStripMenuItem.Checked.ToString() & "</DarkMode>" & vbCrLf
             s_ConfigPAT_text &= "<HorizontalLayout>" & HorizontalLayoutToolStripMenuItem.Checked.ToString() & "</HorizontalLayout>" & vbCrLf
+            s_ConfigPAT_text &= "<ShowRenderedHTML>" & b_ShowRenderedHTML.ToString() & "</ShowRenderedHTML>" & vbCrLf
+            s_ConfigPAT_text &= "<EnabledSuites>" & String.Join("|", EnabledSuites) & "</EnabledSuites>" & vbCrLf
             File.WriteAllText(s_ConfigPAT_FilePath, s_ConfigPAT_text, Encoding.UTF8)
         End If
-
-        'Delete the _TmpPAT folders if they exist
-        Try
-            CloseAllSPSBuilderWindows()
-            For Each suitePath In GetAllSuitePaths()
-                Dim tmpCleanup As String = Path.Combine(suitePath, "_Trash", "_TmpPAT")
-                If IO.Directory.Exists(tmpCleanup) Then
-                    My.Computer.FileSystem.DeleteDirectory(tmpCleanup, FileIO.DeleteDirectoryOption.DeleteAllContents)
-                End If
-            Next
-        Catch
-        End Try
     End Sub
         
     Private Sub Help_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Help.Click
@@ -1886,6 +1929,9 @@ Public Class Form1
         End If
         s_ConfigPAT_text &= "<DarkMode>" & DarkModeToolStripMenuItem.Checked.ToString() & "</DarkMode>" & vbCrLf
         s_ConfigPAT_text &= "<HorizontalLayout>" & HorizontalLayoutToolStripMenuItem.Checked.ToString() & "</HorizontalLayout>" & vbCrLf
+        s_ConfigPAT_text &= "<ShowRenderedHTML>" & b_ShowRenderedHTML.ToString() & "</ShowRenderedHTML>" & vbCrLf
+        ' Save enabled suites
+        s_ConfigPAT_text &= "<EnabledSuites>" & String.Join("|", EnabledSuites) & "</EnabledSuites>" & vbCrLf
         File.WriteAllText(s_ConfigPAT_FilePath, s_ConfigPAT_text, Encoding.UTF8)
         ShowThemedMessageBox("Configuration saved!", "Save Config", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
@@ -1915,7 +1961,9 @@ Public Class Form1
                 "<SPSPublisherName_w>" & "120" & "</SPSPublisherName_w>" & vbCrLf &
                 "<SuiteName_w>" & "120" & "</SuiteName_w>" & vbCrLf &
                 "<ColumnOrder>" & "0,1,2,3,4,5,6,7,8,9,10,11,12,13" & "</ColumnOrder>" & vbCrLf &
-                "<SyMenuSuitePath>" & s_SyMenuSuite_Path & "</SyMenuSuitePath>" & vbCrLf
+                "<SyMenuSuitePath>" & s_SyMenuSuite_Path & "</SyMenuSuitePath>" & vbCrLf &
+                "<ShowRenderedHTML>False</ShowRenderedHTML>" & vbCrLf &
+                "<EnabledSuites></EnabledSuites>" & vbCrLf
         REM Principal Form position and redimension
         Me.Width = S_GetsNBlockFromText(s_ConfigPAT_text, "<Form1_w>", "</Form1_w>", 1)
         Me.Height = S_GetsNBlockFromText(s_ConfigPAT_text, "<Form1_h>", "</Form1_h>", 1)
@@ -2067,14 +2115,12 @@ Public Class Form1
                 Continue For
             End If
 
-            ' Then check loose .sps in _Cache folder
+            ' Then check loose .sps in _Cache folder - open directly, don't copy
             Dim cachePath As String = Path.Combine(item.Item3, "_Cache")
             If Directory.Exists(cachePath) Then
                 Dim cacheFile As String = Path.Combine(cachePath, expectedFileName)
                 If IO.File.Exists(cacheFile) Then
-                    Dim destFile As String = Path.Combine(tmpFolder, expectedFileName)
-                    IO.File.Copy(cacheFile, destFile, True)
-                    needed(i) = Tuple.Create(item.Item1, item.Item2, item.Item3, destFile)
+                    needed(i) = Tuple.Create(item.Item1, item.Item2, item.Item3, cacheFile)
                 End If
             End If
         Next
@@ -2094,10 +2140,18 @@ Public Class Form1
                 suitesChecked.Add(cachePath)
 
                 If Not Directory.Exists(cachePath) Then Continue For
+                ' Extract zips into this suite's own _TmpPAT folder
+                Dim suiteTmpFolder As String = Path.Combine(item.Item3, "_Trash", "_TmpPAT")
+                If Not IO.Directory.Exists(Path.Combine(item.Item3, "_Trash")) Then
+                    IO.Directory.CreateDirectory(Path.Combine(item.Item3, "_Trash"))
+                End If
+                If Not IO.Directory.Exists(suiteTmpFolder) Then
+                    IO.Directory.CreateDirectory(suiteTmpFolder)
+                End If
                 For Each s_fileName In Directory.GetFiles(cachePath, "*.zip")
-                    Dim outputFolder As Object = shellType.InvokeMember("NameSpace", BindingFlags.InvokeMethod, Nothing, shellObj, New [Object]() {tmpFolder})
+                    Dim outputFolder As Object = shellType.InvokeMember("NameSpace", BindingFlags.InvokeMethod, Nothing, shellObj, New [Object]() {suiteTmpFolder})
                     Dim inputZipFile As Object = shellType.InvokeMember("NameSpace", BindingFlags.InvokeMethod, Nothing, shellObj, New [Object]() {s_fileName})
-                    outputFolder.CopyHere((inputZipFile.Items), 4)
+                    outputFolder.CopyHere((inputZipFile.Items), 4 + 16)
                     zipCount += 1
                 Next
             Next
@@ -2105,11 +2159,22 @@ Public Class Form1
             ' Wait for async CopyHere to finish
             If zipCount > 0 Then
                 System.Threading.Thread.Sleep(1000)
-                ' Wait until no new files appear for 2 seconds
+                ' Wait until no new files appear for 2 seconds across all suite tmp folders
                 Dim lastCount As Integer = 0
                 Dim stableTime As Integer = 0
                 While stableTime < 2000
-                    Dim currentCount As Integer = Directory.GetFiles(tmpFolder, "*.sps").Length
+                    Dim currentCount As Integer = 0
+                    For Each checkedPath In suitesChecked
+                        Dim suitePath As String = Path.GetDirectoryName(Path.GetDirectoryName(checkedPath)) ' _Cache -> suite
+                        Dim suiteTmp As String = Path.Combine(suitePath, "_Trash", "_TmpPAT")
+                        If Directory.Exists(suiteTmp) Then
+                            currentCount += Directory.GetFiles(suiteTmp, "*.sps").Length
+                        End If
+                    Next
+                    ' Also count the default tmp folder
+                    If Directory.Exists(tmpFolder) Then
+                        currentCount += Directory.GetFiles(tmpFolder, "*.sps").Length
+                    End If
                     If currentCount = lastCount Then
                         stableTime += 500
                     Else
@@ -2121,11 +2186,13 @@ Public Class Form1
                 End While
             End If
 
-            ' Now search extracted files for still-missing items
+            ' Now search extracted files for still-missing items - check each suite's own tmp folder
             For i As Integer = 0 To needed.Count - 1
                 Dim item = needed(i)
                 If item.Item4 <> "" Then Continue For
-                For Each extractedFile In Directory.GetFiles(tmpFolder, "*.sps")
+                Dim suiteTmpSearch As String = Path.Combine(item.Item3, "_Trash", "_TmpPAT")
+                If Not Directory.Exists(suiteTmpSearch) Then Continue For
+                For Each extractedFile In Directory.GetFiles(suiteTmpSearch, "*.sps")
                     Try
                         Dim spsContent As String = File.ReadAllText(extractedFile, Encoding.UTF8)
                         Dim progName As String = S_GetsNBlockFromText(spsContent, "<ProgramName>", "</ProgramName>", 1)
@@ -2260,6 +2327,217 @@ Public Class Form1
         For Each item As ListViewItem In SPS_P_ListView.Items
             item.Checked = False
         Next
+    End Sub
+
+    Private Sub ToolStrip_SaveCheckedToZip_Click(sender As Object, e As EventArgs) Handles ToolStrip_SaveCheckedToZip.Click
+        ' Check 7z.exe exists
+        Dim sevenZipPath As String = Path.Combine(s_PAT_Path, "7z", "7z.exe")
+        If Not IO.File.Exists(sevenZipPath) Then
+            ShowThemedMessageBox("7z.exe not found at:" & vbCrLf & vbCrLf &
+                sevenZipPath & vbCrLf & vbCrLf &
+                "Please place 7z.exe and 7z.dll in a '7z' subfolder" & vbCrLf &
+                "next to SPSPublishedAppTrack.exe",
+                "7-Zip not found", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return
+        End If
+
+        If SPS_P_ListView.CheckedItems.Count = 0 Then
+            ShowThemedMessageBox("No items are checked.", "Save to Zip", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
+
+        ' Build list of checked items: (SPSName, suitePath)
+        Dim checkedItems As New List(Of Tuple(Of String, String))
+        For Each item As ListViewItem In SPS_P_ListView.CheckedItems
+            Dim spsName As String = item.SubItems(c_SPS_Name).Text
+            Dim suitePath As String = CType(item.Tag, String)
+            checkedItems.Add(Tuple.Create(spsName, suitePath))
+        Next
+
+        ' Group by suite path
+        Dim bySuite As New Dictionary(Of String, List(Of String))
+        For Each item In checkedItems
+            If Not bySuite.ContainsKey(item.Item2) Then
+                bySuite.Add(item.Item2, New List(Of String))
+            End If
+            bySuite(item.Item2).Add(item.Item1)
+        Next
+
+        Dim totalUpdated As Integer = 0
+        Dim totalFailed As Integer = 0
+        Dim failedItems As New List(Of String)
+
+        For Each suitePath In bySuite.Keys
+            Dim spsNames As List(Of String) = bySuite(suitePath)
+            Dim cachePath As String = Path.Combine(suitePath, "_Cache")
+            Dim tmpPath As String = Path.Combine(suitePath, "_Trash", "_TmpPAT")
+
+            If Not Directory.Exists(cachePath) Then
+                For Each n In spsNames
+                    failedItems.Add(n & " (no _Cache folder)")
+                Next
+                totalFailed += spsNames.Count
+                Continue For
+            End If
+
+            ' Get all zips in this suite's _Cache
+            Dim zipFiles As String() = Directory.GetFiles(cachePath, "*.zip")
+
+            For Each spsName In spsNames
+                Dim expectedFileName As String = spsName.Replace(" ", "_") & ".sps"
+
+                ' Find the .sps file in _TmpPAT (where SPSBuilder saved it)
+                Dim spsFilePath As String = ""
+                If Directory.Exists(tmpPath) Then
+                    Dim tmpFile As String = Path.Combine(tmpPath, expectedFileName)
+                    If IO.File.Exists(tmpFile) Then
+                        spsFilePath = tmpFile
+                    Else
+                        ' Search by ProgramName inside files
+                        For Each f In Directory.GetFiles(tmpPath, "*.sps")
+                            Try
+                                Dim content As String = File.ReadAllText(f, Encoding.UTF8)
+                                Dim progName As String = S_GetsNBlockFromText(content, "<ProgramName>", "</ProgramName>", 1)
+                                If progName = spsName Then
+                                    spsFilePath = f
+                                    Exit For
+                                End If
+                            Catch
+                            End Try
+                        Next
+                    End If
+                End If
+
+                If spsFilePath = "" Then
+                    failedItems.Add(spsName & " (not found in temp folder - open in SPSBuilder first)")
+                    totalFailed += 1
+                    Continue For
+                End If
+
+                ' Find which zip contains this .sps file
+                Dim targetZip As String = ""
+                Dim spsFileNameInZip As String = Path.GetFileName(spsFilePath)
+
+                For Each zipFile In zipFiles
+                    ' Use 7z to list contents and check if our file is inside
+                    Try
+                        Dim p As New Process()
+                        p.StartInfo.FileName = sevenZipPath
+                        p.StartInfo.Arguments = "l """ & zipFile & """ -ba"
+                        p.StartInfo.UseShellExecute = False
+                        p.StartInfo.RedirectStandardOutput = True
+                        p.StartInfo.CreateNoWindow = True
+                        p.Start()
+                        Dim output As String = p.StandardOutput.ReadToEnd()
+                        p.WaitForExit()
+
+                        ' 7z list output has filenames at the end of each line
+                        If output.IndexOf(spsFileNameInZip, StringComparison.OrdinalIgnoreCase) >= 0 Then
+                            targetZip = zipFile
+                            Exit For
+                        End If
+                    Catch
+                    End Try
+                Next
+
+                ' If not found in any zip, check if it's a loose .sps in _Cache
+                If targetZip = "" Then
+                    Dim looseCacheFile As String = Path.Combine(cachePath, spsFileNameInZip)
+                    If IO.File.Exists(looseCacheFile) Then
+                        ' Just copy it back directly
+                        IO.File.Copy(spsFilePath, looseCacheFile, True)
+                        totalUpdated += 1
+                        Continue For
+                    Else
+                        failedItems.Add(spsName & " (not found in any zip or _Cache)")
+                        totalFailed += 1
+                        Continue For
+                    End If
+                End If
+
+                ' Update the zip using 7z
+                Try
+                    ' First attempt: direct add
+                    Dim p As New Process()
+                    p.StartInfo.FileName = sevenZipPath
+                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(spsFilePath)
+                    p.StartInfo.Arguments = "a """ & targetZip & """ """ & Path.GetFileName(spsFilePath) & """ -tzip"
+                    p.StartInfo.UseShellExecute = False
+                    p.StartInfo.RedirectStandardOutput = True
+                    p.StartInfo.RedirectStandardError = True
+                    p.StartInfo.CreateNoWindow = True
+                    p.Start()
+                    Dim stdOut As String = p.StandardOutput.ReadToEnd()
+                    Dim stdErr As String = p.StandardError.ReadToEnd()
+                    p.WaitForExit(30000)
+
+                    If p.ExitCode = 0 Then
+                        totalUpdated += 1
+                    Else
+                        ' Zip may be corrupt - try rebuilding it first
+                        Dim repairFolder As String = Path.Combine(Path.GetDirectoryName(spsFilePath), "_repair")
+                        If Directory.Exists(repairFolder) Then
+                            My.Computer.FileSystem.DeleteDirectory(repairFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
+                        End If
+                        Directory.CreateDirectory(repairFolder)
+
+                        ' Extract everything from the corrupt zip
+                        Dim pExtract As New Process()
+                        pExtract.StartInfo.FileName = sevenZipPath
+                        pExtract.StartInfo.Arguments = "e """ & targetZip & """ -o""" & repairFolder & """ -y"
+                        pExtract.StartInfo.UseShellExecute = False
+                        pExtract.StartInfo.RedirectStandardOutput = True
+                        pExtract.StartInfo.CreateNoWindow = True
+                        pExtract.Start()
+                        pExtract.StandardOutput.ReadToEnd()
+                        pExtract.WaitForExit(60000)
+
+                        ' Copy our updated file into the repair folder (overwrite)
+                        IO.File.Copy(spsFilePath, Path.Combine(repairFolder, Path.GetFileName(spsFilePath)), True)
+
+                        ' Delete the corrupt zip
+                        IO.File.Delete(targetZip)
+
+                        ' Create a fresh zip from the repair folder
+                        Dim pCreate As New Process()
+                        pCreate.StartInfo.FileName = sevenZipPath
+                        pCreate.StartInfo.WorkingDirectory = repairFolder
+                        pCreate.StartInfo.Arguments = "a """ & targetZip & """ * -tzip"
+                        pCreate.StartInfo.UseShellExecute = False
+                        pCreate.StartInfo.RedirectStandardOutput = True
+                        pCreate.StartInfo.RedirectStandardError = True
+                        pCreate.StartInfo.CreateNoWindow = True
+                        pCreate.Start()
+                        Dim convergentOut As String = pCreate.StandardOutput.ReadToEnd()
+                        Dim convergentErr As String = pCreate.StandardError.ReadToEnd()
+                        pCreate.WaitForExit(60000)
+
+                        ' Cleanup repair folder
+                        My.Computer.FileSystem.DeleteDirectory(repairFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
+
+                        If pCreate.ExitCode = 0 Then
+                            totalUpdated += 1
+                        Else
+                            failedItems.Add(spsName & " (rebuild failed: " & convergentErr.Trim() & ")")
+                            totalFailed += 1
+                        End If
+                    End If
+                Catch ex As Exception
+                    failedItems.Add(spsName & " (" & ex.Message & ")")
+                    totalFailed += 1
+                End Try
+            Next
+        Next
+
+        ' Show results
+        Dim msg As String = "Updated: " & totalUpdated & " file(s)"
+        If totalFailed > 0 Then
+            msg &= vbCrLf & "Failed: " & totalFailed & " file(s)" & vbCrLf & vbCrLf &
+                String.Join(vbCrLf, failedItems)
+        End If
+        ShowThemedMessageBox(msg, "Save to Zip",
+            MessageBoxButtons.OK,
+            If(totalFailed > 0, MessageBoxIcon.Warning, MessageBoxIcon.Information))
     End Sub
 
     'General Subrutines and Functions
@@ -2828,6 +3106,118 @@ Public Class Form1
         Else
             ApplyLightMode()
         End If
+    End Sub
+
+    Private Sub SelectSuitesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SelectSuitesToolStripMenuItem.Click
+        Dim allSuitePaths As List(Of String) = GetAllSuitePaths()
+
+        ' Build a CheckedListBox dialog
+        Dim dlg As New Form()
+        dlg.Text = "Select Suites to manage on Rebuild"
+        dlg.StartPosition = FormStartPosition.CenterParent
+        dlg.FormBorderStyle = FormBorderStyle.FixedDialog
+        dlg.MaximizeBox = False
+        dlg.MinimizeBox = False
+
+        Dim isDark As Boolean = DarkModeToolStripMenuItem.Checked
+
+        If isDark Then
+            dlg.BackColor = m_DarkModeBackground30
+            dlg.ForeColor = Color.White
+        End If
+
+        Dim clb As New CheckedListBox()
+        clb.Dock = DockStyle.Top
+        clb.Height = 230
+        clb.CheckOnClick = True
+        If isDark Then
+            clb.BackColor = m_DarkModeBackground45
+            clb.ForeColor = Color.White
+        End If
+
+        For Each suitePath In allSuitePaths
+            Dim suiteName As String = Path.GetFileName(suitePath)
+            Dim isChecked As Boolean = EnabledSuites.Count = 0 OrElse EnabledSuites.Contains(suiteName)
+            clb.Items.Add(suiteName, isChecked)
+        Next
+
+        Dim btnSize As Size = m_MsgBtnSize
+        Dim btnY As Integer = clb.Height + 10
+
+        Dim btnSelectAll As New Button()
+        btnSelectAll.Text = "All"
+        btnSelectAll.Size = btnSize
+        btnSelectAll.Location = New Point(10, btnY)
+        If isDark Then
+            btnSelectAll.BackColor = m_DarkModeBackground45
+            btnSelectAll.ForeColor = Color.White
+            btnSelectAll.FlatStyle = FlatStyle.Flat
+            btnSelectAll.FlatAppearance.BorderColor = m_BorderColor
+        End If
+        AddHandler btnSelectAll.Click, Sub(s2, e2)
+                                           For i As Integer = 0 To clb.Items.Count - 1
+                                               clb.SetItemChecked(i, True)
+                                           Next
+                                       End Sub
+
+        Dim btnSelectNone As New Button()
+        btnSelectNone.Text = "None"
+        btnSelectNone.Size = btnSize
+        btnSelectNone.Location = New Point(80, btnY)
+        If isDark Then
+            btnSelectNone.BackColor = m_DarkModeBackground45
+            btnSelectNone.ForeColor = Color.White
+            btnSelectNone.FlatStyle = FlatStyle.Flat
+            btnSelectNone.FlatAppearance.BorderColor = m_BorderColor
+        End If
+        AddHandler btnSelectNone.Click, Sub(s2, e2)
+                                            For i As Integer = 0 To clb.Items.Count - 1
+                                                clb.SetItemChecked(i, False)
+                                            Next
+                                        End Sub
+
+        Dim btnOK As New Button()
+        btnOK.Text = "OK"
+        btnOK.Size = btnSize
+        btnOK.DialogResult = DialogResult.OK
+        btnOK.Location = New Point(150, btnY)
+        If isDark Then
+            btnOK.BackColor = m_DarkModeBackground45
+            btnOK.ForeColor = Color.White
+            btnOK.FlatStyle = FlatStyle.Flat
+            btnOK.FlatAppearance.BorderColor = m_BorderColor
+        End If
+
+        Dim btnCancel As New Button()
+        btnCancel.Text = "Cancel"
+        btnCancel.Size = btnSize
+        btnCancel.DialogResult = DialogResult.Cancel
+        btnCancel.Location = New Point(220, btnY)
+        If isDark Then
+            btnCancel.BackColor = m_DarkModeBackground45
+            btnCancel.ForeColor = Color.White
+            btnCancel.FlatStyle = FlatStyle.Flat
+            btnCancel.FlatAppearance.BorderColor = m_BorderColor
+        End If
+
+        dlg.Controls.AddRange({clb, btnSelectAll, btnSelectNone, btnOK, btnCancel})
+        dlg.AcceptButton = btnOK
+        dlg.CancelButton = btnCancel
+
+        ' Size window to fit: 10px margin left + 4 buttons(60) + 3 gaps(10) + 10px margin right = 290
+        ' Height: checklist(230) + 10 margin + button(25) + 10 margin = 275
+        dlg.ClientSize = New Size(290, btnY + btnSize.Height + 10)
+
+        If dlg.ShowDialog(Me) = DialogResult.OK Then
+            EnabledSuites.Clear()
+            For i As Integer = 0 To clb.Items.Count - 1
+                If clb.GetItemChecked(i) Then
+                    EnabledSuites.Add(clb.Items(i).ToString())
+                End If
+            Next
+        End If
+
+        dlg.Dispose()
     End Sub
 
     Private Sub ApplyDarkMode()
