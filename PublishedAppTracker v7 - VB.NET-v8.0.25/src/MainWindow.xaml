@@ -1,0 +1,202 @@
+<Window x:Class="PublishedAppTracker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="Published App Tracker v7.0" Width="1200" Height="800"
+        MinWidth="1100" MinHeight="500"
+        WindowStartupLocation="Manual">
+
+    <DockPanel>
+        <!-- Menu Bar -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New Track" Click="MenuNewTrack_Click" />
+                <MenuItem Header="_Open Category" Click="OpenCategoryFolder_Click" />
+                <Separator />
+                <MenuItem Header="_Save" Click="Save_Click" />
+                <MenuItem Header="Save _As..." Click="SaveTrackAs_Click" />
+                <Separator />
+                <MenuItem Header="E_xit" Click="Exit_Click" />
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="Columns" />
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="Open SPSBuilder" />
+                <Separator />
+                <MenuItem Header="Install/Update uBlock Origin" Click="InstallUBlock_Click" />
+                <MenuItem Header="List Extensions" Click="ListExtensions_Click" />
+            </MenuItem>
+            <MenuItem Header="_Config">
+                <MenuItem Header="Theme..." />
+                <MenuItem Header="Select Suites..." />
+            </MenuItem>
+        </Menu>
+
+		<!-- Toolbar -->
+		<ToolBarTray x:Name="toolBarTray" DockPanel.Dock="Top">
+		    <ToolBar x:Name="mainToolBar" Band="0" BandIndex="0">
+		        <Button x:Name="btnSave" Content="&#xE74E;" Click="Save_Click"
+		                FontFamily="Segoe Fluent Icons" FontSize="17"
+		                Padding="8,4" ToolTip="Save track file" />
+		        <Separator />
+		        <Button x:Name="btnToggleLayout" Content="&#xeca5;" Click="ToggleLayout_Click"
+		                FontFamily="Segoe Fluent Icons" FontSize="17"
+		                Padding="8,4" ToolTip="Switch to Horizontal Layout" />
+		        <Separator />
+		        <Button x:Name="btnCheckSelected" Content="&#xe773;" Click="CheckSelected_Click"
+		                FontFamily="Segoe Fluent Icons" FontSize="17"
+		                Padding="8,4" ToolTip="Check selected tracks in current category" />
+		        <Separator />
+		        <Button x:Name="btnCheckAll" Content="&#xe773;" Click="CheckAll_Click"
+		                FontFamily="Segoe Fluent Icons" FontSize="17"
+		                Padding="8,4" ToolTip="Check all tracks in current category" />
+		        <Separator />
+		    </ToolBar>
+		</ToolBarTray>
+
+        <!-- Status Bar -->
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem Margin="5,0,0,0">
+                <ProgressBar x:Name="statusProgress" Width="150" Height="16"
+                             Minimum="0" Maximum="100" Value="0" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="statusFile" Text="No file loaded" />
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right" Margin="0,0,5,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xF136;" FontFamily="Segoe Fluent Icons" FontSize="12"
+                               Foreground="#00B400" VerticalAlignment="Center" Margin="0,0,2,0" />
+                    <TextBlock Text="Unchanged" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="&#xF136;" FontFamily="Segoe Fluent Icons" FontSize="12"
+                               Foreground="#FFB400" VerticalAlignment="Center" Margin="0,0,2,0" />
+                    <TextBlock Text="Changed" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="&#xF136;" FontFamily="Segoe Fluent Icons" FontSize="12"
+                               Foreground="#DC2828" VerticalAlignment="Center" Margin="0,0,2,0" />
+                    <TextBlock Text="Error" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="&#xF136;" FontFamily="Segoe Fluent Icons" FontSize="12"
+                               Foreground="#2878DC" VerticalAlignment="Center" Margin="0,0,2,0" />
+                    <TextBlock Text="New" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="&#xF136;" FontFamily="Segoe Fluent Icons" FontSize="12"
+                               Foreground="#A0A0A0" VerticalAlignment="Center" Margin="0,0,2,0" />
+                    <TextBlock Text="Unchecked" FontSize="11" VerticalAlignment="Center" />
+                </StackPanel>
+            </StatusBarItem>
+        </StatusBar>
+
+        <!-- Main content area -->
+        <Grid x:Name="mainContent">
+
+            <!-- LAYOUT: Vertical split (default) -->
+            <Grid x:Name="layoutVertical">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="450" MinWidth="300" MaxWidth="700" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" MinWidth="300" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left side: top has Cat+List, bottom has Track Settings -->
+                <Grid Grid.Column="0">
+	                <Grid.RowDefinitions>
+	                    <RowDefinition Height="*" MinHeight="150" />
+	                    <RowDefinition Height="5" />
+	                    <RowDefinition Height="*" MinHeight="250" />
+	                </Grid.RowDefinitions>
+
+                    <!-- Top: Categories + List side by side -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180" MinWidth="120" MaxWidth="300" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="*" MinWidth="150" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border x:Name="catHostV" Grid.Column="0" MinWidth="120" />
+
+                        <GridSplitter Grid.Column="1" Width="5"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      Background="LightGray" Cursor="SizeWE" />
+
+                        <Border x:Name="listHostV" Grid.Column="2" MinWidth="150" />
+                    </Grid>
+
+                    <!-- Horizontal splitter -->
+                    <GridSplitter Grid.Row="1" Height="5"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Background="LightGray" Cursor="SizeNS" />
+
+                    <!-- Bottom: Track Settings spanning full width -->
+                    <Border x:Name="trackSettingsHostV" Grid.Row="2" MinHeight="150" />
+                </Grid>
+
+                <!-- Vertical splitter -->
+                <GridSplitter Grid.Column="1" Width="5"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              Background="LightGray" Cursor="SizeWE" />
+
+                <!-- Right: Tabs full height -->
+                <Border x:Name="tabsHostV" Grid.Column="2" MinWidth="300" />
+            </Grid>
+
+            <!-- LAYOUT: Horizontal split - 2x2 grid -->
+            <Grid x:Name="layoutHorizontal" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" MinHeight="150" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="*" MinHeight="250" />
+                </Grid.RowDefinitions>
+
+                <!-- Top row: Categories + Track List -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" MinWidth="120" MaxWidth="400" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" MinWidth="200" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border x:Name="catHostH" Grid.Column="0" />
+                    <GridSplitter Grid.Column="1" Width="5"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Background="LightGray" Cursor="SizeWE" />
+                    <Border x:Name="listHostH" Grid.Column="2" />
+                </Grid>
+
+                <!-- Horizontal Splitter -->
+                <GridSplitter Grid.Row="1" Height="5"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              Background="LightGray" Cursor="SizeNS" />
+
+                <!-- Bottom row: Track Settings + Tabs -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="250" MaxWidth="600" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" MinWidth="250" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border x:Name="trackSettingsHostH" Grid.Column="0" />
+                    <GridSplitter Grid.Column="1" Width="5"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Background="LightGray" Cursor="SizeWE" />
+                    <Border x:Name="tabsHostH" Grid.Column="2" />
+                </Grid>
+            </Grid>
+
+        </Grid>
+    </DockPanel>
+
+    <!-- ========================================== -->
+    <!-- SHARED CONTROLS - defined once, moved between layouts -->
+    <!-- ========================================== -->
+    <Window.Resources>
+        <!-- Empty - resources go here later for theming -->
+    </Window.Resources>
+
+</Window>
