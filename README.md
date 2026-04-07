@@ -1,5 +1,6 @@
 # SPS Published App Track (PAT) x64
 
+**v7.x.x.x** — Complete major rewrite by **sl23**
 **v6.x.x.x** — Major x64 rewrite by **sl23**
 Original code by **VVV_Easy_SyMenu**
 
@@ -18,6 +19,28 @@ If any of your tracked URLs start failing because the server rejects your User-A
 ---
 
 ## Changelog
+
+### v7.0.0.0 — 2026.04.07 (sl23)
+
+Major upgrade — now compiled as **x64**.
+
+- Completely rewritten in VB.NET using .NET SDK v8.0.25
+- Created separate panels for each section
+- Icons sue Segoe Fluent Font Icons
+- Full theme support added
+- App tracks are now stored individually in their own .track files
+- ListView column moving, sorting, sizing, and hiding
+- Simple syntax highlighting for Source Tab
+- WebView2 added to allow direct page viewing in the app
+- Added Ublock Origin support in WebView2 
+- Categories can be added to allow better organisation of tracked apps
+- Added browsing functions to WebView
+
+### Todo ###
+- Add full SyMenu SPS support
+- Fix theme issues and add mroe support for items currently not working
+
+---
 
 ### v6.0.0.0 — 2026.03.30 (sl23)
 
