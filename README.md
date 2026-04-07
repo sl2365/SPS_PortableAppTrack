@@ -39,6 +39,8 @@ Major upgrade — now compiled as **x64**.
 ### Todo ###
 - Add full SyMenu SPS support
 - Fix theme issues and add mroe support for items currently not working
+- Code cleanup
+- Possible performance enhancements
 
 ---
 
