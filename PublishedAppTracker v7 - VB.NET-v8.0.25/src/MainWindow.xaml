@@ -33,24 +33,36 @@
             </MenuItem>
         </Menu>
 
-		<!-- Toolbar -->
+		<!-- Toolbar - adjust Padding and Margin to suit -->
 		<ToolBarTray x:Name="toolBarTray" DockPanel.Dock="Top">
 		    <ToolBar x:Name="mainToolBar" Band="0" BandIndex="0">
+		    	<Button x:Name="btnAddCategory" Content="&#xECC8;" Click="AddCategory_Click"
+				        FontFamily="Segoe Fluent Icons" FontSize="17"
+				        Padding="7,4" Margin="2,2,2,2" ToolTip="New Category" />
+				<Button x:Name="btnRemoveCategory" Content="&#xECC9;" Click="RemoveCategory_Click"
+				        FontFamily="Segoe Fluent Icons" FontSize="17"
+				        Padding="7,4" Margin="2,2,2,2" ToolTip="Delete Category" />
+				<Button x:Name="btnOpenFolder" Content="&#xE838;" Click="OpenCategoryFolder_Click"
+				        FontFamily="Segoe Fluent Icons" FontSize="17"
+				        Padding="7,4" Margin="2,2,2,2" ToolTip="Open category folder" />
+				<Separator />
 		        <Button x:Name="btnSave" Content="&#xE74E;" Click="Save_Click"
 		                FontFamily="Segoe Fluent Icons" FontSize="17"
-		                Padding="8,4" ToolTip="Save track file" />
+		                Padding="7,4" Margin="2,2,2,2" ToolTip="Save track file" />
+		        <Button x:Name="btnSaveAs" Content="&#xE792;" Click="SaveTrackAs_Click"
+				        FontFamily="Segoe Fluent Icons" FontSize="17"
+				        Padding="7,4" Margin="2,2,2,2" ToolTip="Save track as..." />
 		        <Separator />
 		        <Button x:Name="btnToggleLayout" Content="&#xeca5;" Click="ToggleLayout_Click"
 		                FontFamily="Segoe Fluent Icons" FontSize="17"
-		                Padding="8,4" ToolTip="Switch to Horizontal Layout" />
+		                Padding="7,4" Margin="2,2,2,2" ToolTip="Switch to Horizontal Layout" />
 		        <Separator />
 		        <Button x:Name="btnCheckSelected" Content="&#xe773;" Click="CheckSelected_Click"
 		                FontFamily="Segoe Fluent Icons" FontSize="17"
-		                Padding="8,4" ToolTip="Check selected tracks in current category" />
-		        <Separator />
+		                Padding="7,4" Margin="2,2,2,2" ToolTip="Check selected tracks in current category" />
 		        <Button x:Name="btnCheckAll" Content="&#xe773;" Click="CheckAll_Click"
 		                FontFamily="Segoe Fluent Icons" FontSize="17"
-		                Padding="8,4" ToolTip="Check all tracks in current category" />
+		                Padding="7,4" Margin="2,2,2,2" ToolTip="Check all tracks in current category" />
 		        <Separator />
 		    </ToolBar>
 		</ToolBarTray>

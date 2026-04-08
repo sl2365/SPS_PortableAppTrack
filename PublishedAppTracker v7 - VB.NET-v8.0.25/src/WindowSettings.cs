@@ -24,6 +24,9 @@ namespace PublishedAppTracker
         public bool IsMaximized { get; set; } = false;
         public bool IsHorizontalLayout { get; set; } = false;
 
+        // Toolbar position
+        public string ToolbarPosition { get; set; } = "Top";
+
         // Vertical layout splitters
         public double VSplitter1 { get; set; } = 450;
         public double VSplitter1Row { get; set; } = double.NaN;
@@ -99,6 +102,7 @@ namespace PublishedAppTracker
                 writer.WriteElementString("SourceFontSize", SourceFontSize.ToString());
                 writer.WriteElementString("EditorPath", EditorPath ?? "");
                 writer.WriteElementString("ActiveThemePath", ActiveThemePath ?? "");
+                writer.WriteElementString("ToolbarPosition", ToolbarPosition ?? "Top");
 
                 // Save column settings
                 writer.WriteStartElement("Columns");
@@ -152,6 +156,9 @@ namespace PublishedAppTracker
                 ws.SourceFontSize = ParseDouble(root, "SourceFontSize", ws.SourceFontSize);
                 ws.EditorPath = GetNodeText(root, "EditorPath");
                 ws.ActiveThemePath = GetNodeText(root, "ActiveThemePath");
+                ws.ToolbarPosition = GetNodeText(root, "ToolbarPosition");
+				if (string.IsNullOrEmpty(ws.ToolbarPosition))
+				    ws.ToolbarPosition = "Top";
 
                 // Load column settings
                 XmlNode columnsNode = root.SelectSingleNode("Columns");

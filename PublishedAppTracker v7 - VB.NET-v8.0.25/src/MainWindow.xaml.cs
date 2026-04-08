@@ -51,6 +51,7 @@ namespace PublishedAppTracker
         private bool suppressAutoDownload = false;
         private bool blockCookiePopups = true;
         private TextBox editEditorPath;
+        private Style columnHeaderStyle;
 
         // Source tab fields
         private RichTextBox sourceView;
@@ -143,6 +144,12 @@ namespace PublishedAppTracker
 
 			BuildSharedControls();
             PlaceControlsInLayout();
+            // Restore toolbar position from saved settings
+			if (!string.IsNullOrEmpty(windowSettings.ToolbarPosition) &&
+			    windowSettings.ToolbarPosition != "Top")
+			{
+			    DockToolbarTo(windowSettings.ToolbarPosition);
+			}
             ApplyTheme(currentTheme);
             SetupWebViewAutoZoom();
             // Pre-initialise WebView2 with extensions enabled
@@ -270,45 +277,6 @@ namespace PublishedAppTracker
             // --- Category Tree Panel ---
             categoryPanel = new DockPanel();
 
-            StackPanel catButtons = new StackPanel();
-            catButtons.Orientation = Orientation.Horizontal;
-            catButtons.Margin = new Thickness(4);
-            DockPanel.SetDock(catButtons, Dock.Bottom);
-
-            Button btnAdd = new Button();
-            btnAdd.Content = "\xecc8";
-            btnAdd.FontFamily = new FontFamily("Segoe Fluent Icons");
-    		btnAdd.FontSize = 14;
-            btnAdd.Width = 30;
-            btnAdd.Height = 25;
-            btnAdd.ToolTip = "New Category";
-            btnAdd.Margin = new Thickness(4, 0, 4, 0);
-            btnAdd.Click += AddCategory_Click;
-            catButtons.Children.Add(btnAdd);
-
-            Button btnRemove = new Button();
-            btnRemove.Content = "\xecc9";
-            btnRemove.FontFamily = new FontFamily("Segoe Fluent Icons");
-    		btnRemove.FontSize = 14;
-            btnRemove.Width = 30;
-            btnRemove.Height = 25;
-            btnRemove.ToolTip = "Delete Category";
-            btnRemove.Click += RemoveCategory_Click;
-            catButtons.Children.Add(btnRemove);
-
-            Button btnOpenFolder = new Button();
-            btnOpenFolder.Content = "\xe838";
-            btnOpenFolder.FontFamily = new FontFamily("Segoe Fluent Icons");
-    		btnOpenFolder.FontSize = 14;
-            btnOpenFolder.Width = 30;
-            btnOpenFolder.Height = 25;
-            btnOpenFolder.ToolTip = "Open category folder";
-            btnOpenFolder.Margin = new Thickness(4, 0, 0, 0);
-            btnOpenFolder.Click += OpenCategoryFolder_Click;
-            catButtons.Children.Add(btnOpenFolder);
-
-            categoryPanel.Children.Add(catButtons);
-
             categoryTree = new TreeView();
             categoryTree.Margin = new Thickness(4);
             categoryTree.SelectedItemChanged += CategoryTree_Selected;
@@ -424,84 +392,48 @@ namespace PublishedAppTracker
             title.FontWeight = FontWeights.Bold;
             title.FontSize = 13;
             title.VerticalAlignment = VerticalAlignment.Center;
-            title.Margin = new Thickness(0, 0, 8, 0);
+            title.Margin = new Thickness(2, 0, 8, 0);
             trackToolBar.Items.Add(title);
 
             trackToolBar.Items.Add(new Separator());
 
-			Button btnSaveTrack = new Button();
-			btnSaveTrack.Content = "\uE74E";
-			btnSaveTrack.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnSaveTrack.FontSize = 17;
-			btnSaveTrack.Padding = new Thickness(6, 2, 6, 2);
-			btnSaveTrack.ToolTip = "Save track settings";
-			btnSaveTrack.Click += SaveTrack_Click;
+			Button btnNewTrack = CreateToolBarButton("\xecc8", "New Track", MenuNewTrack_Click);
+			trackToolBar.Items.Add(btnNewTrack);
+
+            trackToolBar.Items.Add(new Separator());
+
+			Button btnSaveTrack = CreateToolBarButton("\uE74E", "Save track file", Save_Click);
 			trackToolBar.Items.Add(btnSaveTrack);
-			
-            Button btnDeleteTrack = new Button();
-            btnDeleteTrack.Content = "\uE74D";
-			btnDeleteTrack.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnDeleteTrack.FontSize = 16;
-            btnDeleteTrack.Padding = new Thickness(6, 2, 6, 2);
-            btnDeleteTrack.Margin = new Thickness(2, 0, 0, 0);
-            btnDeleteTrack.ToolTip = "Delete this track";
-            btnDeleteTrack.Click += DeleteTrack_Click;
-            trackToolBar.Items.Add(btnDeleteTrack);
+
+			Button btnSaveTrackAs = CreateToolBarButton("\uE792", "Save track as...", SaveTrackAs_Click);
+			trackToolBar.Items.Add(btnSaveTrackAs);
 
             trackToolBar.Items.Add(new Separator());
 
-            Button btnGoStart = new Button();
-            btnGoStart.Content = "\uE768";
-			btnGoStart.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnGoStart.FontSize = 16;
-            btnGoStart.Padding = new Thickness(6, 2, 6, 2);
-            btnGoStart.ToolTip = "Go to Start String in source";
-            btnGoStart.Click += GoToStartString_Click;
-            trackToolBar.Items.Add(btnGoStart);
+			Button btnGoStart = CreateToolBarButton("\uE768", "Go to Start String", GoToStartString_Click);
+			trackToolBar.Items.Add(btnGoStart);
 
-            Button btnGoStop = new Button();
-            btnGoStop.Content = "\uE71A";
-			btnGoStop.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnGoStop.FontSize = 16;
-            btnGoStop.Padding = new Thickness(6, 2, 6, 2);
-            btnGoStop.Margin = new Thickness(2, 0, 0, 0);
-            btnGoStop.ToolTip = "Go to Stop String in source";
-            btnGoStop.Click += GoToStopString_Click;
-            trackToolBar.Items.Add(btnGoStop);
+			Button btnGoStop = CreateToolBarButton("\uE71A", "Go to Stop String", GoToStopString_Click);
+			trackToolBar.Items.Add(btnGoStop);
 
             trackToolBar.Items.Add(new Separator());
 
-            Button btnDownloadToolbar = new Button();
-            btnDownloadToolbar.Content = "\uE896";
-			btnDownloadToolbar.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnDownloadToolbar.FontSize = 16;
-            btnDownloadToolbar.Padding = new Thickness(6, 2, 6, 2);
-            btnDownloadToolbar.ToolTip = "Download page source";
-            btnDownloadToolbar.Click += DownloadPage_Click;
+			Button btnDownloadToolbar = CreateToolBarButton("\uE896", "Download page source", DownloadPage_Click);
             trackToolBar.Items.Add(btnDownloadToolbar);
 
-            Button btnBrowserToolbar = new Button();
-            btnBrowserToolbar.Content = "\uE774";
-			btnBrowserToolbar.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnBrowserToolbar.FontSize = 16;
-            btnBrowserToolbar.Padding = new Thickness(6, 2, 6, 2);
-            btnBrowserToolbar.Margin = new Thickness(2, 0, 0, 0);
-            btnBrowserToolbar.ToolTip = "Open in browser";
-            btnBrowserToolbar.Click += OpenBrowser_Click;
+			Button btnBrowserToolbar = CreateToolBarButton("\uE774", "Open in browser", OpenBrowser_Click);
             trackToolBar.Items.Add(btnBrowserToolbar);
 
             trackToolBar.Items.Add(new Separator());
 
-            btnUpdateVersion = new Button();
-            btnUpdateVersion.Content = "\uE898";
-			btnUpdateVersion.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnUpdateVersion.FontSize = 16;
-            btnUpdateVersion.Padding = new Thickness(6, 2, 6, 2);
-            btnUpdateVersion.ToolTip = "Copy Latest Version to Version field";
+            btnUpdateVersion = CreateToolBarButton("\uE898", "Copy Latest Version to Version field", UpdateVersion_Click);
             btnUpdateVersion.IsEnabled = false;
-            btnUpdateVersion.Click += UpdateVersion_Click;
-            trackToolBar.Items.Add(btnUpdateVersion);
-
+            btnUpdateVersion.Opacity = 0.4;
+            btnUpdateVersion.IsEnabledChanged += (s, e) =>
+            {
+                btnUpdateVersion.Opacity = btnUpdateVersion.IsEnabled ? 1.0 : 0.4;
+            };
+            trackToolBar.Items.Add(btnUpdateVersion);			
             trackToolBarTray.ToolBars.Add(trackToolBar);
 
             // Fields
@@ -649,94 +581,88 @@ namespace PublishedAppTracker
 			StackPanel spDown = new StackPanel();
 			spDown.Orientation = Orientation.Horizontal;
 
-			TextBlock iconSearchDown = new TextBlock();
-			iconSearchDown.Text = "\uE721";
-			iconSearchDown.FontFamily = new FontFamily("Segoe Fluent Icons");
-			iconSearchDown.FontSize = 16;
-			iconSearchDown.VerticalAlignment = VerticalAlignment.Center;
-			spDown.Children.Add(iconSearchDown);
+            spDown = new StackPanel();
+            spDown.Orientation = Orientation.Horizontal;
 
-			TextBlock iconArrowDown = new TextBlock();
-			iconArrowDown.Text = "\uE760";
-			iconArrowDown.FontFamily = new FontFamily("Segoe Fluent Icons");
-			iconArrowDown.FontSize = 16;
-			iconArrowDown.VerticalAlignment = VerticalAlignment.Center;
-			iconArrowDown.RenderTransformOrigin = new Point(0.5, 0.5);
-			iconArrowDown.RenderTransform = new RotateTransform(270);
-			spDown.Children.Add(iconArrowDown);
+            TextBlock iconSearchDown = new TextBlock();
+            iconSearchDown.Text = "\uE721";
+            iconSearchDown.FontFamily = new FontFamily("Segoe Fluent Icons");
+            iconSearchDown.FontSize = 15;
+            iconSearchDown.VerticalAlignment = VerticalAlignment.Center;
+            spDown.Children.Add(iconSearchDown);
 
-			btnSearchDown.Content = spDown;
-			btnSearchDown.Width = 48;
-			btnSearchDown.Padding = new Thickness(4, 2, 4, 2);
-			btnSearchDown.ToolTip = "Search next from top";
-			btnSearchDown.Click += SearchDown_Click;
-			sourceToolBar.Items.Add(btnSearchDown);
+            TextBlock iconArrowDown = new TextBlock();
+            iconArrowDown.Text = "\uE760";
+            iconArrowDown.FontFamily = new FontFamily("Segoe Fluent Icons");
+            iconArrowDown.FontSize = 15;
+            iconArrowDown.Margin = new Thickness(2, 0, 0, 0);
+            iconArrowDown.VerticalAlignment = VerticalAlignment.Center;
+            iconArrowDown.RenderTransformOrigin = new Point(0.5, 0.5);
+            iconArrowDown.RenderTransform = new RotateTransform(270);
+            spDown.Children.Add(iconArrowDown);
 
-			Button btnSearchUp = new Button();
-			StackPanel spUp = new StackPanel();
-			spUp.Orientation = Orientation.Horizontal;
+            btnSearchDown.Content = spDown;
+            btnSearchDown.Width = 42;
+            btnSearchDown.Padding = new Thickness(0, 2, 0, 2);
+            btnSearchDown.Margin = new Thickness(2, 0, 2, 0);
+            btnSearchDown.ToolTip = "Search next from top";
+            btnSearchDown.Click += SearchDown_Click;
+            sourceToolBar.Items.Add(btnSearchDown);
 
-			TextBlock iconSearchUp = new TextBlock();
-			iconSearchUp.Text = "\uE721";
-			iconSearchUp.FontFamily = new FontFamily("Segoe Fluent Icons");
-			iconSearchUp.FontSize = 16;
-			iconSearchUp.VerticalAlignment = VerticalAlignment.Center;
-			spUp.Children.Add(iconSearchUp);
+            Button btnSearchUp = new Button();
+            StackPanel spUp = new StackPanel();
+            spUp.Orientation = Orientation.Horizontal;
 
-			TextBlock iconArrowUp = new TextBlock();
-			iconArrowUp.Text = "\uE761";
-			iconArrowUp.FontFamily = new FontFamily("Segoe Fluent Icons");
-			iconArrowUp.FontSize = 16;
-			iconArrowUp.VerticalAlignment = VerticalAlignment.Center;
-			iconArrowUp.RenderTransformOrigin = new Point(0.5, 0.5);
-			iconArrowUp.RenderTransform = new RotateTransform(90);
-			spUp.Children.Add(iconArrowUp);
+            TextBlock iconSearchUp = new TextBlock();
+            iconSearchUp.Text = "\uE721";
+            iconSearchUp.FontFamily = new FontFamily("Segoe Fluent Icons");
+            iconSearchUp.FontSize = 15;
+            iconSearchUp.VerticalAlignment = VerticalAlignment.Center;
+            spUp.Children.Add(iconSearchUp);
 
-			btnSearchUp.Content = spUp;
-			btnSearchUp.Width = 48;
-			btnSearchUp.Padding = new Thickness(4, 2, 4, 2);
-            btnSearchUp.Margin = new Thickness(2, 0, 0, 0);
-			btnSearchUp.ToolTip = "Search next from bottom";
-			btnSearchUp.Click += SearchUp_Click;
-			sourceToolBar.Items.Add(btnSearchUp);
+            TextBlock iconArrowUp = new TextBlock();
+            iconArrowUp.Text = "\uE761";
+            iconArrowUp.FontFamily = new FontFamily("Segoe Fluent Icons");
+            iconArrowUp.FontSize = 15;
+            iconArrowUp.Margin = new Thickness(2, 0, 0, 0);
+            iconArrowUp.VerticalAlignment = VerticalAlignment.Center;
+            iconArrowUp.RenderTransformOrigin = new Point(0.5, 0.5);
+            iconArrowUp.RenderTransform = new RotateTransform(270);
+            spUp.Children.Add(iconArrowUp);
 
-			sourceToolBar.Items.Add(new Separator());
+            btnSearchUp.Content = spUp;
+            btnSearchUp.Width = 42;
+            btnSearchUp.Padding = new Thickness(0, 2, 0, 2);
+            btnSearchUp.Margin = new Thickness(2, 0, 2, 0);
+            btnSearchUp.ToolTip = "Search next from bottom";
+            btnSearchUp.Click += SearchUp_Click;
+            sourceToolBar.Items.Add(btnSearchUp);
 
-			Button btnFontSmaller = new Button();
-			btnFontSmaller.Content = "\uE8E7";
-			btnFontSmaller.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnFontSmaller.FontSize = 16;
-			btnFontSmaller.Padding = new Thickness(6, 2, 6, 2);
-            btnFontSmaller.Margin = new Thickness(2, 0, 0, 0);
-			btnFontSmaller.ToolTip = "Decrease font size";
-			btnFontSmaller.Click += (s, ev) =>
-			{
-			    if (sourceView.FontSize > 6)
-			    {
-			        sourceView.FontSize -= 1;
-			        if (!string.IsNullOrEmpty(currentSource))
-			            DisplaySource(currentSource);
-			    }
-			};
-			sourceToolBar.Items.Add(btnFontSmaller);
+            sourceToolBar.Items.Add(new Separator());
 
-			Button btnFontLarger = new Button();
-			btnFontLarger.Content = "\uE8E8";
-			btnFontLarger.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnFontLarger.FontSize = 16;
-			btnFontLarger.Padding = new Thickness(6, 2, 6, 2);
-            btnFontLarger.Margin = new Thickness(2, 0, 0, 0);
-			btnFontLarger.ToolTip = "Increase font size";
-			btnFontLarger.Click += (s, ev) =>
-			{
-			    if (sourceView.FontSize < 30)
-			    {
-			        sourceView.FontSize += 1;
-			        if (!string.IsNullOrEmpty(currentSource))
-			            DisplaySource(currentSource);
-			    }
-			};
-			sourceToolBar.Items.Add(btnFontLarger);
+            Button btnFontSmaller = CreateToolBarButton("\uE8E7", "Decrease font size", null);
+            btnFontSmaller.Click += (s, ev) =>
+            {
+                if (sourceView.FontSize > 6)
+                {
+                    sourceView.FontSize -= 1;
+                    if (!string.IsNullOrEmpty(currentSource))
+                        DisplaySource(currentSource);
+                }
+            };
+            sourceToolBar.Items.Add(btnFontSmaller);
+
+            Button btnFontLarger = CreateToolBarButton("\uE8E8", "Increase font size", null);
+            btnFontLarger.Click += (s, ev) =>
+            {
+                if (sourceView.FontSize < 30)
+                {
+                    sourceView.FontSize += 1;
+                    if (!string.IsNullOrEmpty(currentSource))
+                        DisplaySource(currentSource);
+                }
+            };
+            sourceToolBar.Items.Add(btnFontLarger);
 
 			sourceToolBar.Items.Add(new Separator());
 
@@ -760,7 +686,7 @@ namespace PublishedAppTracker
 			sourceTab.Content = sourcePanel;
 			rightTabs.Items.Add(sourceTab);
 
-            // Tab 2: App Settings
+            // Tab 4: App Settings
             TabItem appSettingsTab = new TabItem();
             appSettingsTab.Header = "⚙ App Settings";
 
@@ -779,37 +705,54 @@ namespace PublishedAppTracker
             appSettingsTitle.FontWeight = FontWeights.Bold;
             appSettingsTitle.FontSize = 13;
             appSettingsTitle.VerticalAlignment = VerticalAlignment.Center;
-            appSettingsTitle.Margin = new Thickness(0, 0, 8, 0);
+            appSettingsTitle.Margin = new Thickness(2, 0, 8, 0);
             appSettingsToolBar.Items.Add(appSettingsTitle);
 
             appSettingsToolBar.Items.Add(new Separator());
 
-            Button btnApplyColumns = new Button();
-            btnApplyColumns.Content = "\xe930";
-            btnApplyColumns.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnApplyColumns.FontSize = 16;
-            btnApplyColumns.Padding = new Thickness(6, 2, 6, 2);
-            btnApplyColumns.ToolTip = "Apply column visibility changes to the list";
-            btnApplyColumns.Click += ApplyColumnSettings_Click;
+			Button btnApplyColumns = CreateToolBarButton("\xe930", "Apply column visibility changes to the list", ApplyColumnSettings_Click);
             appSettingsToolBar.Items.Add(btnApplyColumns);
 
-            Button btnSaveSettings = new Button();
-            btnSaveSettings.Content = "\uE74E";
-            btnSaveSettings.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnSaveSettings.FontSize = 16;
-            btnSaveSettings.Padding = new Thickness(6, 2, 6, 2);
-            btnSaveSettings.ToolTip = "Save all application settings now";
-            btnSaveSettings.Click += SaveAppSettings_Click;
+			Button btnSaveSettings = CreateToolBarButton("\uE74E", "Save all application settings now", SaveAppSettings_Click);
             appSettingsToolBar.Items.Add(btnSaveSettings);
 
-            Button btnRestoreDefaults = new Button();
-            btnRestoreDefaults.Content = "\xe845";
-            btnRestoreDefaults.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnRestoreDefaults.FontSize = 16;
-            btnRestoreDefaults.Padding = new Thickness(6, 2, 6, 2);
-            btnRestoreDefaults.ToolTip = "Reset all column settings to defaults";
-            btnRestoreDefaults.Click += RestoreDefaultColumns_Click;
+			Button btnRestoreDefaults = CreateToolBarButton("\xe845", "Reset all column settings to defaults", RestoreDefaultColumns_Click);
             appSettingsToolBar.Items.Add(btnRestoreDefaults);
+
+			appSettingsToolBar.Items.Add(new Separator());
+
+			ComboBox toolbarCombo = new ComboBox();
+			toolbarCombo.Width = 100;
+			toolbarCombo.Items.Add("Top");
+			toolbarCombo.Items.Add("Bottom");
+			toolbarCombo.Items.Add("Left");
+			toolbarCombo.Items.Add("Right");
+			string savedPos = windowSettings.ToolbarPosition ?? "Top";
+			int comboIndex = 0;
+			for (int i = 0; i < toolbarCombo.Items.Count; i++)
+			{
+			    if ((string)toolbarCombo.Items[i] == savedPos)
+			    {
+			        comboIndex = i;
+			        break;
+			    }
+			}
+			toolbarCombo.SelectedIndex = comboIndex;
+			toolbarCombo.SelectionChanged += (s, ev) =>
+			{
+			    string pos = toolbarCombo.SelectedItem as string;
+			    if (pos != null)
+			    {
+			        DockToolbarTo(pos);
+			    }
+			};
+			appSettingsToolBar.Items.Add(toolbarCombo);
+
+			TextBlock toolbarPosLabel = new TextBlock();
+			toolbarPosLabel.Text = "Toolbar Position";
+			toolbarPosLabel.VerticalAlignment = VerticalAlignment.Center;
+			toolbarPosLabel.Margin = new Thickness(4, 0, 0, 0);
+			appSettingsToolBar.Items.Add(toolbarPosLabel);
 
             appSettingsToolBarTray.ToolBars.Add(appSettingsToolBar);
             appSettingsOuter.Children.Add(appSettingsToolBarTray);
@@ -821,34 +764,10 @@ namespace PublishedAppTracker
             StackPanel appSettingsPanel = new StackPanel();
             appSettingsPanel.Margin = new Thickness(12);
 
-            // Toolbar position
-            TextBlock toolbarLabel = new TextBlock();
-            toolbarLabel.Text = "Toolbar Position:";
-            toolbarLabel.Margin = new Thickness(0, 0, 0, 4);
-            appSettingsPanel.Children.Add(toolbarLabel);
-
-            ComboBox toolbarCombo = new ComboBox();
-            toolbarCombo.Width = 150;
-            toolbarCombo.HorizontalAlignment = HorizontalAlignment.Left;
-            toolbarCombo.Margin = new Thickness(0, 0, 0, 16);
-            toolbarCombo.Items.Add("Top");
-            toolbarCombo.Items.Add("Bottom");
-            toolbarCombo.Items.Add("Left");
-            toolbarCombo.Items.Add("Right");
-            toolbarCombo.SelectedIndex = 0;
-            toolbarCombo.SelectionChanged += (s, ev) =>
-            {
-                string pos = toolbarCombo.SelectedItem as string;
-                if (pos != null)
-                {
-                    DockToolbarTo(pos);
-                }
-            };
-            appSettingsPanel.Children.Add(toolbarCombo);
-
             // Editor path setting
             TextBlock editorLabel = new TextBlock();
             editorLabel.Text = "Text Editor Path:";
+            editorLabel.FontWeight = FontWeights.Bold;
             editorLabel.Margin = new Thickness(0, 0, 0, 4);
             appSettingsPanel.Children.Add(editorLabel);
 
@@ -920,7 +839,7 @@ namespace PublishedAppTracker
             appSettingsOuter.Children.Add(appSettingsScroll);
             appSettingsTab.Content = appSettingsOuter;
 
-            // Tab 3: WebView2
+            // Tab 2: WebView2
             TabItem webTab = new TabItem();
             webTab.Header = "🌐 WebView";
 
@@ -950,23 +869,12 @@ namespace PublishedAppTracker
             webSearchBox.ToolTip = "Enter a URL or search term, then press Enter or click the search button";
             webTopToolBar.Items.Add(webSearchBox);
 
-            Button btnWebGo = new Button();
-            btnWebGo.Content = "\uE721";
-            btnWebGo.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnWebGo.FontSize = 16;
-            btnWebGo.Padding = new Thickness(6, 2, 6, 2);
-            btnWebGo.Margin = new Thickness(4, 0, 0, 0);
-            btnWebGo.ToolTip = "Search or navigate to URL";
+            Button btnWebGo = CreateToolBarButton("\uE721", "Search or navigate to URL", null);
             webTopToolBar.Items.Add(btnWebGo);
 
             webTopToolBar.Items.Add(new Separator());
 
-            Button btnWebBack = new Button();
-            btnWebBack.Content = "\xe760";
-            btnWebBack.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnWebBack.FontSize = 16;
-            btnWebBack.Padding = new Thickness(6, 2, 6, 2);
-            btnWebBack.ToolTip = "Back";
+            Button btnWebBack = CreateToolBarButton("\xe760", "Back", null);
             btnWebBack.Click += (s, ev) =>
             {
                 try { if (webView.CoreWebView2 != null && webView.CanGoBack) webView.GoBack(); }
@@ -974,13 +882,7 @@ namespace PublishedAppTracker
             };
             webTopToolBar.Items.Add(btnWebBack);
 
-            Button btnWebForward = new Button();
-            btnWebForward.Content = "\xe761";
-            btnWebForward.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnWebForward.FontSize = 16;
-            btnWebForward.Padding = new Thickness(6, 2, 6, 2);
-            btnWebForward.Margin = new Thickness(2, 0, 0, 0);
-            btnWebForward.ToolTip = "Forward";
+            Button btnWebForward = CreateToolBarButton("\xe761", "Forward", null);
             btnWebForward.Click += (s, ev) =>
             {
                 try { if (webView.CoreWebView2 != null && webView.CanGoForward) webView.GoForward(); }
@@ -988,13 +890,7 @@ namespace PublishedAppTracker
             };
             webTopToolBar.Items.Add(btnWebForward);
 
-            Button btnWebHome = new Button();
-            btnWebHome.Content = "\xe80f";
-            btnWebHome.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnWebHome.FontSize = 16;
-            btnWebHome.Padding = new Thickness(6, 2, 6, 2);
-            btnWebHome.Margin = new Thickness(2, 0, 0, 0);
-            btnWebHome.ToolTip = "Return to current track URL";
+            Button btnWebHome = CreateToolBarButton("\xe80f", "Return to current track URL", null);
             btnWebHome.Click += (s, ev) =>
             {
                 try
@@ -1086,61 +982,27 @@ namespace PublishedAppTracker
             webBottomToolBar.Band = 0;
             webBottomToolBar.BandIndex = 0;
 
-            Button btnZoomIn = new Button();
-            btnZoomIn.Content = "\xe8a3";
-            btnZoomIn.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnZoomIn.FontSize = 16;
-            btnZoomIn.Padding = new Thickness(6, 2, 6, 2);
-            btnZoomIn.ToolTip = "Zoom in";
-            btnZoomIn.Click += ZoomIn_Click;
+            Button btnZoomIn = CreateToolBarButton("\xe8a3", "Zoom in", ZoomIn_Click);
             webBottomToolBar.Items.Add(btnZoomIn);
 
-            Button btnZoomOut = new Button();
-            btnZoomOut.Content = "\xe71f";
-            btnZoomOut.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnZoomOut.FontSize = 16;
-            btnZoomOut.Padding = new Thickness(6, 2, 6, 2);
-            btnZoomOut.Margin = new Thickness(2, 0, 0, 0);
-            btnZoomOut.ToolTip = "Zoom out";
-            btnZoomOut.Click += ZoomOut_Click;
+            Button btnZoomOut = CreateToolBarButton("\xe71f", "Zoom out", ZoomOut_Click);
             webBottomToolBar.Items.Add(btnZoomOut);
 
-            Button btnZoomReset = new Button();
-            btnZoomReset.Content = "100%";
-            btnZoomReset.Padding = new Thickness(6, 2, 6, 2);
-            btnZoomReset.Margin = new Thickness(2, 0, 0, 0);
-            btnZoomReset.ToolTip = "Reset zoom";
-            btnZoomReset.Click += ZoomReset_Click;
+            Button btnZoomReset = CreateToolBarButton("100%", "Reset zoom", ZoomReset_Click);
+            btnZoomReset.FontFamily = SystemFonts.MessageFontFamily;
+            btnZoomReset.FontSize = SystemFonts.MessageFontSize;
             webBottomToolBar.Items.Add(btnZoomReset);
 
-            Button btnZoomFit = new Button();
-            btnZoomFit.Content = "\xe9a6";
-            btnZoomFit.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnZoomFit.FontSize = 16;
-            btnZoomFit.Padding = new Thickness(6, 2, 6, 2);
-            btnZoomFit.Margin = new Thickness(2, 0, 0, 0);
-            btnZoomFit.ToolTip = "Fit to panel width";
-            btnZoomFit.Click += ZoomFit_Click;
+            Button btnZoomFit = CreateToolBarButton("\xe9a6", "Fit to panel width", ZoomFit_Click);
             webBottomToolBar.Items.Add(btnZoomFit);
 
             webBottomToolBar.Items.Add(new Separator());
 
-            Button btnClearCookies = new Button();
-            btnClearCookies.Content = "🍪";
-            btnClearCookies.FontSize = 16;
-            btnClearCookies.Padding = new Thickness(6, 2, 6, 2);
-            btnClearCookies.ToolTip = "Delete all cookies";
-            btnClearCookies.Click += ClearCookies_Click;
+            Button btnClearCookies = CreateToolBarButton("🍪", "Delete all cookies", ClearCookies_Click);
+            btnClearCookies.FontFamily = SystemFonts.MessageFontFamily;
             webBottomToolBar.Items.Add(btnClearCookies);
 
-            Button btnClearAll = new Button();
-            btnClearAll.Content = "\xecad";
-            btnClearAll.FontFamily = new FontFamily("Segoe Fluent Icons");
-            btnClearAll.FontSize = 16;
-            btnClearAll.Padding = new Thickness(6, 2, 6, 2);
-            btnClearAll.Margin = new Thickness(2, 0, 0, 0);
-            btnClearAll.ToolTip = "Clear all cookies, cache, and browsing data";
-            btnClearAll.Click += ClearAllData_Click;
+            Button btnClearAll = CreateToolBarButton("\xecad", "Clear all cookies, cache, and browsing data", ClearAllData_Click);
             webBottomToolBar.Items.Add(btnClearAll);
 
             webBottomToolBar.Items.Add(new Separator());
@@ -1150,6 +1012,7 @@ namespace PublishedAppTracker
             chkBlockPopups.VerticalAlignment = VerticalAlignment.Center;
             chkBlockPopups.IsChecked = true;
             chkBlockPopups.ToolTip = "Automatically hides cookie consent popups.\nUnchecking clears cookies for this site\n(you may be signed out) and reload the page.";
+            chkBlockPopups.Margin = new Thickness(2, 0, 0, 0);
             chkBlockPopups.Checked += async (s, ev) =>
             {
                 blockCookiePopups = true;
@@ -1926,7 +1789,7 @@ namespace PublishedAppTracker
             FrameworkElementFactory textBlock = new FrameworkElementFactory(typeof(TextBlock));
             textBlock.SetValue(TextBlock.TextProperty, "\uF136"); // Filled circle
             textBlock.SetValue(TextBlock.FontFamilyProperty, new FontFamily("Segoe Fluent Icons"));
-            textBlock.SetValue(TextBlock.FontSizeProperty, 14.0);
+            textBlock.SetValue(TextBlock.FontSizeProperty, 10.0);
             textBlock.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
             textBlock.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
             textBlock.AddHandler(TextBlock.LoadedEvent, new RoutedEventHandler(StatusIcon_Loaded));
@@ -2416,35 +2279,35 @@ namespace PublishedAppTracker
             }
         }
 
-        private void UpdateVersionDisplay()
-        {
-            string current = editVersion.Text.Trim();
-            string latest = currentTrackItem?.LatestVersion ?? "";
+		private void UpdateVersionDisplay()
+		{
+		    string current = editVersion.Text.Trim();
+		    string latest = currentTrackItem?.LatestVersion ?? "";
 
-            if (string.IsNullOrEmpty(latest) || latest == "(not yet checked)")
-            {
-                editLatestVersion.Text = "(not yet checked)";
-                editLatestVersion.Foreground = Brushes.Gray;
-                btnUpdateVersion.IsEnabled = false;
-                return;
-            }
+		    if (string.IsNullOrEmpty(latest) || latest == "(not yet checked)")
+		    {
+		        editLatestVersion.Text = "(not yet checked)";
+		        editLatestVersion.Foreground = Brushes.Gray;
+		        btnUpdateVersion.IsEnabled = false;
+		        return;
+		    }
 
-            editLatestVersion.Text = latest;
+		    editLatestVersion.Text = latest;
 
-            if (current == latest)
-            {
-                // Same version — green, button disabled
-                editLatestVersion.Foreground = new SolidColorBrush(Color.FromRgb(0, 160, 0));
-                btnUpdateVersion.IsEnabled = false;
-            }
-            else
-            {
-                // Different version — red, button enabled
-                editLatestVersion.Foreground = new SolidColorBrush(Color.FromRgb(200, 30, 30));
-                btnUpdateVersion.IsEnabled = true;
-            }
-        }
-
+		    if (current == latest)
+		    {
+		        // Same version — green, button disabled
+		        editLatestVersion.Foreground = new SolidColorBrush(currentTheme.VersionMatchColor);
+		        btnUpdateVersion.IsEnabled = false;
+		    }
+		    else
+		    {
+		        // Different version — red, button enabled
+		        editLatestVersion.Foreground = new SolidColorBrush(currentTheme.VersionMismatchColor);
+		        btnUpdateVersion.IsEnabled = true;
+		    }
+		}
+		
         // ============================
         // Layout Toggle
         // ============================
@@ -2723,7 +2586,7 @@ namespace PublishedAppTracker
 		    themeToolBarTitle.FontWeight = FontWeights.Bold;
 		    themeToolBarTitle.FontSize = 13;
 		    themeToolBarTitle.VerticalAlignment = VerticalAlignment.Center;
-		    themeToolBarTitle.Margin = new Thickness(0, 0, 8, 0);
+		    themeToolBarTitle.Margin = new Thickness(2, 0, 8, 0);
 		    themeToolBar.Items.Add(themeToolBarTitle);
 
 		    themeToolBar.Items.Add(new Separator());
@@ -2736,7 +2599,38 @@ namespace PublishedAppTracker
 		    presetCombo.Items.Add("Blue");
 		    // Add custom .theme files from Settings folder
 		    PopulateThemeCombo(presetCombo);
-		    presetCombo.SelectedIndex = 0;
+		    // Select the combo item matching the actually loaded theme
+			string activeThemeName = currentTheme.ThemeName ?? "";
+			bool found = false;
+			for (int i = 0; i < presetCombo.Items.Count; i++)
+			{
+			    string itemText = presetCombo.Items[i] as string;
+			    if (itemText == null) continue; // skip Separators
+
+			    // Match by theme name for built-ins, or by filename for custom themes
+			    if (itemText == activeThemeName)
+			    {
+			        presetCombo.SelectedIndex = i;
+			        found = true;
+			        break;
+			    }
+
+			    // Also match custom themes by filename (without .theme extension)
+			    if (!string.IsNullOrEmpty(windowSettings.ActiveThemePath))
+			    {
+			        string fileBaseName = Path.GetFileNameWithoutExtension(windowSettings.ActiveThemePath);
+			        if (itemText == fileBaseName)
+			        {
+			            presetCombo.SelectedIndex = i;
+			            found = true;
+			            break;
+			        }
+			    }
+			}
+			if (!found)
+			{
+			    presetCombo.SelectedIndex = 0;
+			}
 
 		    // Instant-apply on selection change (no separate "Apply" button needed)
 			// Hook DropDownOpened once to style separator items
@@ -2806,49 +2700,24 @@ namespace PublishedAppTracker
 			
 		    themeToolBar.Items.Add(presetCombo);
 
-		    Button btnApplyPreset = new Button();
-		    btnApplyPreset.Content = "\xe930";
-		    btnApplyPreset.FontFamily = new FontFamily("Segoe Fluent Icons");
-		    btnApplyPreset.FontSize = 16;
-		    btnApplyPreset.Padding = new Thickness(6, 2, 6, 2);
-		    btnApplyPreset.ToolTip = "Apply preset theme";
-		    themeToolBar.Items.Add(btnApplyPreset);
+			Button btnApplyPreset = CreateToolBarButton("\xe930", "Apply preset theme", null);
+			themeToolBar.Items.Add(btnApplyPreset);
 
-		    themeToolBar.Items.Add(new Separator());
+			themeToolBar.Items.Add(new Separator());
 
-		    Button btnLoadTheme = new Button();
-		    btnLoadTheme.Content = "\xe838";
-		    btnLoadTheme.FontFamily = new FontFamily("Segoe Fluent Icons");
-		    btnLoadTheme.FontSize = 16;
-		    btnLoadTheme.Padding = new Thickness(6, 2, 6, 2);
-		    btnLoadTheme.ToolTip = "Browse for theme file";
-		    themeToolBar.Items.Add(btnLoadTheme);
+			Button btnLoadTheme = CreateToolBarButton("\xe838", "Browse for theme file", null);
+			themeToolBar.Items.Add(btnLoadTheme);
 
-		    Button btnSaveTheme = new Button();
-		    btnSaveTheme.Content = "\uE74E";
-		    btnSaveTheme.FontFamily = new FontFamily("Segoe Fluent Icons");
-		    btnSaveTheme.FontSize = 16;
-		    btnSaveTheme.Padding = new Thickness(6, 2, 6, 2);
-		    btnSaveTheme.ToolTip = "Save theme to file";
-		    themeToolBar.Items.Add(btnSaveTheme);
+			Button btnSaveTheme = CreateToolBarButton("\uE74E", "Save theme to file", null);
+			themeToolBar.Items.Add(btnSaveTheme);
 
-			Button btnSaveThemeAs = new Button();
-			btnSaveThemeAs.Content = "\uE792"; // SaveAs icon
-			btnSaveThemeAs.FontFamily = new FontFamily("Segoe Fluent Icons");
-			btnSaveThemeAs.FontSize = 16;
-			btnSaveThemeAs.Padding = new Thickness(6, 2, 6, 2);
-			btnSaveThemeAs.ToolTip = "Save theme as new file";
+			Button btnSaveThemeAs = CreateToolBarButton("\uE792", "Save theme as new file", null);
 			themeToolBar.Items.Add(btnSaveThemeAs);
-			
-		    themeToolBar.Items.Add(new Separator());
 
-		    Button btnResetTheme = new Button();
-		    btnResetTheme.Content = "\xe845";
-		    btnResetTheme.FontFamily = new FontFamily("Segoe Fluent Icons");
-		    btnResetTheme.FontSize = 16;
-		    btnResetTheme.Padding = new Thickness(6, 2, 6, 2);
-		    btnResetTheme.ToolTip = "Revert to last saved/loaded theme";
-		    themeToolBar.Items.Add(btnResetTheme);
+			themeToolBar.Items.Add(new Separator());
+
+			Button btnResetTheme = CreateToolBarButton("\xe845", "Revert to last saved/loaded theme", null);
+			themeToolBar.Items.Add(btnResetTheme);
 
 		    themeToolBarTray.ToolBars.Add(themeToolBar);
 		    themeOuterPanel.Children.Add(themeToolBarTray);
@@ -2876,6 +2745,8 @@ namespace PublishedAppTracker
 		    AddThemeSection(themePanel, "Status Bar");
 		    AddColorSwatch(themePanel, "StatusBar Background", () => previewTheme.StatusBarBackground, c => previewTheme.StatusBarBackground = c);
 		    AddColorSwatch(themePanel, "StatusBar Foreground", () => previewTheme.StatusBarForeground, c => previewTheme.StatusBarForeground = c);
+		    AddColorSwatch(themePanel, "ProgressBar Background", () => previewTheme.ProgressBarBackground, c => previewTheme.ProgressBarBackground = c);
+			AddColorSwatch(themePanel, "ProgressBar Foreground", () => previewTheme.ProgressBarForeground, c => previewTheme.ProgressBarForeground = c);
 
 		    AddThemeSection(themePanel, "Category Tree");
 		    AddColorSwatch(themePanel, "Tree Background", () => previewTheme.TreeBackground, c => previewTheme.TreeBackground = c);
@@ -2892,6 +2763,21 @@ namespace PublishedAppTracker
 		    AddColorSwatch(themePanel, "List Selected Foreground", () => previewTheme.ListSelectedForeground, c => previewTheme.ListSelectedForeground = c);
 		    AddColorSwatch(themePanel, "List Hover Background", () => previewTheme.ListHoverBackground, c => previewTheme.ListHoverBackground = c);
 		    AddColorSwatch(themePanel, "List Hover Foreground", () => previewTheme.ListHoverForeground, c => previewTheme.ListHoverForeground = c);
+		    AddColorSwatch(themePanel, "Header Hover Background", () => previewTheme.ListHeaderHoverBackground, c => previewTheme.ListHeaderHoverBackground = c);
+			AddColorSwatch(themePanel, "Header Hover Foreground", () => previewTheme.ListHeaderHoverForeground, c => previewTheme.ListHeaderHoverForeground = c);
+
+			AddThemeSection(themePanel, "ComboBox");
+			AddColorSwatch(themePanel, "Background", () => previewTheme.ComboBoxBackground, c => previewTheme.ComboBoxBackground = c);
+			AddColorSwatch(themePanel, "Foreground", () => previewTheme.ComboBoxForeground, c => previewTheme.ComboBoxForeground = c);
+			AddColorSwatch(themePanel, "Border", () => previewTheme.ComboBoxBorder, c => previewTheme.ComboBoxBorder = c);
+			AddColorSwatch(themePanel, "Button Background", () => previewTheme.ComboBoxButtonBackground, c => previewTheme.ComboBoxButtonBackground = c);
+			AddColorSwatch(themePanel, "Button Arrow", () => previewTheme.ComboBoxButtonForeground, c => previewTheme.ComboBoxButtonForeground = c);
+
+			AddThemeSection(themePanel, "ListView Checkboxes");
+			AddColorSwatch(themePanel, "Box Background", () => previewTheme.CheckBoxBackground, c => previewTheme.CheckBoxBackground = c);
+			AddColorSwatch(themePanel, "Box Border", () => previewTheme.CheckBoxBorder, c => previewTheme.CheckBoxBorder = c);
+			AddColorSwatch(themePanel, "Check Mark", () => previewTheme.CheckBoxCheckMark, c => previewTheme.CheckBoxCheckMark = c);
+			AddColorSwatch(themePanel, "Hover Background", () => previewTheme.CheckBoxHoverBackground, c => previewTheme.CheckBoxHoverBackground = c);
 
 		    AddThemeSection(themePanel, "List Status Indicators (● icons)");
 		    AddColorSwatch(themePanel, "Unchanged", () => previewTheme.StatusUnchanged, c => previewTheme.StatusUnchanged = c);
@@ -2908,14 +2794,18 @@ namespace PublishedAppTracker
 
 		    AddThemeSection(themePanel, "Track Settings Panel");
 		    AddColorSwatch(themePanel, "Panel Background", () => previewTheme.PanelBackground, c => previewTheme.PanelBackground = c);
+		    AddColorSwatch(themePanel, "Panel Foreground", () => previewTheme.PanelForeground, c => previewTheme.PanelForeground = c);
 		    AddColorSwatch(themePanel, "TextBox Background", () => previewTheme.TextBoxBackground, c => previewTheme.TextBoxBackground = c);
 		    AddColorSwatch(themePanel, "TextBox Foreground", () => previewTheme.TextBoxForeground, c => previewTheme.TextBoxForeground = c);
+		    AddColorSwatch(themePanel, "Version Match / Found", () => previewTheme.VersionMatchColor, c => previewTheme.VersionMatchColor = c);
+			AddColorSwatch(themePanel, "Version Mismatch / Not Found", () => previewTheme.VersionMismatchColor, c => previewTheme.VersionMismatchColor = c);
 
 		    AddThemeSection(themePanel, "Tabs");
 		    AddColorSwatch(themePanel, "Tab Background", () => previewTheme.TabBackground, c => previewTheme.TabBackground = c);
 		    AddColorSwatch(themePanel, "Tab Foreground", () => previewTheme.TabForeground, c => previewTheme.TabForeground = c);
 		    AddColorSwatch(themePanel, "Tab Selected Background", () => previewTheme.TabSelectedBackground, c => previewTheme.TabSelectedBackground = c);
 		    AddColorSwatch(themePanel, "Tab Selected Foreground", () => previewTheme.TabSelectedForeground, c => previewTheme.TabSelectedForeground = c);
+		    AddColorSwatch(themePanel, "Tab Content Foreground", () => previewTheme.TabContentForeground, c => previewTheme.TabContentForeground = c);
 
 		    AddThemeSection(themePanel, "Source View");
 		    AddColorSwatch(themePanel, "Source Background", () => previewTheme.SourceBackground, c => previewTheme.SourceBackground = c);
@@ -2991,8 +2881,10 @@ namespace PublishedAppTracker
 		            windowSettings.ActiveThemePath = relativePath;
 
 		            // Refresh the combo to include the newly loaded file if it's in Settings
-		            PopulateThemeCombo(presetCombo);
-
+		            int savedTabIndex = rightTabs.SelectedIndex;
+					PopulateThemeCombo(presetCombo);
+					rightTabs.SelectedIndex = savedTabIndex;
+					
 		            statusFile.Text = "Theme loaded: " + loaded.ThemeName;
 		        }
 		    };
@@ -3045,7 +2937,9 @@ namespace PublishedAppTracker
 			    currentThemePath = newPath;
 			    currentTheme = previewTheme.Clone();
 			    windowSettings.ActiveThemePath = safeName + ".theme";
-			    PopulateThemeCombo(presetCombo);
+			    int savedTabIndex = rightTabs.SelectedIndex;
+				PopulateThemeCombo(presetCombo);
+				rightTabs.SelectedIndex = savedTabIndex;
 			    statusFile.Text = "Theme saved: " + themeName;
 			};
 
@@ -3082,7 +2976,9 @@ namespace PublishedAppTracker
 			    currentThemePath = savePath;
 			    currentTheme = previewTheme.Clone();
 			    windowSettings.ActiveThemePath = safeName + ".theme";
-			    PopulateThemeCombo(presetCombo);
+			    int savedTabIndex = rightTabs.SelectedIndex;
+				PopulateThemeCombo(presetCombo);
+				rightTabs.SelectedIndex = savedTabIndex;
 			    statusFile.Text = "Theme saved as: " + themeName;
 			};
 
@@ -3356,6 +3252,14 @@ namespace PublishedAppTracker
 		        }
 		    }
 
+			// ---- Progress Bar ----
+			statusProgress.Background = new SolidColorBrush(theme.ProgressBarBackground);
+			statusProgress.Foreground = new SolidColorBrush(theme.ProgressBarForeground);
+			statusProgress.BorderBrush = new SolidColorBrush(theme.ProgressBarBackground);
+
+			// Reset to default template so Foreground/Background are respected
+			statusProgress.ClearValue(ProgressBar.StyleProperty);
+
 		    // ---- Splitters ----
 		    SolidColorBrush splitterBrush = new SolidColorBrush(theme.SplitterColor);
 		    ApplyThemeToElement<GridSplitter>(layoutVertical, gs => gs.Background = splitterBrush);
@@ -3514,14 +3418,176 @@ namespace PublishedAppTracker
 
 			itemList.ItemContainerStyle = listItemStyle;
 
-			// ListView column headers via style
-			Style headerStyle = new Style(typeof(GridViewColumnHeader));
-			headerStyle.Setters.Add(new Setter(GridViewColumnHeader.BackgroundProperty, new SolidColorBrush(theme.ListHeaderBackground)));
-			headerStyle.Setters.Add(new Setter(GridViewColumnHeader.ForegroundProperty, new SolidColorBrush(theme.ListHeaderForeground)));
-			headerStyle.Setters.Add(new Setter(GridViewColumnHeader.BorderBrushProperty, new SolidColorBrush(theme.ListHeaderBackground)));
-			GridView gv = itemList.View as GridView;
-			if (gv != null)
-			    gv.ColumnHeaderContainerStyle = headerStyle;
+			// ---- ListView CheckBox styling ----
+			string chkBgHex = ThemeSettings.ColorToHex(theme.CheckBoxBackground);
+			string chkBorderHex = ThemeSettings.ColorToHex(theme.CheckBoxBorder);
+			string chkTickHex = ThemeSettings.ColorToHex(theme.CheckBoxCheckMark);
+			string chkHoverBgHex = ThemeSettings.ColorToHex(theme.CheckBoxHoverBackground);
+
+			string checkBoxXaml = @"
+			<Style xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+			       xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+			       TargetType=""CheckBox"">
+			    <Setter Property=""Template"">
+			        <Setter.Value>
+			            <ControlTemplate TargetType=""CheckBox"">
+			                <Grid>
+			                    <Border x:Name=""CheckBorder""
+			                            Width=""14"" Height=""14""
+			                            Background=""" + chkBgHex + @"""
+			                            BorderBrush=""" + chkBorderHex + @"""
+			                            BorderThickness=""1""
+			                            CornerRadius=""2"">
+			                        <TextBlock x:Name=""CheckMark""
+			                                   Text=""&#xE73E;""
+			                                   FontFamily=""Segoe Fluent Icons""
+			                                   FontSize=""12""
+			                                   Foreground=""" + chkTickHex + @"""
+			                                   HorizontalAlignment=""Center""
+			                                   VerticalAlignment=""Center""
+			                                   Visibility=""Collapsed"" />
+			                    </Border>
+			                </Grid>
+			                <ControlTemplate.Triggers>
+			                    <Trigger Property=""IsChecked"" Value=""True"">
+			                        <Setter TargetName=""CheckMark"" Property=""Visibility"" Value=""Visible"" />
+			                    </Trigger>
+			                    <Trigger Property=""IsMouseOver"" Value=""True"">
+			                        <Setter TargetName=""CheckBorder"" Property=""Background"" Value=""" + chkHoverBgHex + @""" />
+			                    </Trigger>
+			                </ControlTemplate.Triggers>
+			            </ControlTemplate>
+			        </Setter.Value>
+			    </Setter>
+			</Style>";
+
+			try
+			{
+			    Style listCheckBoxStyle = (Style)System.Windows.Markup.XamlReader.Parse(checkBoxXaml);
+			    itemList.Resources[typeof(CheckBox)] = listCheckBoxStyle;
+			}
+			catch (Exception)
+			{
+			}
+			// ---- App Settings tab CheckBox styling ----
+			string settingsCheckBoxXaml = @"
+			<Style xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+			       xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+			       TargetType=""CheckBox"">
+			    <Setter Property=""Template"">
+			        <Setter.Value>
+			            <ControlTemplate TargetType=""CheckBox"">
+			                <StackPanel Orientation=""Horizontal"">
+			                    <Border x:Name=""CheckBorder""
+			                            Width=""14"" Height=""14""
+			                            Background=""" + chkBgHex + @"""
+			                            BorderBrush=""" + chkBorderHex + @"""
+			                            BorderThickness=""1""
+			                            CornerRadius=""2""
+			                            VerticalAlignment=""Center"">
+			                        <TextBlock x:Name=""CheckMark""
+			                                   Text=""&#xE73E;""
+			                                   FontFamily=""Segoe Fluent Icons""
+			                                   FontSize=""12""
+			                                   Foreground=""" + chkTickHex + @"""
+			                                   HorizontalAlignment=""Center""
+			                                   VerticalAlignment=""Center""
+			                                   Visibility=""Collapsed"" />
+			                    </Border>
+			                    <ContentPresenter Margin=""6,0,0,0""
+			                                      VerticalAlignment=""Center"" />
+			                </StackPanel>
+			                <ControlTemplate.Triggers>
+			                    <Trigger Property=""IsChecked"" Value=""True"">
+			                        <Setter TargetName=""CheckMark"" Property=""Visibility"" Value=""Visible"" />
+			                    </Trigger>
+			                    <Trigger Property=""IsMouseOver"" Value=""True"">
+			                        <Setter TargetName=""CheckBorder"" Property=""Background"" Value=""" + chkHoverBgHex + @""" />
+			                    </Trigger>
+			                </ControlTemplate.Triggers>
+			            </ControlTemplate>
+			        </Setter.Value>
+			    </Setter>
+			</Style>";
+
+			try
+			{
+			    Style settingsCheckBoxStyle = (Style)System.Windows.Markup.XamlReader.Parse(settingsCheckBoxXaml);
+			    columnCheckboxPanel.Resources[typeof(CheckBox)] = settingsCheckBoxStyle;
+			}
+			catch (Exception)
+			{
+			}
+
+			// ListView column headers via custom template (with hover support)
+			string hdrBgHex = ThemeSettings.ColorToHex(theme.ListHeaderBackground);
+			string hdrFgHex = ThemeSettings.ColorToHex(theme.ListHeaderForeground);
+			string hdrHoverBgHex = ThemeSettings.ColorToHex(theme.ListHeaderHoverBackground);
+			string hdrHoverFgHex = ThemeSettings.ColorToHex(theme.ListHeaderHoverForeground);
+
+			string headerXaml = @"
+			<Style xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+			       xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+			       TargetType=""GridViewColumnHeader"">
+			    <Setter Property=""Foreground"" Value=""" + hdrFgHex + @""" />
+			    <Setter Property=""Template"">
+			        <Setter.Value>
+			            <ControlTemplate TargetType=""GridViewColumnHeader"">
+			                <Grid>
+			                    <Border x:Name=""HeaderBorder""
+			                            Background=""" + hdrBgHex + @"""
+			                            BorderBrush=""" + hdrBgHex + @"""
+			                            BorderThickness=""0,0,1,1""
+			                            Padding=""4,2""
+			                            TextElement.Foreground=""" + hdrFgHex + @""">
+			                        <ContentPresenter VerticalAlignment=""Center""
+			                                          RecognizesAccessKey=""True"" />
+			                    </Border>
+			                    <Thumb x:Name=""PART_HeaderGripper""
+			                           HorizontalAlignment=""Right""
+			                           Width=""4""
+			                           Margin=""0,0,-2,0""
+			                           Cursor=""SizeWE"">
+			                        <Thumb.Style>
+			                            <Style TargetType=""Thumb"">
+			                                <Setter Property=""Template"">
+			                                    <Setter.Value>
+			                                        <ControlTemplate TargetType=""Thumb"">
+			                                            <Border Background=""Transparent""
+			                                                    Width=""4"" />
+			                                        </ControlTemplate>
+			                                    </Setter.Value>
+			                                </Setter>
+			                            </Style>
+			                        </Thumb.Style>
+			                    </Thumb>
+			                </Grid>
+			                <ControlTemplate.Triggers>
+			                    <Trigger Property=""IsMouseOver"" Value=""True"">
+			                        <Setter TargetName=""HeaderBorder"" Property=""Background"" Value=""" + hdrHoverBgHex + @""" />
+			                        <Setter TargetName=""HeaderBorder"" Property=""TextElement.Foreground"" Value=""" + hdrHoverFgHex + @""" />
+			                    </Trigger>
+			                    <Trigger Property=""Role"" Value=""Padding"">
+			                        <Setter TargetName=""HeaderBorder"" Property=""Background"" Value=""" + hdrBgHex + @""" />
+			                        <Setter TargetName=""HeaderBorder"" Property=""BorderThickness"" Value=""0"" />
+			                    </Trigger>
+			                </ControlTemplate.Triggers>
+			            </ControlTemplate>
+			        </Setter.Value>
+			    </Setter>
+			</Style>";
+
+			try
+			{
+			    columnHeaderStyle = (Style)System.Windows.Markup.XamlReader.Parse(headerXaml);
+			    itemList.Resources[typeof(GridViewColumnHeader)] = columnHeaderStyle;
+			    GridView gv = itemList.View as GridView;
+			    if (gv != null)
+			        gv.ColumnHeaderContainerStyle = columnHeaderStyle;
+			}
+			catch (Exception)
+			{
+			}
 
 		    // ---- Track Settings Panel ----
 		    ApplyThemeToPanel(trackSettingsPanel, theme);
@@ -3535,102 +3601,124 @@ namespace PublishedAppTracker
 			        ApplyThemeToToolBarTray(tbt, tsTbBg, tsTbFg);
 			}
 
-		    // ---- Tabs ----
-		    SolidColorBrush tabBg = new SolidColorBrush(theme.TabBackground);
-		    SolidColorBrush tabFg = new SolidColorBrush(theme.TabForeground);
-		    SolidColorBrush tabSelBg = new SolidColorBrush(theme.TabSelectedBackground);
-		    SolidColorBrush tabSelFg = new SolidColorBrush(theme.TabSelectedForeground);
-		    rightTabs.Background = tabBg;
-		    rightTabs.Foreground = tabFg;
+			// ---- Tabs ----
+			SolidColorBrush tabBg = new SolidColorBrush(theme.TabBackground);
+			SolidColorBrush tabFg = new SolidColorBrush(theme.TabForeground);
+			SolidColorBrush tabSelBg = new SolidColorBrush(theme.TabSelectedBackground);
+			SolidColorBrush tabSelFg = new SolidColorBrush(theme.TabSelectedForeground);
+			SolidColorBrush tabContentFg = new SolidColorBrush(theme.TabContentForeground);
+			rightTabs.Background = tabBg;
 
-		    Style tabItemStyle = new Style(typeof(TabItem));
-		    tabItemStyle.Setters.Add(new Setter(TabItem.BackgroundProperty, tabBg));
-		    tabItemStyle.Setters.Add(new Setter(TabItem.ForegroundProperty, tabFg));
+			// Compute hover color
+			byte tabR = theme.TabBackground.R;
+			byte tabG = theme.TabBackground.G;
+			byte tabB = theme.TabBackground.B;
+			Color tabHoverColor;
+			if ((tabR + tabG + tabB) / 3 < 128)
+			    tabHoverColor = Color.FromRgb(
+			        (byte)Math.Min(255, tabR + 25),
+			        (byte)Math.Min(255, tabG + 25),
+			        (byte)Math.Min(255, tabB + 25));
+			else
+			    tabHoverColor = Color.FromRgb(
+			        (byte)Math.Max(0, tabR - 25),
+			        (byte)Math.Max(0, tabG - 25),
+			        (byte)Math.Max(0, tabB - 25));
 
-		    // Custom ControlTemplate so Background actually renders on tab headers
-		    ControlTemplate tabItemTemplate = new ControlTemplate(typeof(TabItem));
+			string tabBgHex = ThemeSettings.ColorToHex(theme.TabBackground);
+			string tabFgHex = ThemeSettings.ColorToHex(theme.TabForeground);
+			string tabSelBgHex = ThemeSettings.ColorToHex(theme.TabSelectedBackground);
+			string tabSelFgHex = ThemeSettings.ColorToHex(theme.TabSelectedForeground);
+			string tabHoverHex = ThemeSettings.ColorToHex(tabHoverColor);
+			string tabSplitterHex = ThemeSettings.ColorToHex(theme.SplitterColor);
 
-		    FrameworkElementFactory tabBorder = new FrameworkElementFactory(typeof(Border));
-		    tabBorder.SetValue(FrameworkElement.NameProperty, "TabBorder");
-		    tabBorder.SetBinding(Border.BackgroundProperty,
-		        new System.Windows.Data.Binding("Background")
-		        {
-		            RelativeSource = new System.Windows.Data.RelativeSource(
-		                System.Windows.Data.RelativeSourceMode.TemplatedParent)
-		        });
-		    tabBorder.SetValue(Border.BorderBrushProperty, new SolidColorBrush(theme.SplitterColor));
-		    tabBorder.SetValue(Border.BorderThicknessProperty, new Thickness(1, 1, 1, 0));
-		    tabBorder.SetValue(Border.PaddingProperty, new Thickness(8, 4, 8, 4));
-		    tabBorder.SetValue(Border.MarginProperty, new Thickness(0, 0, 2, 0));
-		    tabBorder.SetValue(Border.CornerRadiusProperty, new CornerRadius(4, 4, 0, 0));
+			string tabXaml = @"
+			<ResourceDictionary
+			    xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+			    xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
 
-		    FrameworkElementFactory tabContentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
-		    tabContentPresenter.SetValue(ContentPresenter.ContentSourceProperty, "Header");
-		    tabContentPresenter.SetBinding(ContentPresenter.ContentProperty,
-		        new System.Windows.Data.Binding("Header")
-		        {
-		            RelativeSource = new System.Windows.Data.RelativeSource(
-		                System.Windows.Data.RelativeSourceMode.TemplatedParent)
-		        });
-		    tabContentPresenter.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+			    <Style TargetType=""TabItem"">
+			        <Setter Property=""Background"" Value=""" + tabBgHex + @""" />
+			        <Setter Property=""Template"">
+			            <Setter.Value>
+			                <ControlTemplate TargetType=""TabItem"">
+			                    <Border x:Name=""TabOuter"" Background=""Transparent"" Padding=""0"" BorderThickness=""0"">
+			                        <Border x:Name=""TabBorder""
+			                                Background=""{TemplateBinding Background}""
+			                                BorderBrush=""" + tabSplitterHex + @"""
+			                                BorderThickness=""1,1,1,0""
+			                                Padding=""8,4,8,4""
+			                                Margin=""0,0,2,0""
+			                                CornerRadius=""4,4,0,0"">
+			                            <ContentPresenter x:Name=""TabText""
+			                                              ContentSource=""Header""
+			                                              VerticalAlignment=""Center""
+			                                              TextElement.Foreground=""" + tabFgHex + @""" />
+			                        </Border>
+			                    </Border>
+			                    <ControlTemplate.Triggers>
+			                        <Trigger Property=""IsSelected"" Value=""True"">
+			                            <Setter Property=""Background"" Value=""" + tabSelBgHex + @""" />
+			                            <Setter Property=""Margin"" Value=""0,-2,2,0"" />
+			                            <Setter TargetName=""TabText"" Property=""TextElement.Foreground"" Value=""" + tabSelFgHex + @""" />
+			                        </Trigger>
+			                        <MultiTrigger>
+			                            <MultiTrigger.Conditions>
+			                                <Condition Property=""IsMouseOver"" Value=""True"" />
+			                                <Condition Property=""IsSelected"" Value=""False"" />
+			                            </MultiTrigger.Conditions>
+			                            <Setter Property=""Background"" Value=""" + tabHoverHex + @""" />
+			                        </MultiTrigger>
+			                    </ControlTemplate.Triggers>
+			                </ControlTemplate>
+			            </Setter.Value>
+			        </Setter>
+			    </Style>
 
-		    tabBorder.AppendChild(tabContentPresenter);
-		    tabItemTemplate.VisualTree = tabBorder;
+			</ResourceDictionary>";
 
-		    // Selected trigger
-		    Trigger tabSelectedTrigger = new Trigger();
-		    tabSelectedTrigger.Property = TabItem.IsSelectedProperty;
-		    tabSelectedTrigger.Value = true;
-		    tabSelectedTrigger.Setters.Add(new Setter(TabItem.BackgroundProperty, tabSelBg));
-		    tabSelectedTrigger.Setters.Add(new Setter(TabItem.ForegroundProperty, tabSelFg));
-		    tabSelectedTrigger.Setters.Add(new Setter(TabItem.MarginProperty, new Thickness(0, -2, 2, 0)));
-		    tabItemTemplate.Triggers.Add(tabSelectedTrigger);
+			try
+			{
+			    ResourceDictionary tabResources = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(tabXaml);
+			    foreach (object key in tabResources.Keys)
+			    {
+			        this.Resources[key] = tabResources[key];
+			    }
+			}
+			catch (Exception)
+			{
+			    // Fallback
+			    rightTabs.Foreground = tabFg;
+			}
 
-		    // Hover trigger (when not selected)
-		    byte tabR = theme.TabBackground.R;
-		    byte tabG = theme.TabBackground.G;
-		    byte tabB = theme.TabBackground.B;
-		    Color tabHoverColor;
-		    if ((tabR + tabG + tabB) / 3 < 128)
-		        tabHoverColor = Color.FromRgb(
-		            (byte)Math.Min(255, tabR + 25),
-		            (byte)Math.Min(255, tabG + 25),
-		            (byte)Math.Min(255, tabB + 25));
-		    else
-		        tabHoverColor = Color.FromRgb(
-		            (byte)Math.Max(0, tabR - 25),
-		            (byte)Math.Max(0, tabG - 25),
-		            (byte)Math.Max(0, tabB - 25));
+			// Apply content foreground to each tab's content panel,
+			// and explicitly theme any toolbars inside tabs
+			SolidColorBrush tabTbBg = new SolidColorBrush(theme.ToolbarBackground);
+			SolidColorBrush tabTbFg = new SolidColorBrush(theme.ToolbarForeground);
+			foreach (TabItem ti in rightTabs.Items)
+			{
+			    if (ti.Content is DockPanel dp)
+			    {
+			        ApplyTabContentForeground(dp, tabContentFg);
 
-		    MultiTrigger tabHoverTrigger = new MultiTrigger();
-		    tabHoverTrigger.Conditions.Add(new Condition(TabItem.IsMouseOverProperty, true));
-		    tabHoverTrigger.Conditions.Add(new Condition(TabItem.IsSelectedProperty, false));
-		    tabHoverTrigger.Setters.Add(new Setter(TabItem.BackgroundProperty, new SolidColorBrush(tabHoverColor)));
-		    tabItemTemplate.Triggers.Add(tabHoverTrigger);
+			        // Theme toolbars inside this tab's content
+			        foreach (var child in dp.Children)
+			        {
+			            if (child is ToolBarTray tbt)
+			                ApplyThemeToToolBarTray(tbt, tabTbBg, tabTbFg);
+			        }
+			    }
+			    else if (ti.Content is Panel p)
+			    {
+			        ApplyTabContentForeground(p, tabContentFg);
+			    }
+			}
 
-		    tabItemStyle.Setters.Add(new Setter(TabItem.TemplateProperty, tabItemTemplate));
-
-		    foreach (TabItem ti in rightTabs.Items)
-		    {
-		        ti.Style = tabItemStyle;
-		    }
-
-		    // ---- Theme toolbars inside tab content panels ----
-		    SolidColorBrush tabTbBg = new SolidColorBrush(theme.ToolbarBackground);
-		    SolidColorBrush tabTbFg = new SolidColorBrush(theme.ToolbarForeground);
-		    foreach (TabItem ti in rightTabs.Items)
-		    {
-		        if (ti.Content is DockPanel dp)
-		        {
-		            foreach (var child in dp.Children)
-		            {
-		                if (child is ToolBarTray tbt && tbt != toolBarTray)
-		                {
-		                    ApplyThemeToToolBarTray(tbt, tabTbBg, tabTbFg);
-		                }
-		            }
-		        }
-		    }
+			// ---- App Settings editor path field ----
+			editEditorPath.Background = new SolidColorBrush(theme.TextBoxBackground);
+			editEditorPath.Foreground = new SolidColorBrush(theme.TextBoxForeground);
+			editEditorPath.CaretBrush = new SolidColorBrush(theme.TextBoxForeground);
+			editEditorPath.BorderBrush = new SolidColorBrush(theme.TabBackground);
 
 		    // ---- Source View ----
 		    sourceView.Background = new SolidColorBrush(theme.SourceBackground);
@@ -3690,9 +3778,6 @@ namespace PublishedAppTracker
 
 			this.Resources[typeof(Button)] = buttonStyle;
 
-		    // ---- Scrollbar resource overrides ----
-		    this.Resources[SystemColors.ScrollBarBrushKey] = new SolidColorBrush(theme.ScrollBarBackground);
-
 		    // Re-display source with new theme colors
 		    if (!string.IsNullOrEmpty(currentSource))
 		    {
@@ -3703,24 +3788,122 @@ namespace PublishedAppTracker
 			SolidColorBrush scrollBg = new SolidColorBrush(theme.ScrollBarBackground);
 			SolidColorBrush scrollThumb = new SolidColorBrush(theme.ScrollBarThumb);
 
-			// Thumb style — this themes the draggable part of all scrollbars
-			Style thumbStyle = new Style(typeof(System.Windows.Controls.Primitives.Thumb));
-			ControlTemplate thumbTemplate = new ControlTemplate(typeof(System.Windows.Controls.Primitives.Thumb));
-			FrameworkElementFactory thumbBorder = new FrameworkElementFactory(typeof(Border));
-			thumbBorder.SetValue(Border.BackgroundProperty, scrollThumb);
-			thumbBorder.SetValue(Border.CornerRadiusProperty, new CornerRadius(3));
-			thumbBorder.SetValue(Border.MarginProperty, new Thickness(2));
-			thumbTemplate.VisualTree = thumbBorder;
-			thumbStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.Thumb.TemplateProperty, thumbTemplate));
-			this.Resources[typeof(System.Windows.Controls.Primitives.Thumb)] = thumbStyle;
+			// Compute hover color for thumb
+			byte sR = theme.ScrollBarThumb.R;
+			byte sG = theme.ScrollBarThumb.G;
+			byte sB = theme.ScrollBarThumb.B;
+			Color scrollThumbHover;
+			if ((sR + sG + sB) / 3 < 128)
+			    scrollThumbHover = Color.FromRgb(
+			        (byte)Math.Min(255, sR + 40),
+			        (byte)Math.Min(255, sG + 40),
+			        (byte)Math.Min(255, sB + 40));
+			else
+			    scrollThumbHover = Color.FromRgb(
+			        (byte)Math.Max(0, sR - 30),
+			        (byte)Math.Max(0, sG - 30),
+			        (byte)Math.Max(0, sB - 30));
 
-			// ScrollBar background color via system resource
-			this.Resources[SystemColors.ScrollBarBrushKey] = scrollBg;
+			string bgHex = ThemeSettings.ColorToHex(theme.ScrollBarBackground);
+			string thumbHex = ThemeSettings.ColorToHex(theme.ScrollBarThumb);
+			string thumbHoverHex = ThemeSettings.ColorToHex(scrollThumbHover);
 
-			// ScrollBar style with background
-			Style scrollBarStyle = new Style(typeof(ScrollBar));
-			scrollBarStyle.Setters.Add(new Setter(ScrollBar.BackgroundProperty, scrollBg));
-			this.Resources[typeof(ScrollBar)] = scrollBarStyle;
+			string scrollBarXaml = @"
+			<ResourceDictionary
+			    xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+			    xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
+
+			    <Style x:Key=""ScrollBarThumbStyle"" TargetType=""Thumb"">
+			        <Setter Property=""Template"">
+			            <Setter.Value>
+			                <ControlTemplate TargetType=""Thumb"">
+			                    <Border x:Name=""ThumbBorder""
+			                            Background=""" + thumbHex + @"""
+			                            CornerRadius=""3""
+			                            Margin=""2"" />
+			                    <ControlTemplate.Triggers>
+			                        <Trigger Property=""IsMouseOver"" Value=""True"">
+			                            <Setter TargetName=""ThumbBorder"" Property=""Background"" Value=""" + thumbHoverHex + @""" />
+			                        </Trigger>
+			                    </ControlTemplate.Triggers>
+			                </ControlTemplate>
+			            </Setter.Value>
+			        </Setter>
+			    </Style>
+
+			    <Style x:Key=""ScrollBarPageButton"" TargetType=""RepeatButton"">
+			        <Setter Property=""Template"">
+			            <Setter.Value>
+			                <ControlTemplate TargetType=""RepeatButton"">
+			                    <Border Background=""Transparent"" />
+			                </ControlTemplate>
+			            </Setter.Value>
+			        </Setter>
+			        <Setter Property=""Focusable"" Value=""False"" />
+			        <Setter Property=""IsTabStop"" Value=""False"" />
+			    </Style>
+
+			    <ControlTemplate x:Key=""VerticalScrollBar"" TargetType=""ScrollBar"">
+			        <Border Background=""" + bgHex + @""" CornerRadius=""3"">
+			            <Track x:Name=""PART_Track"" IsDirectionReversed=""True"">
+			                <Track.DecreaseRepeatButton>
+			                    <RepeatButton Style=""{StaticResource ScrollBarPageButton}"" Command=""ScrollBar.PageUpCommand"" />
+			                </Track.DecreaseRepeatButton>
+			                <Track.Thumb>
+			                    <Thumb Style=""{StaticResource ScrollBarThumbStyle}"" />
+			                </Track.Thumb>
+			                <Track.IncreaseRepeatButton>
+			                    <RepeatButton Style=""{StaticResource ScrollBarPageButton}"" Command=""ScrollBar.PageDownCommand"" />
+			                </Track.IncreaseRepeatButton>
+			            </Track>
+			        </Border>
+			    </ControlTemplate>
+
+			    <ControlTemplate x:Key=""HorizontalScrollBar"" TargetType=""ScrollBar"">
+			        <Border Background=""" + bgHex + @""" CornerRadius=""3"">
+			            <Track x:Name=""PART_Track"">
+			                <Track.DecreaseRepeatButton>
+			                    <RepeatButton Style=""{StaticResource ScrollBarPageButton}"" Command=""ScrollBar.PageLeftCommand"" />
+			                </Track.DecreaseRepeatButton>
+			                <Track.Thumb>
+			                    <Thumb Style=""{StaticResource ScrollBarThumbStyle}"" />
+			                </Track.Thumb>
+			                <Track.IncreaseRepeatButton>
+			                    <RepeatButton Style=""{StaticResource ScrollBarPageButton}"" Command=""ScrollBar.PageRightCommand"" />
+			                </Track.IncreaseRepeatButton>
+			            </Track>
+			        </Border>
+			    </ControlTemplate>
+
+			    <Style TargetType=""ScrollBar"">
+			        <Setter Property=""Background"" Value=""" + bgHex + @""" />
+			        <Style.Triggers>
+			            <Trigger Property=""Orientation"" Value=""Vertical"">
+			                <Setter Property=""Template"" Value=""{StaticResource VerticalScrollBar}"" />
+			                <Setter Property=""Width"" Value=""14"" />
+			            </Trigger>
+			            <Trigger Property=""Orientation"" Value=""Horizontal"">
+			                <Setter Property=""Template"" Value=""{StaticResource HorizontalScrollBar}"" />
+			                <Setter Property=""Height"" Value=""14"" />
+			            </Trigger>
+			        </Style.Triggers>
+			    </Style>
+
+			</ResourceDictionary>";
+
+			try
+			{
+			    ResourceDictionary scrollBarResources = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(scrollBarXaml);
+			    foreach (object key in scrollBarResources.Keys)
+			    {
+			        this.Resources[key] = scrollBarResources[key];
+			    }
+			}
+			catch (Exception)
+			{
+			    // Fallback: at least color the background
+			    this.Resources[SystemColors.ScrollBarBrushKey] = scrollBg;
+			}
 
 		    // Rebuild list columns to pick up new StatusToColorConverter brushes
 		    RebuildColumns();
@@ -3733,6 +3916,12 @@ namespace PublishedAppTracker
 			{
 			    ThemeAllComboBoxArrows(this, new SolidColorBrush(theme.ToolbarForeground));
 			}), System.Windows.Threading.DispatcherPriority.Loaded);
+			if (columnHeaderStyle != null)
+			{
+			    GridView gv2 = itemList.View as GridView;
+			    if (gv2 != null)
+			        gv2.ColumnHeaderContainerStyle = columnHeaderStyle;
+			}
 		}
 
 		private void ApplyThemeToMenuItem(MenuItem mi, SolidColorBrush bg, SolidColorBrush fg, bool isTopLevel = true)
@@ -3776,10 +3965,77 @@ namespace PublishedAppTracker
 		    {
 		        if (sub is MenuItem subMi)
 		            ApplyThemeToMenuItem(subMi, bg, fg, false);
-		        else if (sub is Separator sep)
+				else if (sub is Separator sep)
+				{
+				    Style sepStyle = new Style(typeof(Separator));
+				    ControlTemplate sepTemplate = new ControlTemplate(typeof(Separator));
+
+				    FrameworkElementFactory sepBorder = new FrameworkElementFactory(typeof(System.Windows.Controls.Border));
+				    sepBorder.SetValue(System.Windows.Controls.Border.HeightProperty, 1.0);
+				    sepBorder.SetValue(System.Windows.Controls.Border.BackgroundProperty, fg);
+				    sepBorder.SetValue(System.Windows.Controls.Border.MarginProperty, new Thickness(4, 4, 4, 4));
+				    sepBorder.SetValue(System.Windows.Controls.Border.SnapsToDevicePixelsProperty, true);
+
+				    sepTemplate.VisualTree = sepBorder;
+				    sepStyle.Setters.Add(new Setter(Separator.TemplateProperty, sepTemplate));
+				    sep.Style = sepStyle;
+				}
+		    }
+		}
+
+		private void ApplyTabContentForeground(DependencyObject parent, SolidColorBrush fg)
+		{
+		    if (parent == null) return;
+
+		    // Skip toolbars — they have their own theming via ApplyThemeToToolBarTray
+		    if (parent is ToolBarTray || parent is ToolBar)
+		        return;
+
+		    if (parent is TextBlock tb)
+		    {
+		        // Don't override special-purpose TextBlocks
+		        if (tb != startPositionText && tb != stopPositionText &&
+		            tb != editLatestVersion && tb != statusFile && tb != findCount)
 		        {
-		            sep.Margin = new Thickness(4, 2, 4, 2);
-		            sep.Background = fg;
+		            tb.Foreground = fg;
+		        }
+		    }
+		    else if (parent is TextBox txt)
+		    {
+		        // TextBoxes are handled by TextBoxForeground, skip
+		    }
+		    else if (parent is CheckBox chk)
+		    {
+		        chk.Foreground = fg;
+		    }
+		    else if (parent is ComboBox cmb)
+		    {
+		        cmb.Foreground = fg;
+		    }
+
+		    // Recurse through children
+		    if (parent is Panel p)
+		    {
+		        foreach (object child in p.Children)
+		        {
+		            if (child is DependencyObject d)
+		                ApplyTabContentForeground(d, fg);
+		        }
+		    }
+		    else if (parent is Decorator dec && dec.Child != null)
+		    {
+		        ApplyTabContentForeground(dec.Child, fg);
+		    }
+		    else if (parent is ContentControl cc && cc.Content is DependencyObject cd)
+		    {
+		        ApplyTabContentForeground(cd, fg);
+		    }
+		    else if (parent is ItemsControl ic)
+		    {
+		        foreach (object item in ic.Items)
+		        {
+		            if (item is DependencyObject d)
+		                ApplyTabContentForeground(d, fg);
 		        }
 		    }
 		}
@@ -3842,14 +4098,116 @@ namespace PublishedAppTracker
 
 		        tbBtnStyle.Setters.Add(new Setter(Button.TemplateProperty, btnTemplate));
 
-		        // Apply to all items
-		        foreach (var item in tb.Items)
-		        {
-		            if (item is Button btn)
-		                btn.Style = tbBtnStyle;
-		            else if (item is TextBlock txt)
-		                txt.Foreground = fg;
-		        }
+				// Apply to all items
+				foreach (var item in tb.Items)
+				{
+				    if (item is Button btn)
+				        btn.Style = tbBtnStyle;
+				    else if (item is TextBlock txt)
+				        txt.Foreground = fg;
+				    else if (item is CheckBox chk)
+				    {
+				        chk.Foreground = fg;
+				        chk.Background = bg;
+				    }
+				    else if (item is TextBox tbx)
+				    {
+				        tbx.Background = new SolidColorBrush(currentTheme.TextBoxBackground);
+				        tbx.Foreground = new SolidColorBrush(currentTheme.TextBoxForeground);
+				        tbx.CaretBrush = new SolidColorBrush(currentTheme.TextBoxForeground);
+				        tbx.BorderBrush = bg;
+				    }
+					else if (item is ComboBox cmb)
+					{
+					    string cmbBgHex = ThemeSettings.ColorToHex(currentTheme.ComboBoxBackground);
+					    string cmbFgHex = ThemeSettings.ColorToHex(currentTheme.ComboBoxForeground);
+					    string cmbBorderHex = ThemeSettings.ColorToHex(currentTheme.ComboBoxBorder);
+					    string cmbBtnBgHex = ThemeSettings.ColorToHex(currentTheme.ComboBoxButtonBackground);
+					    string cmbBtnFgHex = ThemeSettings.ColorToHex(currentTheme.ComboBoxButtonForeground);
+
+					    string comboXaml = @"
+					<Style xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+					       xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+					       TargetType=""ComboBox"">
+					    <Setter Property=""Foreground"" Value=""" + cmbFgHex + @""" />
+					    <Setter Property=""Background"" Value=""" + cmbBgHex + @""" />
+					    <Setter Property=""BorderBrush"" Value=""" + cmbBorderHex + @""" />
+					    <Setter Property=""Template"">
+					        <Setter.Value>
+					            <ControlTemplate TargetType=""ComboBox"">
+					                <Grid>
+					                    <Grid.ColumnDefinitions>
+					                        <ColumnDefinition Width=""*"" />
+					                        <ColumnDefinition Width=""20"" />
+					                    </Grid.ColumnDefinitions>
+					                    <Border x:Name=""Border""
+					                            Grid.ColumnSpan=""2""
+					                            Background=""{TemplateBinding Background}""
+					                            BorderBrush=""{TemplateBinding BorderBrush}""
+					                            BorderThickness=""1""
+					                            CornerRadius=""2"" />
+					                    <ContentPresenter Grid.Column=""0""
+					                                      Margin=""4,2,0,2""
+					                                      VerticalAlignment=""Center""
+					                                      HorizontalAlignment=""Left""
+					                                      Content=""{TemplateBinding SelectionBoxItem}""
+					                                      ContentTemplate=""{TemplateBinding SelectionBoxItemTemplate}"" />
+					                    <Border Grid.Column=""1""
+					                            Background=""" + cmbBtnBgHex + @"""
+					                            CornerRadius=""0,2,2,0""
+					                            BorderThickness=""0"">
+											<TextBlock Text=""&#xE70D;""
+											           FontFamily=""Segoe Fluent Icons""
+											           FontSize=""10""
+											           Foreground=""" + cmbBtnFgHex + @"""
+											           HorizontalAlignment=""Center""
+											           VerticalAlignment=""Center"" />
+					                    </Border>
+					                    <ToggleButton Grid.ColumnSpan=""2""
+					                                  IsChecked=""{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}""
+					                                  Background=""Transparent""
+					                                  BorderThickness=""0""
+					                                  Focusable=""False""
+					                                  ClickMode=""Press"">
+					                        <ToggleButton.Template>
+					                            <ControlTemplate TargetType=""ToggleButton"">
+					                                <Border Background=""Transparent"" />
+					                            </ControlTemplate>
+					                        </ToggleButton.Template>
+					                    </ToggleButton>
+					                    <Popup x:Name=""PART_Popup""
+					                           IsOpen=""{TemplateBinding IsDropDownOpen}""
+					                           Placement=""Bottom""
+					                           AllowsTransparency=""True""
+					                           Focusable=""False""
+					                           PopupAnimation=""Slide"">
+					                        <Border MinWidth=""{TemplateBinding ActualWidth}""
+					                                MaxHeight=""{TemplateBinding MaxDropDownHeight}""
+					                                Background=""" + cmbBgHex + @"""
+					                                BorderBrush=""" + cmbBorderHex + @"""
+					                                BorderThickness=""1""
+					                                CornerRadius=""2"">
+					                            <ScrollViewer>
+					                                <StackPanel IsItemsHost=""True"" />
+					                            </ScrollViewer>
+					                        </Border>
+					                    </Popup>
+					                </Grid>
+					            </ControlTemplate>
+					        </Setter.Value>
+					    </Setter>
+					</Style>";
+
+					                    try
+					                    {
+					                        Style comboStyle = (Style)System.Windows.Markup.XamlReader.Parse(comboXaml);
+					                        cmb.Style = comboStyle;
+					                    }
+					                    catch (Exception)
+					                    {
+					                    }
+					}
+				}
 
 		        // Override the ToolBar template
 		        ControlTemplate tbTemplate = new ControlTemplate(typeof(ToolBar));
@@ -4153,12 +4511,11 @@ namespace PublishedAppTracker
 		        }
 		    }
 
-		    // Re-apply header style
-		    Style headerStyle = new Style(typeof(GridViewColumnHeader));
-		    headerStyle.Setters.Add(new Setter(GridViewColumnHeader.BackgroundProperty, new SolidColorBrush(currentTheme.ListHeaderBackground)));
-		    headerStyle.Setters.Add(new Setter(GridViewColumnHeader.ForegroundProperty, new SolidColorBrush(currentTheme.ListHeaderForeground)));
-		    headerStyle.Setters.Add(new Setter(GridViewColumnHeader.BorderBrushProperty, new SolidColorBrush(currentTheme.ListHeaderBackground)));
-		    gridView.ColumnHeaderContainerStyle = headerStyle;
+		    // Re-apply header style (with hover support)
+		    if (columnHeaderStyle != null)
+		    {
+		        gridView.ColumnHeaderContainerStyle = columnHeaderStyle;
+		    }
 
 		    // Restore selection
 		    suppressAutoDownload = true;
@@ -4381,36 +4738,40 @@ namespace PublishedAppTracker
             }
         }
 
-        private void DockToolbarTo(string position)
-        {
-            DockPanel parent = toolBarTray.Parent as DockPanel;
-            if (parent == null) return;
+		private void DockToolbarTo(string position)
+		{
+		    DockPanel parent = toolBarTray.Parent as DockPanel;
+		    if (parent == null) return;
 
-            parent.Children.Remove(toolBarTray);
+		    parent.Children.Remove(toolBarTray);
 
-            switch (position)
-            {
-                case "Top":
-                    DockPanel.SetDock(toolBarTray, Dock.Top);
-                    toolBarTray.Orientation = Orientation.Horizontal;
-                    break;
-                case "Bottom":
-                    DockPanel.SetDock(toolBarTray, Dock.Bottom);
-                    toolBarTray.Orientation = Orientation.Horizontal;
-                    break;
-                case "Left":
-                    DockPanel.SetDock(toolBarTray, Dock.Left);
-                    toolBarTray.Orientation = Orientation.Vertical;
-                    break;
-                case "Right":
-                    DockPanel.SetDock(toolBarTray, Dock.Right);
-                    toolBarTray.Orientation = Orientation.Vertical;
-                    break;
-            }
+		    switch (position)
+		    {
+		        case "Top":
+		            DockPanel.SetDock(toolBarTray, Dock.Top);
+		            toolBarTray.Orientation = Orientation.Horizontal;
+		            break;
+		        case "Bottom":
+		            DockPanel.SetDock(toolBarTray, Dock.Bottom);
+		            toolBarTray.Orientation = Orientation.Horizontal;
+		            break;
+		        case "Left":
+		            DockPanel.SetDock(toolBarTray, Dock.Left);
+		            toolBarTray.Orientation = Orientation.Vertical;
+		            break;
+		        case "Right":
+		            DockPanel.SetDock(toolBarTray, Dock.Right);
+		            toolBarTray.Orientation = Orientation.Vertical;
+		            break;
+		    }
 
-            parent.Children.Insert(1, toolBarTray);
-            statusFile.Text = "Toolbar docked: " + position;
-        }
+		    parent.Children.Insert(1, toolBarTray);
+
+		    // Save the position to settings
+		    windowSettings.ToolbarPosition = position;
+
+		    statusFile.Text = "Toolbar docked: " + position;
+		}
 
         // ============================
         // Input Dialog
@@ -4483,6 +4844,21 @@ namespace PublishedAppTracker
         // ============================
         // Toolbar Handlers
         // ============================
+
+		// Generic button handler - Set parameters for all toolbar buttons here
+		private Button CreateToolBarButton(string icon, string tooltip, RoutedEventHandler clickHandler)
+		{
+		    Button btn = new Button();
+		    btn.Content = icon;
+		    btn.FontFamily = new FontFamily("Segoe Fluent Icons");
+		    btn.FontSize = 16;
+		    btn.Padding = new Thickness(6, 2, 6, 2);
+		    btn.Margin = new Thickness(1, 2, 1, 2);
+		    btn.ToolTip = tooltip;
+		    if (clickHandler != null)
+		        btn.Click += clickHandler;
+		    return btn;
+		}
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
@@ -5203,9 +5579,9 @@ namespace PublishedAppTracker
                         }
 
                         startPositionText.Text = "pos: " + startIdx;
-                        startPositionText.Foreground = Brushes.Green;
+                        startPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMatchColor);
                         stopPositionText.Text = "pos: " + stopIdx;
-                        stopPositionText.Foreground = Brushes.Green;
+                        stopPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMatchColor);
 
                         string trackBlock = normalizedSource.Substring(startIdx, stopEnd - startIdx);
                         string extractedVersion = TrackItem.ExtractVersion(trackBlock);
@@ -5240,9 +5616,9 @@ namespace PublishedAppTracker
                         }
 
                         startPositionText.Text = "pos: " + startIdx;
-                        startPositionText.Foreground = Brushes.Green;
+                        startPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMatchColor);
                         stopPositionText.Text = "NOT FOUND";
-                        stopPositionText.Foreground = Brushes.Red;
+                        stopPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMismatchColor);
                     }
                     else
                     {
@@ -5250,7 +5626,7 @@ namespace PublishedAppTracker
                             para.Inlines.Add(r);
 
                         startPositionText.Text = "NOT FOUND";
-                        startPositionText.Foreground = Brushes.Red;
+                        startPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMismatchColor);
                         stopPositionText.Text = "";
                     }
                 }
@@ -5312,7 +5688,7 @@ namespace PublishedAppTracker
                         }
 
                         startPositionText.Text = "pos: " + startIdx;
-                        startPositionText.Foreground = Brushes.Green;
+                        startPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMatchColor);
                     }
                     else
                     {
@@ -5320,7 +5696,7 @@ namespace PublishedAppTracker
                             para.Inlines.Add(r);
 
                         startPositionText.Text = "NOT FOUND";
-                        startPositionText.Foreground = Brushes.Red;
+                        startPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMismatchColor);
                     }
                     stopPositionText.Text = "";
                 }
@@ -5349,7 +5725,7 @@ namespace PublishedAppTracker
                 }
 
                 startPositionText.Text = "Error: " + ex.Message;
-                startPositionText.Foreground = Brushes.Red;
+                startPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMismatchColor);
                 stopPositionText.Text = "";
             }
 
@@ -5435,12 +5811,12 @@ namespace PublishedAppTracker
             {
                 statusFile.Text = "Start String not found in source";
                 startPositionText.Text = "NOT FOUND";
-                startPositionText.Foreground = Brushes.Red;
+                startPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMismatchColor);
                 return;
             }
 
             startPositionText.Text = "pos: " + idx;
-            startPositionText.Foreground = Brushes.Green;
+            startPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMatchColor);
             ScrollSourceViewToPosition(idx);
 
             string regexNote = TrackItem.IsRegexPattern(searchStr) ? " (regex)" : "";
@@ -5523,12 +5899,12 @@ namespace PublishedAppTracker
             {
                 statusFile.Text = "Stop String not found in source";
                 stopPositionText.Text = "NOT FOUND";
-                stopPositionText.Foreground = Brushes.Red;
+                stopPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMismatchColor);
                 return;
             }
 
             stopPositionText.Text = "pos: " + idx;
-            stopPositionText.Foreground = Brushes.Green;
+            stopPositionText.Foreground = new SolidColorBrush(currentTheme.VersionMatchColor);
             ScrollSourceViewToPosition(idx);
 
             string regexNote = TrackItem.IsRegexPattern(stopStr) ? " (regex)" : "";
@@ -6138,32 +6514,6 @@ namespace PublishedAppTracker
             run.Foreground = brush;
             return run;
         }
-
-//         private void SearchTop_Click(object sender, RoutedEventArgs e)
-//         {
-//             string searchText = findString.Text;
-//             if (string.IsNullOrEmpty(searchText) || string.IsNullOrEmpty(currentSource))
-//                 return;
-
-//             searchHitPositions.Clear();
-//             int pos = 0;
-//             string lowerSource = currentSource.ToLower();
-//             string lowerSearch = searchText.ToLower();
-
-//             while ((pos = lowerSource.IndexOf(lowerSearch, pos)) >= 0)
-//             {
-//                 searchHitPositions.Add(pos);
-//                 pos += lowerSearch.Length;
-//             }
-
-//             findCount.Text = searchHitPositions.Count + " found";
-
-//             if (searchHitPositions.Count > 0)
-//             {
-//                 currentSearchIndex = 0;
-//                 HighlightSearch(searchText);
-//             }
-//         }
 
 		private void SearchDown_Click(object sender, RoutedEventArgs e)
 		{

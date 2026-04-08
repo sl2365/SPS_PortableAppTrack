@@ -24,6 +24,8 @@ namespace PublishedAppTracker
         // Status bar
         public Color StatusBarBackground { get; set; } = Color.FromRgb(230, 230, 230);
         public Color StatusBarForeground { get; set; } = Color.FromRgb(0, 0, 0);
+		public Color ProgressBarBackground { get; set; } = Color.FromRgb(220, 220, 220);
+		public Color ProgressBarForeground { get; set; } = Color.FromRgb(6, 176, 37);
 
         // Category tree
         public Color TreeBackground { get; set; } = Color.FromRgb(255, 255, 255);
@@ -42,6 +44,22 @@ namespace PublishedAppTracker
         // ListView hover
 		public Color ListHoverBackground { get; set; } = Color.FromRgb(229, 243, 255);
 		public Color ListHoverForeground { get; set; } = Color.FromRgb(0, 0, 0);
+		// List Header Hover
+		public Color ListHeaderHoverBackground { get; set; } = Color.FromRgb(229, 243, 255);
+		public Color ListHeaderHoverForeground { get; set; } = Color.FromRgb(0, 0, 0);
+
+		// ComboBox
+		public Color ComboBoxBackground { get; set; } = Color.FromRgb(255, 255, 255);
+		public Color ComboBoxForeground { get; set; } = Color.FromRgb(0, 0, 0);
+		public Color ComboBoxBorder { get; set; } = Color.FromRgb(180, 180, 180);
+		public Color ComboBoxButtonBackground { get; set; } = Color.FromRgb(230, 230, 230);
+		public Color ComboBoxButtonForeground { get; set; } = Color.FromRgb(80, 80, 80);
+
+		// ListView checkboxes
+		public Color CheckBoxBackground { get; set; } = Color.FromRgb(255, 255, 255);
+		public Color CheckBoxBorder { get; set; } = Color.FromRgb(180, 180, 180);
+		public Color CheckBoxCheckMark { get; set; } = Color.FromRgb(0, 0, 0);
+		public Color CheckBoxHoverBackground { get; set; } = Color.FromRgb(229, 243, 255);
 
         // ListView special columns
         public Color ListNameColumnForeground { get; set; } = Color.FromRgb(0, 0, 0);
@@ -66,12 +84,15 @@ namespace PublishedAppTracker
         public Color TextBoxBackground { get; set; } = Color.FromRgb(255, 255, 255);
         public Color TextBoxForeground { get; set; } = Color.FromRgb(0, 0, 0);
         public Color LabelForeground { get; set; } = Color.FromRgb(0, 0, 0);
+		public Color VersionMatchColor { get; set; } = Color.FromRgb(0, 160, 0);
+		public Color VersionMismatchColor { get; set; } = Color.FromRgb(200, 30, 30);
 
         // Tabs
         public Color TabBackground { get; set; } = Color.FromRgb(240, 240, 240);
         public Color TabForeground { get; set; } = Color.FromRgb(0, 0, 0);
         public Color TabSelectedBackground { get; set; } = Color.FromRgb(255, 255, 255);
         public Color TabSelectedForeground { get; set; } = Color.FromRgb(0, 0, 0);
+        public Color TabContentForeground { get; set; } = Color.FromRgb(0, 0, 0);
 
         // Source view
         public Color SourceBackground { get; set; } = Color.FromRgb(255, 255, 255);
@@ -116,6 +137,8 @@ namespace PublishedAppTracker
 
             t.StatusBarBackground = Color.FromRgb(40, 40, 40);
             t.StatusBarForeground = Color.FromRgb(200, 200, 200);
+            t.ProgressBarBackground = Color.FromRgb(60, 60, 60);
+			t.ProgressBarForeground = Color.FromRgb(0, 200, 80);
 
             t.TreeBackground = Color.FromRgb(35, 35, 35);
             t.TreeForeground = Color.FromRgb(210, 210, 210);
@@ -131,6 +154,19 @@ namespace PublishedAppTracker
             t.ListAlternateRowBackground = Color.FromRgb(40, 40, 45);
             t.ListHoverBackground = Color.FromRgb(55, 55, 65);
 			t.ListHoverForeground = Color.FromRgb(255, 255, 255);
+			t.ListHeaderHoverBackground = Color.FromRgb(55, 55, 65);
+			t.ListHeaderHoverForeground = Color.FromRgb(220, 220, 220);
+
+			t.ComboBoxBackground = Color.FromRgb(50, 50, 50);
+			t.ComboBoxForeground = Color.FromRgb(220, 220, 220);
+			t.ComboBoxBorder = Color.FromRgb(80, 80, 80);
+			t.ComboBoxButtonBackground = Color.FromRgb(65, 65, 65);
+			t.ComboBoxButtonForeground = Color.FromRgb(200, 200, 200);
+
+			t.CheckBoxBackground = Color.FromRgb(50, 50, 50);
+			t.CheckBoxBorder = Color.FromRgb(100, 100, 100);
+			t.CheckBoxCheckMark = Color.FromRgb(220, 220, 220);
+			t.CheckBoxHoverBackground = Color.FromRgb(55, 55, 65);
 
             t.ListNameColumnForeground = Color.FromRgb(210, 210, 210);
             t.ListVersionColumnForeground = Color.FromRgb(210, 210, 210);
@@ -151,11 +187,14 @@ namespace PublishedAppTracker
             t.TextBoxBackground = Color.FromRgb(50, 50, 50);
             t.TextBoxForeground = Color.FromRgb(220, 220, 220);
             t.LabelForeground = Color.FromRgb(200, 200, 200);
+            t.VersionMatchColor = Color.FromRgb(80, 220, 80);
+			t.VersionMismatchColor = Color.FromRgb(255, 80, 80);
 
             t.TabBackground = Color.FromRgb(40, 40, 40);
             t.TabForeground = Color.FromRgb(200, 200, 200);
             t.TabSelectedBackground = Color.FromRgb(55, 55, 55);
             t.TabSelectedForeground = Color.FromRgb(255, 255, 255);
+            t.TabContentForeground = Color.FromRgb(210, 210, 210);
 
             t.SourceBackground = Color.FromRgb(30, 30, 30);
             t.SourceTagColor = Color.FromRgb(100, 150, 255);
@@ -190,6 +229,8 @@ namespace PublishedAppTracker
 
             t.StatusBarBackground = Color.FromRgb(200, 220, 250);
             t.StatusBarForeground = Color.FromRgb(20, 20, 60);
+            t.ProgressBarBackground = Color.FromRgb(180, 210, 250);
+			t.ProgressBarForeground = Color.FromRgb(40, 120, 220);
 
             t.TreeBackground = Color.FromRgb(240, 245, 255);
             t.TreeForeground = Color.FromRgb(20, 40, 80);
@@ -205,6 +246,19 @@ namespace PublishedAppTracker
             t.ListAlternateRowBackground = Color.FromRgb(235, 242, 255);
             t.ListHoverBackground = Color.FromRgb(210, 230, 255);
 			t.ListHoverForeground = Color.FromRgb(20, 40, 80);
+			t.ListHeaderHoverBackground = Color.FromRgb(180, 210, 255);
+			t.ListHeaderHoverForeground = Color.FromRgb(20, 40, 80);
+
+			t.ComboBoxBackground = Color.FromRgb(255, 255, 255);
+			t.ComboBoxForeground = Color.FromRgb(20, 40, 80);
+			t.ComboBoxBorder = Color.FromRgb(160, 190, 230);
+			t.ComboBoxButtonBackground = Color.FromRgb(210, 230, 255);
+			t.ComboBoxButtonForeground = Color.FromRgb(40, 60, 120);
+
+			t.CheckBoxBackground = Color.FromRgb(255, 255, 255);
+			t.CheckBoxBorder = Color.FromRgb(160, 190, 230);
+			t.CheckBoxCheckMark = Color.FromRgb(20, 40, 80);
+			t.CheckBoxHoverBackground = Color.FromRgb(210, 230, 255);
 
             t.ListNameColumnForeground = Color.FromRgb(20, 40, 80);
             t.ListVersionColumnForeground = Color.FromRgb(20, 40, 80);
@@ -214,11 +268,14 @@ namespace PublishedAppTracker
             t.TextBoxBackground = Color.FromRgb(255, 255, 255);
             t.TextBoxForeground = Color.FromRgb(20, 40, 80);
             t.LabelForeground = Color.FromRgb(30, 50, 90);
+            t.VersionMatchColor = Color.FromRgb(0, 160, 0);
+			t.VersionMismatchColor = Color.FromRgb(200, 40, 40);
 
             t.TabBackground = Color.FromRgb(220, 235, 255);
             t.TabForeground = Color.FromRgb(20, 40, 80);
             t.TabSelectedBackground = Color.FromRgb(255, 255, 255);
             t.TabSelectedForeground = Color.FromRgb(20, 30, 60);
+            t.TabContentForeground = Color.FromRgb(20, 40, 80);
 
             t.SourceBackground = Color.FromRgb(250, 252, 255);
             t.SourceTagColor = Color.FromRgb(40, 80, 180);

@@ -328,80 +328,112 @@ namespace PublishedAppTracker
             return ExtractFirstVersionPattern(trackBlock);
         }
 
-        private static string ExtractVersionFromStart(string text)
-        {
-            // Extract version number starting from the beginning of text
-            StringBuilder version = new StringBuilder();
+		private static string ExtractVersionFromStart(string text)
+		{
+		    StringBuilder version = new StringBuilder();
 
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
-                if (char.IsDigit(c) || c == '.')
-                {
-                    version.Append(c);
-                }
-                else
-                {
-                    break; // Stop at first non-version character
-                }
-            }
+		    for (int i = 0; i < text.Length; i++)
+		    {
+		        char c = text[i];
+		        if (char.IsDigit(c) || c == '.' || c == '-')
+		        {
+		            version.Append(c);
+		        }
+		        else
+		        {
+		            break;
+		        }
+		    }
 
-            string candidate = version.ToString().Trim('.');
-            if (candidate.Contains(".") && candidate.Length >= 3)
-            {
-                return candidate;
-            }
+		    string candidate = version.ToString().Trim('.').Trim('-');
 
-            return "";
-        }
+		    // Normalize: if it uses hyphens as separators (e.g., 10-1-25), convert to dots
+		    if (!candidate.Contains(".") && candidate.Contains("-"))
+		    {
+		        candidate = candidate.Replace('-', '.');
+		    }
 
-        private static string ExtractFirstVersionPattern(string text)
-        {
-            StringBuilder version = new StringBuilder();
-            bool inVersion = false;
+		    if (candidate.Contains(".") && candidate.Length >= 3)
+		    {
+		        return candidate;
+		    }
 
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
+		    return "";
+		}
 
-                if (!inVersion)
-                {
-                    if (char.IsDigit(c))
-                    {
-                        inVersion = true;
-                        version.Append(c);
-                    }
-                }
-                else
-                {
-                    if (char.IsDigit(c) || c == '.')
-                    {
-                        version.Append(c);
-                    }
-                    else
-                    {
-                        string candidate = version.ToString().TrimEnd('.');
-                        if (candidate.Contains(".") && candidate.Length >= 3)
-                        {
-                            return candidate;
-                        }
-                        version.Clear();
-                        inVersion = false;
-                    }
-                }
-            }
+		private static string ExtractFirstVersionPattern(string text)
+		{
+		    StringBuilder version = new StringBuilder();
+		    bool inVersion = false;
 
-            if (inVersion)
-            {
-                string candidate = version.ToString().TrimEnd('.');
-                if (candidate.Contains(".") && candidate.Length >= 3)
-                {
-                    return candidate;
-                }
-            }
+		    for (int i = 0; i < text.Length; i++)
+		    {
+		        char c = text[i];
 
-            return "";
-        }
+		        if (!inVersion)
+		        {
+		            if (char.IsDigit(c))
+		            {
+		                inVersion = true;
+		                version.Append(c);
+		            }
+		        }
+		        else
+		        {
+		            if (char.IsDigit(c) || c == '.' || c == '-')
+		            {
+		                version.Append(c);
+		            }
+		            else
+		            {
+		                string candidate = NormalizeVersionCandidate(version.ToString());
+		                if (candidate != null)
+		                    return candidate;
+
+		                version.Clear();
+		                inVersion = false;
+		            }
+		        }
+		    }
+
+		    if (inVersion)
+		    {
+		        string candidate = NormalizeVersionCandidate(version.ToString());
+		        if (candidate != null)
+		            return candidate;
+		    }
+
+		    return "";
+		}
+
+		/// <summary>
+		/// Cleans up a raw version candidate string. Converts hyphen-separated
+		/// versions to dot-separated (e.g., "10-1-25" → "10.1.25") and validates
+		/// that it looks like a real version number (contains a separator and
+		/// has at least 3 characters).
+		/// Returns the normalized version string, or null if invalid.
+		/// </summary>
+		private static string NormalizeVersionCandidate(string raw)
+		{
+		    string candidate = raw.Trim('.').Trim('-');
+
+		    if (string.IsNullOrEmpty(candidate))
+		        return null;
+
+		    // If it uses hyphens but no dots, treat hyphens as version separators
+		    if (!candidate.Contains(".") && candidate.Contains("-"))
+		    {
+		        candidate = candidate.Replace('-', '.');
+		    }
+
+		    // Also handle mixed: strip trailing hyphens/dots after conversion
+		    candidate = candidate.Trim('.');
+
+		    if (candidate.Contains(".") && candidate.Length >= 3)
+		        return candidate;
+
+		    return null;
+		}
 
         public static string ComputeHash(string input)
         {

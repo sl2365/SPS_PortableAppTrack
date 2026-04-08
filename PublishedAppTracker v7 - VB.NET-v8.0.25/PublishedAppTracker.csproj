@@ -9,6 +9,18 @@
     <AssemblyName>PublishedAppTracker</AssemblyName>
     <EnableDefaultPageItems>false</EnableDefaultPageItems>
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+	<Version>7.0.0</Version>                       <!-- NuGet / product version -->
+	<AssemblyVersion>7.0.0</AssemblyVersion>     <!-- assembly identity -->
+	<FileVersion>7.0.0.325</FileVersion>             <!-- file version shown in Explorer -->
+	<InformationalVersion>7.0.0.325</InformationalVersion> <!-- pretty/product string -->
+	<Company>sl23</Company>
+	<Product>Published App Tracker</Product>
+	<Authors>sl23</Authors>
+	<Description>Tool for managing widgets</Description>
+	<Title>Acme Widget Manager</Title>
+	<Copyright>© 2026 Acme</Copyright>
+	<Trademark>sl23</Trademark>
+	<NeutralLanguage>en-GB</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
