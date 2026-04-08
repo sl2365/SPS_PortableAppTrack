@@ -64,6 +64,9 @@
 		                FontFamily="Segoe Fluent Icons" FontSize="17"
 		                Padding="7,4" Margin="2,2,2,2" ToolTip="Check all tracks in current category" />
 		        <Separator />
+		        <Button x:Name="btnAbout" Content="&#xE946;" Click="About_Click"
+		                FontFamily="Segoe Fluent Icons" FontSize="17"
+		                Padding="7,4" Margin="2,2,2,2" ToolTip="About" />
 		    </ToolBar>
 		</ToolBarTray>
 

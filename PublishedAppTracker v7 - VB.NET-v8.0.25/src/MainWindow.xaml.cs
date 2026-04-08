@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
@@ -5123,6 +5124,124 @@ namespace PublishedAppTracker
                 MessageBox.Show("Error listing extensions:\n" + ex.Message,
                     "PAT v7", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            Window aboutWindow = new Window();
+            aboutWindow.Title = "About Published App Tracker";
+            aboutWindow.Width = 560;
+            aboutWindow.Height = 520;
+            aboutWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            aboutWindow.Owner = this;
+            aboutWindow.ResizeMode = ResizeMode.NoResize;
+            aboutWindow.Background = new SolidColorBrush(currentTheme.ListBackground);
+
+            ScrollViewer scroll = new ScrollViewer();
+            scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            scroll.Padding = new Thickness(24);
+
+            StackPanel panel = new StackPanel();
+
+            // App icon and title
+            TextBlock title = new TextBlock();
+            title.Text = "\uE71E";
+            title.FontFamily = new FontFamily("Segoe Fluent Icons");
+            title.FontSize = 48;
+            title.Foreground = new SolidColorBrush(currentTheme.StatusBarForeground);
+            title.HorizontalAlignment = HorizontalAlignment.Center;
+            title.Margin = new Thickness(0, 0, 0, 8);
+            panel.Children.Add(title);
+
+            TextBlock appName = new TextBlock();
+            appName.Text = "Published App Tracker";
+            appName.FontSize = 22;
+            appName.FontWeight = FontWeights.Bold;
+            appName.Foreground = new SolidColorBrush(currentTheme.WindowForeground);
+            appName.HorizontalAlignment = HorizontalAlignment.Center;
+            panel.Children.Add(appName);
+
+            // Version
+            string version = System.Reflection.Assembly.GetExecutingAssembly()
+                .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion ?? "Unknown";
+            TextBlock versionText = new TextBlock();
+            versionText.Text = "Version " + version;
+            versionText.FontSize = 12;
+            versionText.Foreground = new SolidColorBrush(currentTheme.StatusBarForeground);
+            versionText.HorizontalAlignment = HorizontalAlignment.Center;
+            versionText.Margin = new Thickness(0, 2, 0, 16);
+            panel.Children.Add(versionText);
+
+            // Instructions
+            string instructions =
+                "GETTING STARTED\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "1. Create a new track file using the New Track button.\n" +
+                "2. Add items to track by entering a URL.\n" +
+                "3. Click Download to fetch the page source.\n" +
+                "4. Add a Start String (where to begin reading), and a Stop String (where to stop)." +
+                " The app extracts the text between these markers as the \"latest version\".\n" +
+                "5. Use Batch Check to scan all tracked items at once and see which " +
+                "have changed, are unchanged, are new, or have errors.\n\n\n" +
+                "TOOLBAR ICONS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Track Settings toolbar:\n" +
+                "  • New Track — create a new track file\n" +
+                "  • Save / Save As — save the current track file\n" +
+                "  • Go to Start / Stop String — navigate to the marker in the source view\n" +
+                "  • Download — download the page source for the selected item\n" +
+                "  • Open in Browser — open the URL in your default browser\n" +
+                "  • Copy Version — copy the extracted version to the version field\n\n" +
+                "Web Browser toolbar:\n" +
+                "  • Back / Forward / Home — standard navigation\n" +
+                "  • Zoom In / Out / Reset / Fit — control the web view zoom level\n" +
+                "  • Clear Cookies / Clear All — remove browsing data\n\n" +
+                "Source View toolbar:\n" +
+                "  • Search Down / Up — search through the page source\n" +
+                "  • Font Size +/- — adjust the source view font size\n\n\n" +
+                "STATUS ICONS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "The coloured circle in the Status column indicates:\n" +
+                "  • Green — version has changed since last check\n" +
+                "  • Grey — version is unchanged\n" +
+                "  • Blue — newly added item, not yet checked\n" +
+                "  • Red — an error occurred during the check\n\n\n" +
+                "THEMES\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Use the Theme tab to customise the appearance. You can apply preset " +
+                "themes, modify individual colours, and save/load custom theme files.\n\n\n" +
+                "COLUMN SETTINGS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Use App Settings to show/hide columns, reorder them, and adjust widths. " +
+                "Click Apply to update the list view, or Restore Defaults to reset.\n\n\n" +
+                "TIPS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "  • Use the checkbox column to select multiple items for batch operations.\n" +
+                "  • Right-click items in the list for additional context menu options.\n" +
+                "  • Track files are saved as standard files that can be backed up or shared.\n" +
+                "  • The source view highlights the Start and Stop strings when found.";
+
+            TextBlock instrText = new TextBlock();
+            instrText.Text = instructions;
+            instrText.FontSize = 13;
+            instrText.Foreground = new SolidColorBrush(currentTheme.WindowForeground);
+            instrText.TextWrapping = TextWrapping.Wrap;
+            instrText.LineHeight = 20;
+            panel.Children.Add(instrText);
+
+            // Copyright
+            TextBlock copyright = new TextBlock();
+            copyright.Text = "© 2026 sl23. All rights reserved.";
+            copyright.FontSize = 11;
+            copyright.Foreground = new SolidColorBrush(currentTheme.StatusBarForeground);
+            copyright.HorizontalAlignment = HorizontalAlignment.Center;
+            copyright.Margin = new Thickness(0, 20, 0, 0);
+            panel.Children.Add(copyright);
+
+            scroll.Content = panel;
+            aboutWindow.Content = scroll;
+            aboutWindow.ShowDialog();
         }
 
         // ============================
