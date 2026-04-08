@@ -38,7 +38,9 @@ Major upgrade — now compiled as **x64**.
 
 ### Todo ###
 - Add full SyMenu SPS support
-- Fix theme issues and add mroe support for items currently not working
+- Fix theme issues and add more support for items currently not working
+- Possible direct webview interaction for string creation
+- Possible support for Java sites
 - Code cleanup
 - Possible performance enhancements
 
