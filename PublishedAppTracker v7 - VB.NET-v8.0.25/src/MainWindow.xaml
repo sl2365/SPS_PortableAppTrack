@@ -45,6 +45,9 @@
 				<Button x:Name="btnOpenFolder" Content="&#xE838;" Click="OpenCategoryFolder_Click"
 				        FontFamily="Segoe Fluent Icons" FontSize="17"
 				        Padding="7,4" Margin="2,2,2,2" ToolTip="Open category folder" />
+				<Button x:Name="btnRefreshCategories" Content="&#xE72C;" Click="RefreshCategories_Click"
+				        FontFamily="Segoe Fluent Icons" FontSize="17"
+				        Padding="7,4" Margin="2,2,2,2" ToolTip="Refresh category list" />
 				<Separator />
 		        <Button x:Name="btnSave" Content="&#xE74E;" Click="Save_Click"
 		                FontFamily="Segoe Fluent Icons" FontSize="17"

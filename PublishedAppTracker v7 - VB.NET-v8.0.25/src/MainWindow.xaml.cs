@@ -951,6 +951,28 @@ namespace PublishedAppTracker
             };
             webTopToolBar.Items.Add(btnWebHome);
 
+            webTopToolBar.Items.Add(new Separator());
+
+            Button btnSetTrackURL = CreateToolBarButton("\uE71B", "Set Track URL from current page", null);
+            btnSetTrackURL.Click += (s, ev) =>
+            {
+                try
+                {
+                    if (webView.CoreWebView2 != null)
+                    {
+                        string currentUrl = webView.CoreWebView2.Source;
+                        if (!string.IsNullOrEmpty(currentUrl) && currentUrl != "about:blank")
+                        {
+                            editTrackURL.Text = currentUrl;
+                            MarkDirty();
+                            statusFile.Text = "Track URL set to: " + currentUrl;
+                        }
+                    }
+                }
+                catch (Exception) { }
+            };
+            webTopToolBar.Items.Add(btnSetTrackURL);
+
             webTopToolBarTray.ToolBars.Add(webTopToolBar);
 
             // Search/navigate action
@@ -1364,6 +1386,12 @@ namespace PublishedAppTracker
             }
 
             statusFile.Text = categoryTree.Items.Count + " categories";
+        }
+
+        private void RefreshCategories_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshCategoryTree();
+            statusFile.Text = "Category list refreshed.";
         }
 
         private void AddCategory_Click(object sender, RoutedEventArgs e)
@@ -2357,6 +2385,17 @@ namespace PublishedAppTracker
         {
             if (currentTrackItem != null && !string.IsNullOrEmpty(currentTrackItem.LatestVersion))
             {
+                // Push current UI values into the model before saving
+                currentTrackItem.ProgramName = editName.Text;
+                currentTrackItem.TrackURL = editTrackURL.Text;
+                currentTrackItem.StartString = editStartString.Text;
+                currentTrackItem.StopString = editStopString.Text;
+                currentTrackItem.DownloadURL = editDownloadURL.Text;
+                currentTrackItem.ReleaseDate = editReleaseDate.Text;
+                currentTrackItem.PublisherName = editPublisherName.Text;
+                currentTrackItem.SuiteName = editSuiteName.Text;
+
+                // Now update the version
                 editVersion.Text = currentTrackItem.LatestVersion;
                 currentTrackItem.Version = currentTrackItem.LatestVersion;
                 currentTrackItem.SaveToFile();
@@ -2371,6 +2410,7 @@ namespace PublishedAppTracker
                 suppressAutoDownload = false;
 
                 UpdateVersionDisplay();
+                ClearDirty();
                 statusFile.Text = "Version updated to " + currentTrackItem.Version;
             }
         }
@@ -6925,6 +6965,85 @@ namespace PublishedAppTracker
                 if (e.IsSuccess)
                 {
                     webViewReady = true;
+
+                    // Custom context menu: "Add to Download URL" for file links
+                    webView.CoreWebView2.ContextMenuRequested += (cmSender, cmArgs) =>
+                    {
+                        var menuItems = cmArgs.MenuItems;
+                        var contextInfo = cmArgs.ContextMenuTarget;
+
+                        // Only show when right-clicking a link
+                        if (contextInfo.HasLinkUri)
+                        {
+                            string linkUrl = contextInfo.LinkUri;
+
+                            // Common downloadable file extensions
+                            string[] fileExtensions = {
+                                ".exe", ".msi", ".zip", ".7z", ".rar", ".tar", ".gz", ".bz2", ".xz",
+                                ".dmg", ".pkg", ".deb", ".rpm", ".appimage", ".apk",
+                                ".iso", ".img",
+                                ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+                                ".cab", ".dll", ".sys", ".jar", ".war",
+                                ".bin", ".dat", ".run", ".sh", ".bat", ".cmd", ".ps1",
+                                ".torrent", ".nupkg", ".vsix", ".crx", ".xpi"
+                            };
+
+                            bool isFileLink = false;
+                            string lowerUrl = linkUrl.ToLowerInvariant();
+
+                            // Strip query string and fragment for extension check
+                            string urlPath = lowerUrl;
+                            int queryIdx = urlPath.IndexOf('?');
+                            if (queryIdx >= 0) urlPath = urlPath.Substring(0, queryIdx);
+                            int fragIdx = urlPath.IndexOf('#');
+                            if (fragIdx >= 0) urlPath = urlPath.Substring(0, fragIdx);
+
+                            foreach (string ext in fileExtensions)
+                            {
+                                if (urlPath.EndsWith(ext))
+                                {
+                                    isFileLink = true;
+                                    break;
+                                }
+                            }
+
+                            // Also match URLs with /download/ in the path
+                            if (!isFileLink && (lowerUrl.Contains("/download/") ||
+                                lowerUrl.Contains("/releases/download/") ||
+                                lowerUrl.Contains("sourceforge.net/projects/") ||
+                                lowerUrl.Contains("/dl/")))
+                            {
+                                isFileLink = true;
+                            }
+
+                            if (isFileLink)
+                            {
+                                var menuItem = webView.CoreWebView2.Environment
+                                    .CreateContextMenuItem(
+                                        "Add to Download URL",
+                                        null,
+                                        Microsoft.Web.WebView2.Core.CoreWebView2ContextMenuItemKind.Command);
+
+                                menuItem.CustomItemSelected += (miSender, miArgs) =>
+                                {
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        editDownloadURL.Text = linkUrl;
+                                        MarkDirty();
+                                        statusFile.Text = "Download URL set to: " + linkUrl;
+                                    });
+                                };
+
+                                // Insert near the top of the menu
+                                menuItems.Insert(0, webView.CoreWebView2.Environment
+                                    .CreateContextMenuItem(
+                                        "",
+                                        null,
+                                        Microsoft.Web.WebView2.Core.CoreWebView2ContextMenuItemKind.Separator));
+                                menuItems.Insert(0, menuItem);
+                            }
+                        }
+                    };
 
                     webView.CoreWebView2.NavigationCompleted += (s2, e2) =>
                     {
