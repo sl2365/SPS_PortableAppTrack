@@ -20,7 +20,7 @@ If any of your tracked URLs start failing because the server rejects your User-A
 
 ## Changelog
 
-### v7.0.2.475 — 2026.04.08
+### v7.0.3.475 — 2026.04.08
 - Added WebView toolbar button to add current page to Track URL field
 - Added new check function taht search for plain text in Source tab
 - Added WebView context for adding Download URL/Start/Stop strings direct to the fields in Track Settings.
