@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>icons\app.ico</ApplicationIcon>
+    <RootNamespace>PublishedAppTracker</RootNamespace>
+    <AssemblyName>PublishedAppTracker</AssemblyName>
+    <EnableDefaultPageItems>false</EnableDefaultPageItems>
+    <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+	<Version>7.0.3</Version>                       <!-- NuGet / product version -->
+	<AssemblyVersion>7.0.3</AssemblyVersion>     <!-- assembly identity -->
+	<FileVersion>7.0.3.475</FileVersion>             <!-- file version shown in Explorer -->
+	<InformationalVersion>7.0.3.475</InformationalVersion> <!-- pretty/product string -->
+	<Company>sl23</Company>
+	<Product>Published App Tracker</Product>
+	<Authors>sl23</Authors>
+	<Description>Tool for managing widgets</Description>
+	<Title>Acme Widget Manager</Title>
+	<Copyright>© 2026 sl23</Copyright>
+	<Trademark>sl23</Trademark>
+	<NeutralLanguage>en-GB</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="src\App.xaml" />
+    <Page Include="src\MainWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="icons\app.ico">
+      <LogicalName>icons/app.ico</LogicalName>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+  </ItemGroup>
+
+</Project>
