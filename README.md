@@ -52,7 +52,7 @@ If any of your tracked URLs start failing because the server rejects your User-A
 
 Major upgrade — now compiled as **x64**.
 
-- Completely rewritten in VB.NET using .NET SDK v8.0.25
+- Completely rewritten in C# WPF using .NET SDK v8.0.25
 - Created separate panels for each section
 - Icons sue Segoe Fluent Font Icons
 - Full theme support added
