@@ -1,8 +1,8 @@
 # SPS Published App Track (PAT) x64
 
-**v7.x.x.x** — Complete major rewrite by **sl23**
-**v6.x.x.x** — Major x64 rewrite by **sl23**
-Original code by **VVV_Easy_SyMenu**
+- **v7.x.x.x** — Complete major rewrite by **sl23**
+- **v6.x.x.x** — Major x64 rewrite by **sl23**
+- **v5.2.0.2** — Original code by **VVV_Easy_SyMenu**
 
 ---
 
