@@ -100,13 +100,15 @@ Major upgrade — now compiled as **x64**.
 
 ---
 
-### Original code and changelog by VVV_Easy_SyMenu
+### v5 Updates by (sl23)
 
-#### v5.2.0.2 — 2025.03.12
+#### v5.2.0.1 — 2026.03.14
+- Updated user agent strings
+
+#### v5.2.0.2 — 2026.03.12
 - Merged Form1 and Form2 into single window with SplitContainer
 
-#### v5.2.0.1 — 2025.01.14
-- Updated user agent strings
+### Original code and changelog by VVV_Easy_SyMenu
 
 #### v5.2 — 2018.03.01
 - Corrected bugs when changing colours in second track or changing strings in edit track
