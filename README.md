@@ -53,6 +53,7 @@ If any of your tracked URLs start failing because the server rejects your User-A
 - Fixed SPS save bug when file didnt yet exist
 - Name changed from PublishedAppTracker to ElementalTracker
 - Fixed SPS save bug when file didnt yet exist
+- Fixed delete bug where the entire SPS xml file was deleted instead of a single entry
 
 ### v7.0.4.480 — 2026.04.09
 - Toolbar overflow button restored
