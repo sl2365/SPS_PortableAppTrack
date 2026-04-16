@@ -38,9 +38,21 @@ If any of your tracked URLs start failing because the server rejects your User-A
 ## Changelog
 
 ### v7.0.7.821 — 2026.04.16
+- Removed Track Settings toolbar overflow
+- Changed Start/Stop String icons
+- Fixed Track Settings refresh on list item deletion
+- Added you can now use Delete key to delete list items
+- Added close buttons to Theme and Settings tabs. They can be reopened via View menu
+- Enabled SyMenu "Select Suites" functionality to Tools menu
+- Enabled "Open New SPSBuilder" option in Tools Menu
+- Moved all SPS controls to Settings tab
+- Added borders around Theme/Settings for better legibility
+- Added theming to borders and titles in theme/settings tabs
+- Fix source download bug Re: path not found
 - Name changed from PublishedAppTracker to ElementalTracker
 - Fixed SPS save bug when file didnt yet exist
-
+- Name changed from PublishedAppTracker to ElementalTracker
+- Fixed SPS save bug when file didnt yet exist
 
 ### v7.0.4.480 — 2026.04.09
 - Toolbar overflow button restored
