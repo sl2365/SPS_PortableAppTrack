@@ -22,7 +22,7 @@ namespace ElementalTracker
         public double WindowWidth { get; set; } = 1200;
         public double WindowHeight { get; set; } = 800;
         public bool IsMaximized { get; set; } = false;
-        public bool IsHorizontalLayout { get; set; } = false;
+        public bool IsHorizontalLayout { get; set; } = true;
 
         // Toolbar position
         public string ToolbarPosition { get; set; } = "Top";
@@ -33,9 +33,9 @@ namespace ElementalTracker
         public double VSplitterCat { get; set; } = 180;
 
         // Horizontal layout splitters
-        public double HRowTop { get; set; } = double.NaN;
-        public double HTopCol0 { get; set; } = double.NaN;
-        public double HBotCol0 { get; set; } = double.NaN;
+        public double HRowTop { get; set; } = 250; // height of the top row (list view area)
+        public double HTopCol0 { get; set; } = double.NaN; // width of the Track panel in the top row
+        public double HBotCol0 { get; set; } = 350; // width of the Track panel in the bottom row
 
         // Source tab font size
         public double SourceFontSize { get; set; } = 10;

@@ -88,11 +88,12 @@ namespace ElementalTracker
         private double trackSettingsExpandedHeight = Double.NaN;
         private Button btnToggleTrackSettings;
 
-        // Source tab fields
+        // Source tab
         private RichTextBox sourceView;
         private TextBox findString;
         private TextBlock findCount;
         private string extensionsPath;
+		private TextBlock sourceInfoBanner;
 
         // Download + search state
         private static readonly HttpClient httpClient = new HttpClient(
@@ -105,6 +106,7 @@ namespace ElementalTracker
         private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0";
         private string currentSource = "";
         private List<int> searchHitPositions = new List<int>();
+        private List<string> ignoredSpsFiles = new List<string>();
         private int currentSearchIndex = -1;
         private TextBox webAddressBar;
         private ComboBox searchEngineCombo;
@@ -620,6 +622,11 @@ namespace ElementalTracker
             ctxNewTrack.Click += MenuNewTrack_Click;
             listContextMenu.Items.Add(ctxNewTrack);
 
+            MenuItem ctxSave = new MenuItem();
+            ctxSave.Header = "Save Track";
+            ctxSave.Click += SaveTrack_Click;
+            listContextMenu.Items.Add(ctxSave);
+
             listContextMenu.Items.Add(new Separator());
 
             MenuItem ctxOpenFile = new MenuItem();
@@ -627,17 +634,25 @@ namespace ElementalTracker
             ctxOpenFile.Click += OpenFileInEditor_Click;
             listContextMenu.Items.Add(ctxOpenFile);
 
-			MenuItem ctxOpenSpsBuilder = new MenuItem();
-			ctxOpenSpsBuilder.Header = "Open in SPS Builder";
-			ctxOpenSpsBuilder.Click += OpenInSpsBuilder_Click;
-			listContextMenu.Items.Add(ctxOpenSpsBuilder);
+            MenuItem ctxOpenSpsBuilder = new MenuItem();
+            ctxOpenSpsBuilder.Header = "Open in SPS Builder";
+            ctxOpenSpsBuilder.Click += OpenInSpsBuilder_Click;
+            listContextMenu.Items.Add(ctxOpenSpsBuilder);
+
+            Separator sep1 = new Separator();
+            listContextMenu.Items.Add(sep1);
+
+            MenuItem ctxIgnoreTrack = new MenuItem();
+            ctxIgnoreTrack.Header = "Ignore Track (hide from ReBuild)";
+            ctxIgnoreTrack.Click += IgnoreTrack_Click;
+            listContextMenu.Items.Add(ctxIgnoreTrack);
+
+            MenuItem ctxManageIgnored = new MenuItem();
+            ctxManageIgnored.Header = "Manage Ignored Tracks...";
+            ctxManageIgnored.Click += ManageIgnoredTracks_Click;
+            listContextMenu.Items.Add(ctxManageIgnored);
 
             listContextMenu.Items.Add(new Separator());
-
-            MenuItem ctxSave = new MenuItem();
-            ctxSave.Header = "Save Track";
-            ctxSave.Click += SaveTrack_Click;
-            listContextMenu.Items.Add(ctxSave);
 
             MenuItem ctxDelete = new MenuItem();
             ctxDelete.Header = "Delete Track";
@@ -652,7 +667,10 @@ namespace ElementalTracker
 			    {
 			        isSps = Directory.GetFiles(currentCategoryPath, "*.xml").Length > 0;
 			    }
-			    ctxOpenSpsBuilder.Visibility = isSps ? Visibility.Visible : Visibility.Collapsed;
+	            ctxOpenSpsBuilder.Visibility = isSps ? Visibility.Visible : Visibility.Collapsed;
+	            sep1.Visibility = isSps ? Visibility.Visible : Visibility.Collapsed;
+	            ctxIgnoreTrack.Visibility = isSps ? Visibility.Visible : Visibility.Collapsed;
+	            ctxManageIgnored.Visibility = isSps ? Visibility.Visible : Visibility.Collapsed;
 			};
 			
             itemList.ContextMenu = listContextMenu;
@@ -1299,6 +1317,20 @@ namespace ElementalTracker
 
 			sourceToolBarTray.ToolBars.Add(sourceToolBar);
 			sourcePanel.Children.Add(sourceToolBarTray);
+
+			// Info banner — shown when HTML source looks empty/JS-loaded
+			sourceInfoBanner = new TextBlock();
+			sourceInfoBanner.Text = "ℹ HTML mode shows raw unexecuted source code. If content appears " +
+			    "missing, the site likely loads via JavaScript — use the Track Mode button (Aa) to " +
+			    "switch to Text mode for rendered content.";
+			sourceInfoBanner.TextWrapping = TextWrapping.Wrap;
+			sourceInfoBanner.Padding = new Thickness(8, 5, 8, 5);
+			sourceInfoBanner.FontSize = 11;
+			sourceInfoBanner.Background = new SolidColorBrush(currentTheme.SourceBannerBackground);
+			sourceInfoBanner.Foreground = new SolidColorBrush(currentTheme.SourceBannerForeground);
+			sourceInfoBanner.Visibility = Visibility.Collapsed;
+			DockPanel.SetDock(sourceInfoBanner, Dock.Top);
+			sourcePanel.Children.Add(sourceInfoBanner);
 
 			sourceView = new RichTextBox();
 			sourceView.IsReadOnly = true;
@@ -2453,7 +2485,7 @@ namespace ElementalTracker
                     string[] xmlFiles = Directory.GetFiles(dir, "*.xml");
                     string pf, sp;
                     List<string> ss;
-                    List<TrackItem> spsItems = TrackItem.LoadSpsListFromFile(xmlFiles[0], out pf, out sp, out ss);
+                    List<TrackItem> spsItems = TrackItem.LoadSpsListFromFile(xmlFiles[0], out pf, out sp, out ss, out _);
                     trackCount = spsItems.Count;
                 }
                 string sourceLinkFile = Path.Combine(dir, "_source.link");
@@ -2723,7 +2755,7 @@ namespace ElementalTracker
                 string publisherFilter;
                 string suitePath;
                 List<string> selectedSuites;
-                List<TrackItem> spsItems = TrackItem.LoadSpsListFromFile(spsFile, out publisherFilter, out suitePath, out selectedSuites);
+                List<TrackItem> spsItems = TrackItem.LoadSpsListFromFile(spsFile, out publisherFilter, out suitePath, out selectedSuites, out _);
 
                 foreach (TrackItem item in spsItems)
                 {
@@ -2844,7 +2876,7 @@ namespace ElementalTracker
 			            xmlPath = xmlFiles[0];
 			            string existingPf, existingSp;
 			            List<string> existingSuites;
-			            TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites);
+			            TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites, out _);
 			            if (!string.IsNullOrEmpty(existingSp))
 			                suitePath = existingSp;
 			            if (existingSuites.Count > 0)
@@ -2856,7 +2888,7 @@ namespace ElementalTracker
 			            xmlPath = Path.Combine(currentCategoryPath, folderName + ".xml");
 			        }
 
-			        TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites);
+			        TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites, ignoredSpsFiles);
 			    }
 			    else
 			    {
@@ -3389,7 +3421,7 @@ namespace ElementalTracker
                         xmlPath = xmlFiles[0];
                         string existingPf, existingSp;
                         List<string> existingSuites;
-                        TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites);
+                        TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites, out _);
                         if (!string.IsNullOrEmpty(existingSp))
                             suitePath = existingSp;
                         if (existingSuites.Count > 0)
@@ -3401,7 +3433,7 @@ namespace ElementalTracker
                         xmlPath = Path.Combine(currentCategoryPath, folderName + ".xml");
                     }
 
-                    TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites);
+                    TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites, ignoredSpsFiles);
                 }
                 catch (Exception ex)
                 {
@@ -3552,123 +3584,144 @@ namespace ElementalTracker
 		    statusFile.Inlines.Add(new Run(errors + " errors"));
 		}
 		
-        private async void AutoDownloadSource(string url)
-        {
-            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
-                url = "https://" + url;
+		private async void AutoDownloadSource(string url)
+		{
+		    if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+		        url = "https://" + url;
 
-            // Always navigate WebView (needed for both modes)
-            try
-            {
-                await webView.EnsureCoreWebView2Async();
-                webView.CoreWebView2.Navigate(url);
-            }
-            catch (Exception) { }
+		    statusProgress.IsIndeterminate = true;
 
-            // If text mode, wait for WebView to load then extract rendered text
-            if (currentTrackItem != null && currentTrackItem.TrackMode == "text")
-            {
-                try
-                {
-                    // Wait for navigation to complete
-                    var tcs = new System.Threading.Tasks.TaskCompletionSource<bool>();
-                    EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs> handler = null;
-                    handler = (s, e) =>
-                    {
-                        webView.CoreWebView2.NavigationCompleted -= handler;
-                        tcs.TrySetResult(e.IsSuccess);
-                    };
-                    webView.CoreWebView2.NavigationCompleted += handler;
+		    try
+		    {
+		        // Always navigate WebView (needed for both modes)
+		        try
+		        {
+		            await webView.EnsureCoreWebView2Async();
+		            webView.CoreWebView2.Navigate(url);
+		        }
+		        catch (Exception) { }
 
-                    bool success = await tcs.Task;
+		        // If text mode, wait for WebView to load then extract rendered text
+		        if (currentTrackItem != null && currentTrackItem.TrackMode == "text")
+		        {
+		            try
+		            {
+		                var tcs = new System.Threading.Tasks.TaskCompletionSource<bool>();
+		                EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs> handler = null;
+		                handler = (s, e) =>
+		                {
+		                    webView.CoreWebView2.NavigationCompleted -= handler;
+		                    tcs.TrySetResult(e.IsSuccess);
+		                };
+		                webView.CoreWebView2.NavigationCompleted += handler;
 
-                    if (success)
-                    {
-                        // Inject cookie blocker before extracting text
-                        if (blockCookiePopups)
-                            await InjectCookiePopupBlocker();
+		                bool success = await tcs.Task;
 
-                        // Wait for JS to render
-                        await System.Threading.Tasks.Task.Delay(1500);
+		                if (success)
+		                {
+		                    if (blockCookiePopups)
+		                        await InjectCookiePopupBlocker();
 
-                        // Inject again in case popups appeared after JS rendered
-                        if (blockCookiePopups)
-                            await InjectCookiePopupBlocker();
+		                    await System.Threading.Tasks.Task.Delay(1500);
 
-                        string text = await webView.CoreWebView2.ExecuteScriptAsync(
-                            "document.body.innerText");
+		                    if (blockCookiePopups)
+		                        await InjectCookiePopupBlocker();
 
-                        if (text != null && text.StartsWith("\"") && text.EndsWith("\""))
-                        {
-                            text = System.Text.Json.JsonSerializer.Deserialize<string>(text);
-                        }
+		                    string text = await webView.CoreWebView2.ExecuteScriptAsync(
+		                        "document.body.innerText");
 
-                        if (!string.IsNullOrEmpty(text))
-                        {
-                            currentSource = text;
-                            DisplaySource(currentSource);
-                            statusFile.Text = "Source: rendered text — " + url;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    statusFile.Text = "Failed to get rendered text";
-                }
-                return;
-            }
+		                    if (text != null && text.StartsWith("\"") && text.EndsWith("\""))
+		                    {
+		                        text = System.Text.Json.JsonSerializer.Deserialize<string>(text);
+		                    }
 
-            // HTML mode (original behaviour)
-            try
-            {
-                SetupHttpHeaders(url);
-                string source = await httpClient.GetStringAsync(url);
+		                    if (!string.IsNullOrEmpty(text))
+		                    {
+		                        currentSource = text;
+		                        DisplaySource(currentSource);
 
-                // Detect bot challenge — fall back to WebView
-                if (IsChallengePage(source))
-                {
-                    statusFile.Text = "Bot challenge detected, using WebView2...";
-                    string webViewSource = await DownloadViaWebView(url);
-                    if (!string.IsNullOrEmpty(webViewSource) && !IsChallengePage(webViewSource))
-                    {
-                        source = webViewSource;
-                        statusFile.Text = "Loaded via WebView2: " + url;
-                    }
-                    else
-                    {
-                        statusFile.Text = "Challenge page — WebView2 fallback failed: " + url;
-                    }
-                }
+		                        // TEXT MODE: banner never needed — content is already rendered
+		                        if (sourceInfoBanner != null)
+		                            sourceInfoBanner.Visibility = Visibility.Collapsed;
 
-                currentSource = source;
-                DisplaySource(currentSource);
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    statusFile.Text = "HttpClient blocked, trying WebView2 fallback...";
-                    string source = await DownloadViaWebView(url);
-                    if (!string.IsNullOrEmpty(source))
-                    {
-                        currentSource = source;
-                        DisplaySource(currentSource);
-                        statusFile.Text = "Loaded via WebView2: " + url;
-                    }
-                    else
-                    {
-                        currentSource = "";
-                        sourceView.Document.Blocks.Clear();
-                        statusFile.Text = "Failed to load: " + url;
-                    }
-                }
-                catch (Exception)
-                {
-                    currentSource = "";
-                    sourceView.Document.Blocks.Clear();
-                }
-            }
-        }
+		                        statusFile.Text = "Source: rendered text — " + url;
+		                    }
+		                }
+		            }
+		            catch (Exception)
+		            {
+		                statusFile.Text = "Failed to get rendered text";
+		            }
+		            return;
+		        }
+
+		        // HTML mode (original behaviour)
+		        try
+		        {
+		            SetupHttpHeaders(url);
+		            string source = await httpClient.GetStringAsync(url);
+
+		            if (IsChallengePage(source))
+		            {
+		                statusFile.Text = "Bot challenge detected, using WebView2...";
+		                string webViewSource = await DownloadViaWebView(url);
+		                if (!string.IsNullOrEmpty(webViewSource) && !IsChallengePage(webViewSource))
+		                {
+		                    source = webViewSource;
+		                    statusFile.Text = "Loaded via WebView2: " + url;
+		                }
+		                else
+		                {
+		                    statusFile.Text = "Challenge page — WebView2 fallback failed: " + url;
+		                }
+		            }
+
+		            currentSource = source;
+		            DisplaySource(currentSource);
+
+		            // HTML MODE: show banner if source looks like a JS-only page
+					if (sourceInfoBanner != null)
+					    sourceInfoBanner.Visibility = LooksLikeJsOnlyPage(currentSource)
+					        ? Visibility.Visible : Visibility.Collapsed;
+		        }
+		        catch (Exception)
+		        {
+		            try
+		            {
+		                statusFile.Text = "HttpClient blocked, trying WebView2 fallback...";
+		                string source = await DownloadViaWebView(url);
+		                if (!string.IsNullOrEmpty(source))
+		                {
+		                    currentSource = source;
+		                    DisplaySource(currentSource);
+
+		                    // HTML MODE FALLBACK: same check
+							if (sourceInfoBanner != null)
+							    sourceInfoBanner.Visibility = LooksLikeJsOnlyPage(currentSource)
+							        ? Visibility.Visible : Visibility.Collapsed;
+									
+		                    statusFile.Text = "Loaded via WebView2: " + url;
+		                }
+		                else
+		                {
+		                    currentSource = "";
+		                    sourceView.Document.Blocks.Clear();
+		                    statusFile.Text = "Failed to load: " + url;
+		                }
+		            }
+		            catch (Exception)
+		            {
+		                currentSource = "";
+		                sourceView.Document.Blocks.Clear();
+		            }
+		        }
+		    }
+		    finally
+		    {
+		        statusProgress.IsIndeterminate = false;
+		        statusProgress.Value = 0;
+		    }
+		}
 
         // ============================
         // Track Settings Buttons
@@ -3868,13 +3921,67 @@ namespace ElementalTracker
 		            return;
 		        }
 
+		        // Try direct path first (works for user suites where .sps files are in _Cache)
 		        string spsFile = Path.Combine(spsRoot, suiteName, "_Cache", spsFileName);
 
 		        if (!File.Exists(spsFile))
 		        {
-		            MessageBox.Show("SPS file not found:\n" + spsFile,
-		                AppInfo.ShortName, MessageBoxButton.OK, MessageBoxImage.Error);
-		            return;
+		            // Not found directly — try extracting from zip files in _Cache (default suites)
+		            string cachePath = Path.Combine(spsRoot, suiteName, "_Cache");
+		            if (Directory.Exists(cachePath))
+		            {
+		                string tmpPath = Path.Combine(spsRoot, suiteName, "_TmpET_Open");
+
+		                // Clean up any previous temp folder
+		                if (Directory.Exists(tmpPath))
+		                {
+		                    try { Directory.Delete(tmpPath, true); } catch { }
+		                }
+		                Directory.CreateDirectory(tmpPath);
+
+		                bool found = false;
+		                string[] zipFiles = Directory.GetFiles(cachePath, "*.zip");
+		                foreach (string zipFile in zipFiles)
+		                {
+		                    try
+		                    {
+		                        using (ZipArchive archive = ZipFile.OpenRead(zipFile))
+		                        {
+		                            foreach (ZipArchiveEntry entry in archive.Entries)
+		                            {
+		                                if (entry.Name.Equals(spsFileName, StringComparison.OrdinalIgnoreCase))
+		                                {
+		                                    string extractedPath = Path.Combine(tmpPath, entry.Name);
+		                                    entry.ExtractToFile(extractedPath, true);
+		                                    spsFile = extractedPath;
+		                                    found = true;
+		                                    break;
+		                                }
+		                            }
+		                        }
+		                        if (found) break;
+		                    }
+		                    catch { }
+		                }
+
+		                if (!found)
+		                {
+		                    // Clean up temp folder if nothing found
+		                    try { Directory.Delete(tmpPath, true); } catch { }
+
+		                    MessageBox.Show("SPS file not found:\n" + spsFileName +
+		                        "\n\nSearched _Cache folder and zip files in:\n" +
+		                        cachePath, AppInfo.ShortName, MessageBoxButton.OK, MessageBoxImage.Error);
+		                    return;
+		                }
+		            }
+		            else
+		            {
+		                MessageBox.Show("_Cache folder not found:\n" +
+		                    Path.Combine(spsRoot, suiteName, "_Cache"),
+		                    AppInfo.ShortName, MessageBoxButton.OK, MessageBoxImage.Error);
+		                return;
+		            }
 		        }
 
 		        System.Diagnostics.Process.Start(builderPath, "\"" + spsFile + "\"");
@@ -3945,7 +4052,7 @@ namespace ElementalTracker
                     xmlPath = xmlFiles[0];
                     string existingPf, existingSp;
                     List<string> existingSuites;
-                    TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites);
+                    TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites, out _);
                     if (!string.IsNullOrEmpty(existingSp))
                         suitePath = existingSp;
                     if (existingSuites.Count > 0)
@@ -3957,7 +4064,7 @@ namespace ElementalTracker
                     xmlPath = Path.Combine(currentCategoryPath, folderName + ".xml");
                 }
 
-                TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites);
+                TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites, ignoredSpsFiles);
 				// Clear dirty on the saved track, then recalculate
 				if (currentTrackItem != null)
 				    currentTrackItem.IsDirtyInMemory = false;
@@ -4163,12 +4270,12 @@ namespace ElementalTracker
 
 		                string existingPf, existingSp;
 		                List<string> existingSuites;
-		                TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites);
+		                TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites, out _);
 		                if (!string.IsNullOrEmpty(existingSp)) suitePath = existingSp;
 		                if (existingSuites.Count > 0) savedSuites = existingSuites;
 
 		                TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(),
-		                    publisherFilter, suitePath, savedSuites);
+		                    publisherFilter, suitePath, savedSuites, ignoredSpsFiles);
 		            }
 
 		            // Delete the .sps file from disk if user confirmed and it exists
@@ -4463,7 +4570,7 @@ namespace ElementalTracker
                         xmlPath = xmlFiles[0];
                         string existingPf, existingSp;
                         List<string> existingSuites;
-                        TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites);
+                        TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites, out _);
                         if (!string.IsNullOrEmpty(existingSp))
                             suitePath = existingSp;
                         if (existingSuites.Count > 0)
@@ -4475,7 +4582,7 @@ namespace ElementalTracker
                         xmlPath = Path.Combine(currentCategoryPath, folderName + ".xml");
                     }
 
-                    TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites);
+                    TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites, ignoredSpsFiles);
                 }
 				else
 				{
@@ -5207,6 +5314,8 @@ namespace ElementalTracker
 
 		    AddThemeGroup(themePanel, "Source View", panel =>
 		    {
+	            AddColorSwatch(panel, "JS Banner Background", () => previewTheme.SourceBannerBackground, c => previewTheme.SourceBannerBackground = c);
+	            AddColorSwatch(panel, "JS Banner Foreground", () => previewTheme.SourceBannerForeground, c => previewTheme.SourceBannerForeground = c);
 		        AddColorSwatch(panel, "Source Background", () => previewTheme.SourceBackground, c => previewTheme.SourceBackground = c);
 		        AddColorSwatch(panel, "Start String Color", () => previewTheme.SourceStartStringColor, c => previewTheme.SourceStartStringColor = c);
 		        AddColorSwatch(panel, "Info String Color", () => previewTheme.SourceInfoStringColor, c => previewTheme.SourceInfoStringColor = c);
@@ -5607,45 +5716,6 @@ namespace ElementalTracker
 		    }
 		}
 
-/// Can be removed once confirmed not needed...
-// 		private void AddThemeSection(StackPanel parent, string title)
-// 		{
-// 		    TextBlock header = new TextBlock();
-// 		    header.Text = title;
-// 		    header.FontWeight = FontWeights.Bold;
-// 		    header.FontSize = 12;
-// 		    header.Margin = new Thickness(0, 12, 0, 4);
-// 		    parent.Children.Add(header);
-
-// 		    Separator sep = new Separator();
-// 		    sep.Margin = new Thickness(0, 0, 0, 4);
-// 		    parent.Children.Add(sep);
-// 		}
-
-// 		private void ThemeGroupHeaders(Panel parent, SolidColorBrush foreground, SolidColorBrush borderBrush)
-// 		{
-// 		    foreach (object child in parent.Children)
-// 		    {
-// 		        Border border = child as Border;
-// 		        if (border != null && border.Tag as string == "ThemeGroup")
-// 		        {
-// 		            border.BorderBrush = borderBrush;
-// 		            StackPanel sp = border.Child as StackPanel;
-// 		            if (sp != null)
-// 		            {
-// 		                foreach (object item in sp.Children)
-// 		                {
-// 		                    TextBlock tb = item as TextBlock;
-// 		                    if (tb != null && tb.Tag as string == "ThemeGroupHeader")
-// 		                    {
-// 		                        tb.Foreground = foreground;
-// 		                    }
-// 		                }
-// 		            }
-// 		        }
-// 		    }
-// 		}
-
 		private void AddColorSwatch(StackPanel parent, string label,
 		    Func<Color> getter, Action<Color> setter)
 		{
@@ -5661,7 +5731,7 @@ namespace ElementalTracker
 		    swatch.CornerRadius = new CornerRadius(3);
 		    swatch.Background = new SolidColorBrush(getter());
 		    swatch.Cursor = System.Windows.Input.Cursors.Hand;
-		    swatch.ToolTip = "Click to pick a color";
+		    swatch.ToolTip = "Click to pick a color — Right-click to copy/paste";
 		    swatch.Margin = new Thickness(0, 0, 8, 0);
 		    DockPanel.SetDock(swatch, Dock.Left);
 
@@ -5706,6 +5776,41 @@ namespace ElementalTracker
 		            ApplyTheme(previewTheme);
 		        }
 		    };
+
+		    // Right-click context menu — Copy / Paste color
+		    ContextMenu swatchMenu = new ContextMenu();
+
+		    MenuItem menuCopyColor = new MenuItem();
+		    menuCopyColor.Header = "Copy Color";
+		    menuCopyColor.Click += (s, ev) =>
+		    {
+		        Clipboard.SetText(ThemeSettings.ColorToHex(getter()));
+		    };
+		    swatchMenu.Items.Add(menuCopyColor);
+
+		    MenuItem menuPasteColor = new MenuItem();
+		    menuPasteColor.Header = "Paste Color";
+		    menuPasteColor.Click += (s, ev) =>
+		    {
+		        string clipText = Clipboard.GetText().Trim();
+		        Color? parsed = ThemeSettings.HexToColor(clipText);
+		        if (parsed.HasValue)
+		        {
+		            setter(parsed.Value);
+		            swatch.Background = new SolidColorBrush(parsed.Value);
+		            hexText.Text = ThemeSettings.ColorToHex(parsed.Value);
+		            ApplyTheme(previewTheme);
+		        }
+		        else
+		        {
+		            MessageBox.Show("Clipboard does not contain a valid hex color.\n\n" +
+		                "Expected format: #RRGGBB (e.g. #FF8000)",
+		                AppInfo.ShortName, MessageBoxButton.OK, MessageBoxImage.Information);
+		        }
+		    };
+		    swatchMenu.Items.Add(menuPasteColor);
+
+		    swatch.ContextMenu = swatchMenu;
 
 		    row.Children.Add(swatch);
 		    row.Children.Add(hexText);
@@ -6432,6 +6537,11 @@ namespace ElementalTracker
 		    // ---- Source View ----
 		    sourceView.Background = new SolidColorBrush(theme.SourceBackground);
 		    sourceView.Foreground = new SolidColorBrush(theme.SourceTagColor);
+			if (sourceInfoBanner != null)
+			{
+			    sourceInfoBanner.Background = new SolidColorBrush(theme.SourceBannerBackground);
+			    sourceInfoBanner.Foreground = new SolidColorBrush(theme.SourceBannerForeground);
+			}
 
 			// ---- Buttons (app-wide) ----
 			SolidColorBrush btnBg = new SolidColorBrush(theme.ButtonBackground);
@@ -7944,6 +8054,91 @@ namespace ElementalTracker
 		    return btn;
 		}
 
+		private void IgnoreTrack_Click(object sender, RoutedEventArgs e)
+		{
+		    if (currentTrackItem == null) return;
+
+		    string spsFile = currentTrackItem.SpsFileName;
+		    string trackName = currentTrackItem.TrackName;
+
+		    if (string.IsNullOrEmpty(spsFile) && string.IsNullOrEmpty(trackName))
+		    {
+		        MessageBox.Show("No SPS file info for this track.", AppInfo.ShortName,
+		            MessageBoxButton.OK, MessageBoxImage.Warning);
+		        return;
+		    }
+
+		    // Build a key: use SpsFileName if available, otherwise TrackName|SuiteName
+		    string ignoreKey = !string.IsNullOrEmpty(spsFile)
+		        ? spsFile
+		        : trackName + "|" + (currentTrackItem.SuiteName ?? "");
+
+		    if (ignoredSpsFiles.Contains(ignoreKey))
+		    {
+		        MessageBox.Show("This track is already ignored.", AppInfo.ShortName,
+		            MessageBoxButton.OK, MessageBoxImage.Information);
+		        return;
+		    }
+
+		    MessageBoxResult result = MessageBox.Show(
+		        "Ignore '" + trackName + "' from future ReBuild scans?\n\n" +
+		        "This track will be removed from the list and won't reappear.\n" +
+		        "You can undo this via 'Manage Ignored Tracks'.",
+		        AppInfo.ShortName, MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+		    if (result != MessageBoxResult.Yes)
+		        return;
+
+		    ignoredSpsFiles.Add(ignoreKey);
+
+		    // Remove from current list
+		    currentItems.Remove(currentTrackItem);
+
+		    suppressAutoDownload = true;
+		    itemList.ItemsSource = null;
+		    itemList.ItemsSource = currentItems;
+		    if (currentItems.Count > 0)
+		        itemList.SelectedIndex = 0;
+		    suppressAutoDownload = false;
+
+		    isDirty = true;
+		    isCategoryDirty = true;
+		    UpdateSaveButtonStates();
+
+		    statusFile.Text = "Ignored: " + trackName + " — will be skipped in future rebuilds";
+		}
+
+		private void ManageIgnoredTracks_Click(object sender, RoutedEventArgs e)
+		{
+		    if (ignoredSpsFiles.Count == 0)
+		    {
+		        MessageBox.Show("No tracks are currently ignored.", AppInfo.ShortName,
+		            MessageBoxButton.OK, MessageBoxImage.Information);
+		        return;
+		    }
+
+		    // Build a simple list for display
+		    StringBuilder sb = new StringBuilder();
+		    sb.AppendLine("Currently ignored tracks:\n");
+		    for (int i = 0; i < ignoredSpsFiles.Count; i++)
+		    {
+		        sb.AppendLine((i + 1) + ". " + ignoredSpsFiles[i]);
+		    }
+		    sb.AppendLine("\nWould you like to clear the ignore list?\n(All tracks will reappear on next ReBuild)");
+
+		    MessageBoxResult result = MessageBox.Show(sb.ToString(), AppInfo.ShortName + " — Ignored Tracks",
+		        MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+		    if (result == MessageBoxResult.Yes)
+		    {
+		        ignoredSpsFiles.Clear();
+		        isDirty = true;
+		        isCategoryDirty = true;
+		        UpdateSaveButtonStates();
+		        statusFile.Text = "Ignore list cleared — all tracks will reappear on next ReBuild";
+		    }
+		}
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             SaveTrack_Click(sender, e);
@@ -8129,7 +8324,7 @@ namespace ElementalTracker
                         xmlPath = xmlFiles[0];
                         string existingPf, existingSp;
                         List<string> existingSuites;
-                        TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites);
+                        TrackItem.LoadSpsListFromFile(xmlPath, out existingPf, out existingSp, out existingSuites, out _);
                         if (!string.IsNullOrEmpty(existingSp))
                             suitePath = existingSp;
                         if (existingSuites.Count > 0)
@@ -8141,7 +8336,7 @@ namespace ElementalTracker
                         xmlPath = Path.Combine(currentCategoryPath, folderName + ".xml");
                     }
 
-                    TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites);
+                    TrackItem.SaveSpsListToFile(xmlPath, currentItems.ToList(), publisherFilter, suitePath, savedSuites, ignoredSpsFiles);
                 }
                 catch (Exception ex)
                 {
@@ -8440,6 +8635,17 @@ namespace ElementalTracker
                     allSpsItems.AddRange(suiteItems);
                 }
 
+				// Remove ignored items
+				if (ignoredSpsFiles.Count > 0)
+				{
+				    allSpsItems.RemoveAll(item =>
+				    {
+				        string key1 = item.SpsFileName ?? "";
+				        string key2 = item.TrackName + "|" + (item.SuiteName ?? "");
+				        return ignoredSpsFiles.Contains(key1) || ignoredSpsFiles.Contains(key2);
+				    });
+				}
+
                 statusProgress.Value = 50;
                 statusFile.Text = "Processing " + allSpsItems.Count + " SPS entries from " + selectedSuites.Count + " suite(s)...";
 
@@ -8449,8 +8655,9 @@ namespace ElementalTracker
                 {
                     string existPf, existSp;
                     List<string> existSuites;
-                    List<TrackItem> existingItems = TrackItem.LoadSpsListFromFile(
-                        existingXml[0], out existPf, out existSp, out existSuites);
+					List<string> existIgnored;
+					List<TrackItem> existingItems = TrackItem.LoadSpsListFromFile(existingXml[0], out existPf, out existSp, out existSuites, out existIgnored);
+					ignoredSpsFiles = existIgnored;
 
                     // Build lookup of existing items by name+suite for preserving user data
                     Dictionary<string, TrackItem> existingByKey = new Dictionary<string, TrackItem>(
@@ -11289,6 +11496,55 @@ namespace ElementalTracker
             }
         }
 
+		// Helper method — add at class level
+		private bool LooksLikeJsOnlyPage(string html)
+		{
+		    if (string.IsNullOrEmpty(html))
+		        return false;
+
+		    // Count how much is inside <script> tags vs total
+		    int scriptContentLength = 0;
+		    int idx = 0;
+		    while (true)
+		    {
+		        int start = html.IndexOf("<script", idx, StringComparison.OrdinalIgnoreCase);
+		        if (start < 0) break;
+		        int end = html.IndexOf("</script>", start, StringComparison.OrdinalIgnoreCase);
+		        if (end < 0) break;
+		        end += "</script>".Length;
+		        scriptContentLength += (end - start);
+		        idx = end;
+		    }
+
+		    // What percentage of the page is script tags?
+		    double scriptRatio = (double)scriptContentLength / html.Length;
+
+		    // Strip all HTML tags to see how much visible text remains
+		    string textOnly = System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", " ");
+		    textOnly = System.Text.RegularExpressions.Regex.Replace(textOnly, @"\s+", " ").Trim();
+
+		    // Known JS framework markers
+		    bool hasFrameworkMarker =
+		        html.Contains("<div id=\"app\"") ||
+		        html.Contains("<div id=\"root\"") ||
+		        html.Contains("<div id=\"__next\"") ||
+		        html.Contains("<div id=\"__nuxt\"") ||
+		        html.Contains("__NUXT__") ||
+		        html.Contains("__NEXT_DATA__") ||
+		        html.Contains("window.__INITIAL_STATE__") ||
+		        html.Contains("<noscript>You need to enable JavaScript");
+
+		    // Page is likely JS-only if:
+		    // - More than 70% of the page is script tags, OR
+		    // - Known framework marker AND very little visible text, OR
+		    // - Very little visible text (under 200 chars) but page has scripts
+		    bool mostlyScripts = scriptRatio > 0.70;
+		    bool frameworkWithNoContent = hasFrameworkMarker && textOnly.Length < 500;
+		    bool tinyTextWithScripts = textOnly.Length < 200 && html.Contains("<script");
+
+		    return mostlyScripts || frameworkWithNoContent || tinyTextWithScripts;
+		}
+
         // ============================
         // WebView Tab
         // ============================
@@ -11462,7 +11718,12 @@ namespace ElementalTracker
                     {
                         if (webViewAutoZoom)
                         {
-                            ApplyAutoZoom();
+                            // Defer zoom until layout is complete so ActualWidth is correct
+                            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
+                                new Action(() =>
+                                {
+                                    ApplyAutoZoom();
+                                }));
                         }
                     };
                 }

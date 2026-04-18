@@ -538,7 +538,7 @@ namespace ElementalTracker
                 {
                     LatestVersion = extractedVersion;
                     result.ExtractedVersion = extractedVersion;
-                    LatestVersionStatus = (extractedVersion == Version) ? "ok" : "changed";
+                    LatestVersionStatus = VersionsMatch(extractedVersion, Version) ? "ok" : "changed";
 
                     // If Version is empty, auto-fill it on first check
                     if (string.IsNullOrEmpty(Version))
@@ -653,6 +653,43 @@ namespace ElementalTracker
             IsDirtyInMemory = true;
             return result;
         }
+
+		/// <summary>
+		/// Compares two version strings, ignoring trailing .0 segments.
+		/// e.g. "3.25.113.0" matches "3.25.113", "1.2.0.0" matches "1.2"
+		/// </summary>
+		private static bool VersionsMatch(string v1, string v2)
+		{
+		    if (v1 == v2)
+		        return true;
+
+		    if (string.IsNullOrEmpty(v1) || string.IsNullOrEmpty(v2))
+		        return false;
+
+		    // Split into parts and remove trailing zeros
+		    string[] parts1 = v1.TrimEnd('.').Split('.');
+		    string[] parts2 = v2.TrimEnd('.').Split('.');
+
+		    // Trim trailing "0" segments from both
+		    int len1 = parts1.Length;
+		    while (len1 > 1 && parts1[len1 - 1] == "0")
+		        len1--;
+
+		    int len2 = parts2.Length;
+		    while (len2 > 1 && parts2[len2 - 1] == "0")
+		        len2--;
+
+		    if (len1 != len2)
+		        return false;
+
+		    for (int i = 0; i < len1; i++)
+		    {
+		        if (parts1[i] != parts2[i])
+		            return false;
+		    }
+
+		    return true;
+		}
 
         // ============================
         // Save (XML)
@@ -814,7 +851,7 @@ namespace ElementalTracker
         // SPS List Save (single SPS XML)
         // ============================
 
-        public static void SaveSpsListToFile(string path, List<TrackItem> items, string publisherFilter, string suitePath, List<string> selectedSuites = null)
+        public static void SaveSpsListToFile(string path, List<TrackItem> items, string publisherFilter, string suitePath, List<string> selectedSuites = null, List<string> ignoredFiles = null)
         {
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
@@ -844,6 +881,15 @@ namespace ElementalTracker
                 }
                 writer.WriteEndElement();
 
+				writer.WriteStartElement("IgnoredFiles");
+				if (ignoredFiles != null)
+				{
+				    foreach (string ignored in ignoredFiles)
+				    {
+				        writer.WriteElementString("File", ignored);
+				    }
+				}
+				writer.WriteEndElement();
                 writer.WriteStartElement("Tracks");
                 foreach (TrackItem item in items)
                 {
@@ -882,11 +928,12 @@ namespace ElementalTracker
         // SPS List Load (single SPS XML)
         // ============================
 
-        public static List<TrackItem> LoadSpsListFromFile(string path, out string publisherFilter, out string suitePath, out List<string> selectedSuites)
+        public static List<TrackItem> LoadSpsListFromFile(string path, out string publisherFilter, out string suitePath, out List<string> selectedSuites, out List<string> ignoredFiles)
         {
             publisherFilter = "";
             suitePath = "";
             selectedSuites = new List<string>();
+        	ignoredFiles = new List<string>();
             List<TrackItem> items = new List<TrackItem>();
 
             if (!File.Exists(path))
@@ -913,6 +960,18 @@ namespace ElementalTracker
                     {
                         if (!string.IsNullOrEmpty(sNode.InnerText))
                             selectedSuites.Add(sNode.InnerText);
+                    }
+                }
+
+                // Load ignored files list
+                XmlNode ignoredNode = root.SelectSingleNode("IgnoredFiles");
+                if (ignoredNode != null)
+                {
+                    XmlNodeList fileNodes = ignoredNode.SelectNodes("File");
+                    foreach (XmlNode fNode in fileNodes)
+                    {
+                        if (!string.IsNullOrEmpty(fNode.InnerText))
+                            ignoredFiles.Add(fNode.InnerText);
                     }
                 }
 

@@ -111,6 +111,8 @@ namespace ElementalTracker
         public Color SourceStartStringColor { get; set; } = Color.FromRgb(0, 160, 0);
         public Color SourceInfoStringColor { get; set; } = Color.FromRgb(200, 140, 0);
         public Color SourceStopStringColor { get; set; } = Color.FromRgb(220, 40, 40);
+        public Color SourceBannerBackground { get; set; } = Color.FromRgb(255, 243, 205);
+        public Color SourceBannerForeground { get; set; } = Color.FromRgb(100, 80, 0);
 
         // Buttons
         public Color ButtonBackground { get; set; } = Color.FromRgb(221, 221, 221);
@@ -215,6 +217,8 @@ namespace ElementalTracker
             t.TabHandleBackground = Color.FromRgb(50, 50, 50);
             t.TabHandleForeground = Color.FromRgb(160, 160, 160);
 
+            t.SourceBannerBackground = Color.FromRgb(60, 50, 20);
+            t.SourceBannerForeground = Color.FromRgb(240, 200, 80);
             t.SourceBackground = Color.FromRgb(30, 30, 30);
             t.SourceTagColor = Color.FromRgb(100, 150, 255);
             t.SourceTextColor = Color.FromRgb(200, 200, 200);
@@ -305,6 +309,8 @@ namespace ElementalTracker
             t.TabHandleForeground = Color.FromRgb(40, 60, 120);
             t.TabContentForeground = Color.FromRgb(20, 40, 80);
 
+            t.SourceBannerBackground = Color.FromRgb(220, 235, 255);
+            t.SourceBannerForeground = Color.FromRgb(40, 60, 120);
             t.SourceBackground = Color.FromRgb(250, 252, 255);
             t.SourceTagColor = Color.FromRgb(40, 80, 180);
             t.SourceTextColor = Color.FromRgb(20, 40, 80);
