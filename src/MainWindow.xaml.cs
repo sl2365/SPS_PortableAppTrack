@@ -267,13 +267,27 @@ namespace ElementalTracker
                 }), System.Windows.Threading.DispatcherPriority.Loaded);
             };
 
-            rightTabs.SelectionChanged += (s, ev) =>
-            {
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    FixClosableTabForegrounds();
-                }), System.Windows.Threading.DispatcherPriority.Loaded);
-            };
+			rightTabs.SelectionChanged += (s, e) =>
+			{
+			    foreach (TabItem ti in rightTabs.Items)
+			    {
+			        if (ti.Header is StackPanel sp)
+			        {
+			            bool isSelected = ti.IsSelected;
+			            SolidColorBrush brush = isSelected
+			                ? new SolidColorBrush(currentTheme.TabSelectedForeground)
+			                : new SolidColorBrush(currentTheme.TabHandleForeground);
+
+			            foreach (var child in sp.Children)
+			            {
+			                if (child is TextBlock tb)
+			                    tb.Foreground = brush;
+			                else if (child is Button btn)
+			                    btn.Foreground = brush;
+			            }
+			        }
+			    }
+			};
 
             PlaceControlsInLayout();
 
@@ -490,6 +504,49 @@ namespace ElementalTracker
                 SystemColors.InactiveSelectionHighlightTextBrushKey,
                 SystemColors.HighlightTextBrush);
             categoryPanel.Children.Add(categoryTree);
+
+			// Category Tree Context Menu
+			ContextMenu categoryContextMenu = new ContextMenu();
+
+			MenuItem menuRefreshCategory = new MenuItem();
+			menuRefreshCategory.Header = "Refresh Categories";
+			menuRefreshCategory.Click += RefreshCategories_Click;
+			categoryContextMenu.Items.Add(menuRefreshCategory);
+
+			categoryContextMenu.Items.Add(new Separator());
+
+			MenuItem menuAddCategory = new MenuItem();
+			menuAddCategory.Header = "Add Category";
+			menuAddCategory.Click += AddCategory_Click;
+			categoryContextMenu.Items.Add(menuAddCategory);
+
+			MenuItem menuDeleteCategory = new MenuItem();
+			menuDeleteCategory.Header = "Delete Category";
+			menuDeleteCategory.Click += RemoveCategory_Click;
+			categoryContextMenu.Items.Add(menuDeleteCategory);
+
+			categoryContextMenu.Items.Add(new Separator());
+
+			MenuItem menuOpenFolder = new MenuItem();
+			menuOpenFolder.Header = "Open Folder";
+			menuOpenFolder.Click += OpenCategoryFolder_Click;
+			categoryContextMenu.Items.Add(menuOpenFolder);
+
+			categoryTree.PreviewMouseRightButtonDown += (s, ev) =>
+			{
+			    DependencyObject source = ev.OriginalSource as DependencyObject;
+			    while (source != null && !(source is TreeViewItem))
+			    {
+			        source = VisualTreeHelper.GetParent(source);
+			    }
+			    if (source is TreeViewItem tvi)
+			    {
+			        tvi.IsSelected = true;
+			        ev.Handled = true;
+			    }
+			};
+
+			categoryTree.ContextMenu = categoryContextMenu;
 
             // --- Item List ---
             itemList = new ListView();
@@ -5004,6 +5061,7 @@ namespace ElementalTracker
 			    }
 			    ApplyTheme(previewTheme);
 			    RefreshThemeSwatches(themePanel);
+			    FixClosableTabForegrounds();
 			    statusFile.Text = "Theme applied: " + selected;
 			};
 			
@@ -5073,6 +5131,8 @@ namespace ElementalTracker
 		        AddColorSwatch(panel, "Tree Foreground", () => previewTheme.TreeForeground, c => previewTheme.TreeForeground = c);
 		        AddColorSwatch(panel, "Tree Selected Background", () => previewTheme.TreeSelectedBackground, c => previewTheme.TreeSelectedBackground = c);
 		        AddColorSwatch(panel, "Tree Selected Foreground", () => previewTheme.TreeSelectedForeground, c => previewTheme.TreeSelectedForeground = c);
+				AddColorSwatch(panel, "Tree Hover Background", () => previewTheme.TreeHoverBackground, c => previewTheme.TreeHoverBackground = c);
+				AddColorSwatch(panel, "Tree Hover Foreground", () => previewTheme.TreeHoverForeground, c => previewTheme.TreeHoverForeground = c);
 		    });
 
 		    AddThemeGroup(themePanel, "ListView", panel =>
@@ -5201,6 +5261,7 @@ namespace ElementalTracker
 			    }
 			    ApplyTheme(previewTheme);
 			    RefreshThemeSwatches(themePanel);
+			    FixClosableTabForegrounds();
 			    statusFile.Text = "Theme applied: " + selected;
 			};
 
@@ -5218,6 +5279,7 @@ namespace ElementalTracker
 		            currentThemePath = dlg.FileName;
 		            ApplyTheme(previewTheme);
 		            RefreshThemeSwatches(themePanel);
+		            FixClosableTabForegrounds();
 
 		            string relativePath = Path.GetFileName(dlg.FileName);
 		            windowSettings.ActiveThemePath = relativePath;
@@ -5238,6 +5300,7 @@ namespace ElementalTracker
 			    {
 			        previewTheme.Save(currentThemePath);
 			        currentTheme = previewTheme.Clone();
+			        FixClosableTabForegrounds();
 			        statusFile.Text = "Theme saved: " + Path.GetFileNameWithoutExtension(currentThemePath);
 			        return;
 			    }
@@ -5252,6 +5315,7 @@ namespace ElementalTracker
 			        previewTheme.Save(savePath);
 			        currentThemePath = savePath;
 			        currentTheme = previewTheme.Clone();
+			        FixClosableTabForegrounds();
 			        windowSettings.ActiveThemePath = selected + ".thm";
 			        statusFile.Text = "Theme saved: " + selected;
 			        return;
@@ -5278,6 +5342,7 @@ namespace ElementalTracker
 			    previewTheme.Save(newPath);
 			    currentThemePath = newPath;
 			    currentTheme = previewTheme.Clone();
+			    FixClosableTabForegrounds();
 			    windowSettings.ActiveThemePath = safeName + ".thm";
 			    int savedTabIndex = rightTabs.SelectedIndex;
 				PopulateThemeCombo(presetCombo);
@@ -5317,6 +5382,7 @@ namespace ElementalTracker
 			    previewTheme.Save(savePath);
 			    currentThemePath = savePath;
 			    currentTheme = previewTheme.Clone();
+			    FixClosableTabForegrounds();
 			    windowSettings.ActiveThemePath = safeName + ".thm";
 			    int savedTabIndex = rightTabs.SelectedIndex;
 				PopulateThemeCombo(presetCombo);
@@ -5336,6 +5402,7 @@ namespace ElementalTracker
 		        }
 		        ApplyTheme(previewTheme);
 		        RefreshThemeSwatches(themePanel);
+		        FixClosableTabForegrounds();
 		        statusFile.Text = "Theme reset to saved state";
 		    };
 
@@ -5380,6 +5447,7 @@ namespace ElementalTracker
 		                currentTheme = previewTheme.Clone();
 		                ApplyTheme(previewTheme);
 		                RefreshThemeSwatches(themePanel);
+		                FixClosableTabForegrounds();
 		            }
 
 		            // Refresh combo and select Default Light
@@ -5869,6 +5937,16 @@ namespace ElementalTracker
 			treeSelTrigger.Setters.Add(new Setter(TreeViewItem.ForegroundProperty,
 			    new SolidColorBrush(theme.TreeSelectedForeground)));
 			treeItemTemplate.Triggers.Add(treeSelTrigger);
+
+			// Hover trigger (only when not selected)
+			MultiTrigger treeHoverTrigger = new MultiTrigger();
+			treeHoverTrigger.Conditions.Add(new Condition(TreeViewItem.IsMouseOverProperty, true));
+			treeHoverTrigger.Conditions.Add(new Condition(TreeViewItem.IsSelectedProperty, false));
+			treeHoverTrigger.Setters.Add(new Setter(TreeViewItem.BackgroundProperty,
+			    new SolidColorBrush(theme.TreeHoverBackground)));
+			treeHoverTrigger.Setters.Add(new Setter(TreeViewItem.ForegroundProperty,
+			    new SolidColorBrush(theme.TreeHoverForeground)));
+			treeItemTemplate.Triggers.Add(treeHoverTrigger);
 
 			treeItemStyle.Setters.Add(new Setter(TreeViewItem.TemplateProperty, treeItemTemplate));
 			categoryTree.ItemContainerStyle = treeItemStyle;
@@ -7706,26 +7784,30 @@ namespace ElementalTracker
             return header;
         }
 
-        private void FixClosableTabForegrounds()
-        {
-            foreach (TabItem ti in rightTabs.Items)
-            {
-                if (ti.Header is StackPanel sp)
-                {
-                    foreach (var child in sp.Children)
-                    {
-                        if (child is TextBlock tb)
-                            tb.SetBinding(TextBlock.ForegroundProperty,
-                                new System.Windows.Data.Binding("(TextElement.Foreground)")
-                                {
-                                    RelativeSource = new System.Windows.Data.RelativeSource(
-                                        System.Windows.Data.RelativeSourceMode.FindAncestor,
-                                        typeof(ContentPresenter), 1)
-                                });
-                    }
-                }
-            }
-        }
+		private void FixClosableTabForegrounds()
+		{
+		    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, new Action(() =>
+		    {
+		        foreach (TabItem ti in rightTabs.Items)
+		        {
+		            if (ti.Header is StackPanel sp)
+		            {
+		                bool isSelected = ti.IsSelected;
+		                SolidColorBrush brush = isSelected
+		                    ? new SolidColorBrush(currentTheme.TabSelectedForeground)
+		                    : new SolidColorBrush(currentTheme.TabHandleForeground);
+
+		                foreach (var child in sp.Children)
+		                {
+		                    if (child is TextBlock tb)
+		                        tb.Foreground = brush;
+		                    else if (child is Button btn)
+		                        btn.Foreground = brush;
+		                }
+		            }
+		        }
+		    }));
+		}
 
         private ControlTemplate CreateCloseButtonTemplate()
         {
@@ -8710,7 +8792,7 @@ namespace ElementalTracker
 		    Window aboutWindow = new Window();
 		    aboutWindow.Title = "About " + AppInfo.AppName;
 		    aboutWindow.Width = 800;
-		    aboutWindow.Height = 650;
+		    aboutWindow.Height = 670;
 		    aboutWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 		    aboutWindow.Owner = this;
 		    aboutWindow.ResizeMode = ResizeMode.NoResize;

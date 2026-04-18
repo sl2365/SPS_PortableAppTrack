@@ -78,9 +78,9 @@
                         FontFamily="Segoe Fluent Icons" FontSize="17"
                         Padding="7,4" Margin="2,2,2,2"
                         ToolTip="Scan SyMenu SPS cache and rebuild category from SPS data" />
-		        <Button x:Name="btnAbout" Content="&#xE946;" Click="About_Click"
+		        <Button x:Name="btnAbout" Content="&#xe9ce;" Click="About_Click"
 		                FontFamily="Segoe Fluent Icons" FontSize="17"
-		                Padding="7,4" Margin="2,2,2,2" ToolTip="About" />
+		                Padding="7,4" Margin="2,2,2,2" ToolTip="Help" />
 		    </ToolBar>
 		</ToolBarTray>
 

@@ -10,10 +10,10 @@
     <AssemblyName>ElementalTracker</AssemblyName>
     <EnableDefaultPageItems>false</EnableDefaultPageItems>
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
-	<Version>7.0.8</Version>                       <!-- NuGet / product version -->
-	<AssemblyVersion>7.0.8</AssemblyVersion>     <!-- assembly identity -->
-	<FileVersion>7.0.8.854</FileVersion>             <!-- file version shown in Explorer -->
-	<InformationalVersion>7.0.8.854</InformationalVersion> <!-- pretty/product string -->
+	<Version>7.0.9</Version>                       <!-- NuGet / product version -->
+	<AssemblyVersion>7.0.9</AssemblyVersion>     <!-- assembly identity -->
+	<FileVersion>7.0.9.872</FileVersion>             <!-- file version shown in Explorer -->
+	<InformationalVersion>7.0.8.872</InformationalVersion> <!-- pretty/product string -->
 	<Company>sl23</Company>
 	<Product>Elemental Tracker</Product>
 	<Authors>sl23</Authors>

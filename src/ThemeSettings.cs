@@ -35,6 +35,8 @@ namespace ElementalTracker
         public Color TreeForeground { get; set; } = Color.FromRgb(0, 0, 0);
         public Color TreeSelectedBackground { get; set; } = Color.FromRgb(51, 153, 255);
         public Color TreeSelectedForeground { get; set; } = Color.FromRgb(255, 255, 255);
+		public Color TreeHoverBackground { get; set; } = Color.FromRgb(229, 243, 255);
+		public Color TreeHoverForeground { get; set; } = Color.FromRgb(0, 0, 0);
 
         // ListView
         public Color ListBackground { get; set; } = Color.FromRgb(255, 255, 255);
@@ -154,6 +156,8 @@ namespace ElementalTracker
             t.TreeForeground = Color.FromRgb(210, 210, 210);
             t.TreeSelectedBackground = Color.FromRgb(60, 100, 160);
             t.TreeSelectedForeground = Color.FromRgb(255, 255, 255);
+            t.TreeHoverBackground = Color.FromRgb(55, 55, 65);
+			t.TreeHoverForeground = Color.FromRgb(255, 255, 255);
 
             t.ListBackground = Color.FromRgb(35, 35, 35);
             t.ListForeground = Color.FromRgb(210, 210, 210);
@@ -253,6 +257,8 @@ namespace ElementalTracker
             t.TreeForeground = Color.FromRgb(20, 40, 80);
             t.TreeSelectedBackground = Color.FromRgb(70, 130, 210);
             t.TreeSelectedForeground = Color.FromRgb(255, 255, 255);
+            t.TreeHoverBackground = Color.FromRgb(210, 230, 255);
+			t.TreeHoverForeground = Color.FromRgb(20, 40, 80);
 
             t.ListBackground = Color.FromRgb(245, 248, 255);
             t.ListForeground = Color.FromRgb(20, 40, 80);
