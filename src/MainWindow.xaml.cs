@@ -1,3 +1,4 @@
+// using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -510,29 +511,34 @@ namespace ElementalTracker
 			// Category Tree Context Menu
 			ContextMenu categoryContextMenu = new ContextMenu();
 
+			MenuItem menuOpenFolder = new MenuItem();
+			menuOpenFolder.Header = "Open Folder";
+			menuOpenFolder.Click += OpenCategoryFolder_Click;
+			categoryContextMenu.Items.Add(menuOpenFolder);
+
 			MenuItem menuRefreshCategory = new MenuItem();
-			menuRefreshCategory.Header = "Refresh Categories";
+			menuRefreshCategory.Header = "Refresh";
 			menuRefreshCategory.Click += RefreshCategories_Click;
 			categoryContextMenu.Items.Add(menuRefreshCategory);
 
 			categoryContextMenu.Items.Add(new Separator());
 
-			MenuItem menuAddCategory = new MenuItem();
-			menuAddCategory.Header = "Add Category";
-			menuAddCategory.Click += AddCategory_Click;
-			categoryContextMenu.Items.Add(menuAddCategory);
+			MenuItem menuNewCategory = new MenuItem();
+			menuNewCategory.Header = "New";
+			menuNewCategory.Click += NewCategory_Click;
+			categoryContextMenu.Items.Add(menuNewCategory);
 
-			MenuItem menuDeleteCategory = new MenuItem();
-			menuDeleteCategory.Header = "Delete Category";
-			menuDeleteCategory.Click += RemoveCategory_Click;
-			categoryContextMenu.Items.Add(menuDeleteCategory);
+			MenuItem menuRenameCategory = new MenuItem();
+			menuRenameCategory.Header = "Rename";
+			menuRenameCategory.Click += RenameCategory_Click;
+			categoryContextMenu.Items.Add(menuRenameCategory);
 
 			categoryContextMenu.Items.Add(new Separator());
 
-			MenuItem menuOpenFolder = new MenuItem();
-			menuOpenFolder.Header = "Open Folder";
-			menuOpenFolder.Click += OpenCategoryFolder_Click;
-			categoryContextMenu.Items.Add(menuOpenFolder);
+			MenuItem menuDeleteCategory = new MenuItem();
+			menuDeleteCategory.Header = "Delete";
+			menuDeleteCategory.Click += DeleteCategory_Click;
+			categoryContextMenu.Items.Add(menuDeleteCategory);
 
 			categoryTree.PreviewMouseRightButtonDown += (s, ev) =>
 			{
@@ -623,9 +629,14 @@ namespace ElementalTracker
             listContextMenu.Items.Add(ctxNewTrack);
 
             MenuItem ctxSave = new MenuItem();
-            ctxSave.Header = "Save Track";
+            ctxSave.Header = "Save";
             ctxSave.Click += SaveTrack_Click;
             listContextMenu.Items.Add(ctxSave);
+
+            MenuItem ctxSaveAs = new MenuItem();
+            ctxSaveAs.Header = "Save As ...";
+            ctxSaveAs.Click += SaveTrackAs_Click;
+            listContextMenu.Items.Add(ctxSaveAs);
 
             listContextMenu.Items.Add(new Separator());
 
@@ -655,7 +666,7 @@ namespace ElementalTracker
             listContextMenu.Items.Add(new Separator());
 
             MenuItem ctxDelete = new MenuItem();
-            ctxDelete.Header = "Delete Track";
+            ctxDelete.Header = "Delete";
             ctxDelete.Click += DeleteTrack_Click;
             listContextMenu.Items.Add(ctxDelete);
 
@@ -1864,7 +1875,7 @@ namespace ElementalTracker
 
             appSettingsScroll.Content = appSettingsPanel;
             appSettingsOuter.Children.Add(appSettingsScroll);
-            // Apply initial theme colors to settings group headers
+            // Apply initial theme colours to settings group headers
             ApplyGroupHeadersToPanel(appSettingsPanel, new SolidColorBrush(currentTheme.TabSelectedForeground), new SolidColorBrush(currentTheme.SplitterColor));
             appSettingsTab.Content = appSettingsOuter;
 
@@ -2393,7 +2404,7 @@ namespace ElementalTracker
 		    textBlock.SetValue(TextBlock.TextWrappingProperty, TextWrapping.NoWrap);
 		    textBlock.SetValue(TextBlock.MaxHeightProperty, 20.0);
 
-		    // Only apply status coloring if a statusBinding was provided
+		    // Only apply status colouring if a statusBinding was provided
 		    if (statusBinding != null)
 		    {
 		        System.Windows.Data.Binding fgBinding = new System.Windows.Data.Binding(statusBinding);
@@ -2562,7 +2573,7 @@ namespace ElementalTracker
             statusFile.Text = "Category list refreshed.";
         }
 
-        private void AddCategory_Click(object sender, RoutedEventArgs e)
+        private void NewCategory_Click(object sender, RoutedEventArgs e)
         {
             string newName = ShowInputDialog("New Category", "Enter category name:");
 
@@ -2611,7 +2622,57 @@ namespace ElementalTracker
             }
         }
 
-        private void RemoveCategory_Click(object sender, RoutedEventArgs e)
+		private void RenameCategory_Click(object sender, RoutedEventArgs e)
+		{
+		    // Get selected item in the categoryTree
+		    if (categoryTree.SelectedItem is TreeViewItem selectedCat && selectedCat.Tag is string catPath)
+		    {
+		        string oldName = System.IO.Path.GetFileName(catPath);
+		        string parentDir = System.IO.Path.GetDirectoryName(catPath) ?? "";
+
+		        // Prompt for new name using your standard dialog:
+		        string newName = ShowInputDialog("Rename Category", $"Enter new name for \"{oldName}\":");
+		        if (string.IsNullOrWhiteSpace(newName) || newName == oldName)
+		            return;
+
+		        // Remove invalid filename characters
+		        string safeName = newName;
+		        foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+		            safeName = safeName.Replace(c.ToString(), "");
+
+		        if (string.IsNullOrWhiteSpace(safeName))
+		        {
+		            MessageBox.Show("Invalid category name.", AppInfo.ShortName,
+		                MessageBoxButton.OK, MessageBoxImage.Warning);
+		            return;
+		        }
+
+		        string newPath = System.IO.Path.Combine(parentDir, safeName);
+		        if (Directory.Exists(newPath))
+		        {
+		            MessageBox.Show("A category with that name already exists.", AppInfo.ShortName,
+		                MessageBoxButton.OK, MessageBoxImage.Warning);
+		            return;
+		        }
+
+		        try
+		        {
+		            Directory.Move(catPath, newPath);
+		            RefreshCategories_Click(null, null); // Update the tree
+		        }
+		        catch (Exception ex)
+		        {
+		            MessageBox.Show($"Failed to rename category:\n{ex.Message}",
+		                AppInfo.ShortName, MessageBoxButton.OK, MessageBoxImage.Error);
+		        }
+		    }
+		    else
+		    {
+		        MessageBox.Show("Select a category to rename.", AppInfo.ShortName, MessageBoxButton.OK, MessageBoxImage.Information);
+		    }
+		}
+
+        private void DeleteCategory_Click(object sender, RoutedEventArgs e)
         {
             TreeViewItem selected = categoryTree.SelectedItem as TreeViewItem;
 
@@ -2994,6 +3055,15 @@ namespace ElementalTracker
 			}
             editPublisherName.Text = selected.PublisherName;
             editSuiteName.Text = selected.SuiteName;
+
+		    // Set Track File label
+			string fileName = "(Unsaved)";
+			if (!string.IsNullOrEmpty(selected.FilePath))
+			    fileName = System.IO.Path.GetFileName(selected.FilePath);
+
+			if (!string.IsNullOrEmpty(selected.FilePath) && selected.FilePath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+			    fileName += " [SPS]";
+			trackSettingsLabel.Text = "Track File: " + fileName;
 
             // Update track mode button
             if (btnTrackMode != null)
@@ -5198,20 +5268,20 @@ namespace ElementalTracker
 
 		    themeToolBarTray.ToolBars.Add(themeToolBar);		    themeOuterPanel.Children.Add(themeToolBarTray);
 
-		    // ---- Scrollable color swatch area ----
+		    // ---- Scrollable colour swatch area ----
 		    ScrollViewer themeScroll = new ScrollViewer();
 		    themeScroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
 
 		    // themePanel was declared at the top of the method
 
-		    // ---- Build color swatch rows ----
+		    // ---- Build colour swatch rows ----
 		    AddThemeGroup(themePanel, "Window & General", panel =>
 		    {
 		        AddColorSwatch(panel, "Window Background", () => previewTheme.WindowBackground, c => previewTheme.WindowBackground = c);
 		        AddColorSwatch(panel, "Window Foreground", () => previewTheme.WindowForeground, c => previewTheme.WindowForeground = c);
 		        AddColorSwatch(panel, "Button Background", () => previewTheme.ButtonBackground, c => previewTheme.ButtonBackground = c);
 		        AddColorSwatch(panel, "Button Foreground", () => previewTheme.ButtonForeground, c => previewTheme.ButtonForeground = c);
-		        AddColorSwatch(panel, "Splitter Color", () => previewTheme.SplitterColor, c => previewTheme.SplitterColor = c);
+		        AddColorSwatch(panel, "Splitter Colour", () => previewTheme.SplitterColor, c => previewTheme.SplitterColor = c);
 		    });
 
 		    AddThemeGroup(themePanel, "Menu & Toolbar", panel =>
@@ -5282,7 +5352,7 @@ namespace ElementalTracker
 		        AddColorSwatch(panel, "Unchecked", () => previewTheme.StatusUnchecked, c => previewTheme.StatusUnchecked = c);
 		    });
 
-		    AddThemeGroup(themePanel, "List Cell Status Colors (text color for URL, Hash, etc.)", panel =>
+		    AddThemeGroup(themePanel, "List Cell Status Colours (text colour for URL, Hash, etc.)", panel =>
 		    {
 		        AddColorSwatch(panel, "OK", () => previewTheme.CellStatusOk, c => previewTheme.CellStatusOk = c);
 		        AddColorSwatch(panel, "Changed", () => previewTheme.CellStatusChanged, c => previewTheme.CellStatusChanged = c);
@@ -5317,11 +5387,11 @@ namespace ElementalTracker
 	            AddColorSwatch(panel, "JS Banner Background", () => previewTheme.SourceBannerBackground, c => previewTheme.SourceBannerBackground = c);
 	            AddColorSwatch(panel, "JS Banner Foreground", () => previewTheme.SourceBannerForeground, c => previewTheme.SourceBannerForeground = c);
 		        AddColorSwatch(panel, "Source Background", () => previewTheme.SourceBackground, c => previewTheme.SourceBackground = c);
-		        AddColorSwatch(panel, "Start String Color", () => previewTheme.SourceStartStringColor, c => previewTheme.SourceStartStringColor = c);
-		        AddColorSwatch(panel, "Info String Color", () => previewTheme.SourceInfoStringColor, c => previewTheme.SourceInfoStringColor = c);
-		        AddColorSwatch(panel, "Stop String Color", () => previewTheme.SourceStopStringColor, c => previewTheme.SourceStopStringColor = c);
-		        AddColorSwatch(panel, "HTML Tag Color", () => previewTheme.SourceTagColor, c => previewTheme.SourceTagColor = c);
-		        AddColorSwatch(panel, "Text Content Color", () => previewTheme.SourceTextColor, c => previewTheme.SourceTextColor = c);
+		        AddColorSwatch(panel, "Start String", () => previewTheme.SourceStartStringColor, c => previewTheme.SourceStartStringColor = c);
+		        AddColorSwatch(panel, "Info String", () => previewTheme.SourceInfoStringColor, c => previewTheme.SourceInfoStringColor = c);
+		        AddColorSwatch(panel, "Stop String", () => previewTheme.SourceStopStringColor, c => previewTheme.SourceStopStringColor = c);
+		        AddColorSwatch(panel, "HTML Tags", () => previewTheme.SourceTagColor, c => previewTheme.SourceTagColor = c);
+		        AddColorSwatch(panel, "Text Content", () => previewTheme.SourceTextColor, c => previewTheme.SourceTextColor = c);
 		    });
 
 		    AddThemeGroup(themePanel, "Scrollbars", panel =>
@@ -5731,7 +5801,7 @@ namespace ElementalTracker
 		    swatch.CornerRadius = new CornerRadius(3);
 		    swatch.Background = new SolidColorBrush(getter());
 		    swatch.Cursor = System.Windows.Input.Cursors.Hand;
-		    swatch.ToolTip = "Click to pick a color — Right-click to copy/paste";
+		    swatch.ToolTip = "Click to pick a colour — Right-click to copy/paste";
 		    swatch.Margin = new Thickness(0, 0, 8, 0);
 		    DockPanel.SetDock(swatch, Dock.Left);
 
@@ -5751,7 +5821,7 @@ namespace ElementalTracker
 		    lbl.Text = label;
 		    lbl.VerticalAlignment = VerticalAlignment.Center;
 
-		    // Click handler — opens Windows color dialog
+		    // Click handler — opens Windows colour dialog
 		    swatch.MouseLeftButtonDown += (s, ev) =>
 		    {
 		        Color currentColor = getter();
@@ -5777,11 +5847,11 @@ namespace ElementalTracker
 		        }
 		    };
 
-		    // Right-click context menu — Copy / Paste color
+		    // Right-click context menu — Copy / Paste colour
 		    ContextMenu swatchMenu = new ContextMenu();
 
 		    MenuItem menuCopyColor = new MenuItem();
-		    menuCopyColor.Header = "Copy Color";
+		    menuCopyColor.Header = "Copy Colour";
 		    menuCopyColor.Click += (s, ev) =>
 		    {
 		        Clipboard.SetText(ThemeSettings.ColorToHex(getter()));
@@ -5789,7 +5859,7 @@ namespace ElementalTracker
 		    swatchMenu.Items.Add(menuCopyColor);
 
 		    MenuItem menuPasteColor = new MenuItem();
-		    menuPasteColor.Header = "Paste Color";
+		    menuPasteColor.Header = "Paste Colour";
 		    menuPasteColor.Click += (s, ev) =>
 		    {
 		        string clipText = Clipboard.GetText().Trim();
@@ -5803,7 +5873,7 @@ namespace ElementalTracker
 		        }
 		        else
 		        {
-		            MessageBox.Show("Clipboard does not contain a valid hex color.\n\n" +
+		            MessageBox.Show("Clipboard does not contain a valid hex colour.\n\n" +
 		                "Expected format: #RRGGBB (e.g. #FF8000)",
 		                AppInfo.ShortName, MessageBoxButton.OK, MessageBoxImage.Information);
 		        }
@@ -5981,7 +6051,7 @@ namespace ElementalTracker
 			    }
 			}
 
-			// Override system color resources so the default template uses our colors
+			// Override system colour resources so the default template uses our colours
 			this.Resources[SystemColors.HighlightBrushKey] = new SolidColorBrush(theme.TreeSelectedBackground);
 			this.Resources[SystemColors.HighlightTextBrushKey] = new SolidColorBrush(theme.TreeSelectedForeground);
 			this.Resources[SystemColors.InactiveSelectionHighlightBrushKey] = new SolidColorBrush(theme.TreeSelectedBackground);
@@ -5991,7 +6061,7 @@ namespace ElementalTracker
 			treeItemStyle.Setters.Add(new Setter(TreeViewItem.ForegroundProperty, new SolidColorBrush(theme.TreeForeground)));
 			treeItemStyle.Setters.Add(new Setter(TreeViewItem.BackgroundProperty, Brushes.Transparent));
 
-			// Custom template so selection colors actually work
+			// Custom template so selection colours actually work
 			ControlTemplate treeItemTemplate = new ControlTemplate(typeof(TreeViewItem));
 
 			// Outer StackPanel: header row + items host
@@ -6060,7 +6130,7 @@ namespace ElementalTracker
 			itemList.Background = new SolidColorBrush(theme.ListBackground);
 			itemList.Foreground = new SolidColorBrush(theme.ListForeground);
 
-			// ListView item style with alternate row colors and hover
+			// ListView item style with alternate row colours and hover
 			Style listItemStyle = new Style(typeof(ListViewItem));
 			listItemStyle.Setters.Add(new Setter(ListViewItem.ForegroundProperty, new SolidColorBrush(theme.ListForeground)));
 			listItemStyle.Setters.Add(new Setter(ListViewItem.BackgroundProperty, Brushes.Transparent));
@@ -6319,7 +6389,7 @@ namespace ElementalTracker
 			    SolidColorBrush trkBg = new SolidColorBrush(theme.TrackToolbarBackground);
 			    SolidColorBrush trkFg = new SolidColorBrush(theme.TrackToolbarForeground);
 
-			    // Compute hover color
+			    // Compute hover colour
 			    byte trkR = theme.TrackToolbarBackground.R;
 			    byte trkG = theme.TrackToolbarBackground.G;
 			    byte trkB = theme.TrackToolbarBackground.B;
@@ -6382,7 +6452,7 @@ namespace ElementalTracker
 			SolidColorBrush tabContentFg = new SolidColorBrush(theme.TabContentForeground);
 			rightTabs.Background = tabBg;
 
-			// Compute hover color
+			// Compute hover colour
 			byte tabR = theme.TabHandleBackground.R;
 			byte tabG = theme.TabHandleBackground.G;
 			byte tabB = theme.TabHandleBackground.B;
@@ -6597,7 +6667,7 @@ namespace ElementalTracker
 
 			this.Resources[typeof(Button)] = buttonStyle;
 
-		    // Re-display source with new theme colors
+		    // Re-display source with new theme colours
 		    if (!string.IsNullOrEmpty(currentSource))
 		    {
 		        DisplaySource(currentSource);
@@ -6607,7 +6677,7 @@ namespace ElementalTracker
 			SolidColorBrush scrollBg = new SolidColorBrush(theme.ScrollBarBackground);
 			SolidColorBrush scrollThumb = new SolidColorBrush(theme.ScrollBarThumb);
 
-			// Compute hover color for thumb
+			// Compute hover colour for thumb
 			byte sR = theme.ScrollBarThumb.R;
 			byte sG = theme.ScrollBarThumb.G;
 			byte sB = theme.ScrollBarThumb.B;
@@ -6720,7 +6790,7 @@ namespace ElementalTracker
 			}
 			catch (Exception)
 			{
-			    // Fallback: at least color the background
+			    // Fallback: at least colour the background
 			    this.Resources[SystemColors.ScrollBarBrushKey] = scrollBg;
 			}
 
@@ -6756,9 +6826,9 @@ namespace ElementalTracker
                 }
             }
 
-		    // Rebuild list columns to pick up new StatusToColorConverter brushes
+		    // Rebuild list columns to pick up new StatusToColourConverter brushes
 		    RebuildColumns();
-		    // Force status icons to refresh with new theme colors
+		    // Force status icons to refresh with new theme colours
 			RefreshStatusIcons(itemList);
 
 			// ---- Theme ComboBox dropdown arrows ----
@@ -6783,7 +6853,7 @@ namespace ElementalTracker
 			mi.Style = miStyle;
 		    mi.Foreground = fg;
 
-		    // Compute hover color
+		    // Compute hover colour
 		    byte r = bg.Color.R;
 		    byte g = bg.Color.G;
 		    byte b = bg.Color.B;
@@ -6899,7 +6969,7 @@ namespace ElementalTracker
 		        tb.Background = bg;
 		        tb.Foreground = fg;
 
-		        // Compute hover color
+		        // Compute hover colour
 		        byte r = bg.Color.R;
 		        byte g = bg.Color.G;
 		        byte b = bg.Color.B;
@@ -7488,7 +7558,7 @@ namespace ElementalTracker
 
 		    if (obj is TextBlock tb)
 		    {
-		        // Don't override special colored TextBlocks (like startPositionText, stopPositionText)
+		        // Don't override special coloured TextBlocks (like startPositionText, stopPositionText)
 		        if (tb != startPositionText && tb != stopPositionText && tb != editLatestVersion)
 		        {
 		            tb.Foreground = panelFg;
@@ -7556,7 +7626,7 @@ namespace ElementalTracker
 
 		private void ThemeStatusBarLegend(StatusBar statusBar, ThemeSettings theme)
 		{
-		    // Walk through the status bar to find the legend icons and update their colors
+		    // Walk through the status bar to find the legend icons and update their colours
 		    // The legend is in a StackPanel inside a StatusBarItem (HorizontalAlignment=Right)
 		    foreach (var item in statusBar.Items)
 		    {
@@ -7572,7 +7642,7 @@ namespace ElementalTracker
 		                        if (tb.FontFamily != null && tb.FontFamily.Source != null &&
 		                            tb.FontFamily.Source.Contains("Segoe Fluent Icons"))
 		                        {
-		                            // It's a status icon — match by current color to figure out which one
+		                            // It's a status icon — match by current colour to figure out which one
 		                            string text = tb.Text;
 		                            // Find the next sibling TextBlock to identify which status this is
 		                        }
@@ -7585,7 +7655,7 @@ namespace ElementalTracker
 		                    }
 		                }
 
-		                // Now do a second pass to set icon colors by pairing icon+label
+		                // Now do a second pass to set icon colours by pairing icon+label
 		                TextBlock pendingIcon = null;
 		                foreach (var child in sp.Children)
 		                {
@@ -7764,7 +7834,7 @@ namespace ElementalTracker
 		    input.Margin = new Thickness(0, 0, 0, 12);
 		    panel.Children.Add(input);
 
-		    // Compute button hover color (same logic as MainWindow)
+		    // Compute button hover colour (same logic as MainWindow)
 		    byte btnR = currentTheme.ButtonBackground.R;
 		    byte btnG = currentTheme.ButtonBackground.G;
 		    byte btnB = currentTheme.ButtonBackground.B;
@@ -10094,7 +10164,7 @@ namespace ElementalTracker
 		        FindHighlightPositions(normalizedSource, dateStartStr, dateStopStr,
 		            out dStartIdx, out dStartLen, out dStopIdx, out dStopLen);
 
-		        // Build highlight regions: (start, end, color)
+		        // Build highlight regions: (start, end, colour)
 		        var regions = new List<(int start, int end, SolidColorBrush color)>();
 
 		        // Version regions
@@ -10167,7 +10237,7 @@ namespace ElementalTracker
 		        }
 		        else
 		        {
-		            // No highlighting — plain syntax coloring
+		            // No highlighting — plain syntax colouring
 		            foreach (Run r in CreateSyntaxHighlightedRuns(normalizedSource))
 		                para.Inlines.Add(r);
 		        }
@@ -11309,7 +11379,7 @@ namespace ElementalTracker
         // ============================
         /// <summary>
         /// Parses an HTML string and returns a list of Runs with simple syntax highlighting.
-        /// Everything inside angle brackets is one color, everything outside is another.
+        /// Everything inside angle brackets is one colour, everything outside is another.
         /// </summary>
 		private List<Run> CreateSyntaxHighlightedRuns(string html)
 		{

@@ -37,10 +37,10 @@
 		<!-- Toolbar - adjust Padding and Margin to suit -->
 		<ToolBarTray x:Name="toolBarTray" DockPanel.Dock="Top">
 		    <ToolBar x:Name="mainToolBar" Band="0" BandIndex="0">
-		    	<Button x:Name="btnAddCategory" Content="&#xECC8;" Click="AddCategory_Click"
+		    	<Button x:Name="btnAddCategory" Content="&#xECC8;" Click="NewCategory_Click"
 				        FontFamily="Segoe Fluent Icons" FontSize="17"
 				        Padding="7,4" Margin="2,2,2,2" ToolTip="New Category" />
-				<Button x:Name="btnRemoveCategory" Content="&#xECC9;" Click="RemoveCategory_Click"
+				<Button x:Name="btnRemoveCategory" Content="&#xECC9;" Click="DeleteCategory_Click"
 				        FontFamily="Segoe Fluent Icons" FontSize="17"
 				        Padding="7,4" Margin="2,2,2,2" ToolTip="Delete Category" />
 				<Button x:Name="btnOpenFolder" Content="&#xE838;" Click="OpenCategoryFolder_Click"
