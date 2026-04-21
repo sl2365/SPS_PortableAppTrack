@@ -9,7 +9,7 @@ Precision web tracking made simple to keep you informed of what matters to you.
 
 ## About
 
-Originally designed solely to be used with SyMenu's[SyMenu](https://www.ugmfree.it/) and its SPS Builder app, it was a basic app and a quick fix for a unique problem: Checking many websites for app updates to manage portable application suites.
+Originally designed solely to be used with [SyMenu](https://www.ugmfree.it/) and its SPS Builder app, it was a basic app and a quick fix for a unique problem: Checking many websites for app updates to manage portable application suites.
 
 After an update to bring it up to date with 64bit support and enhancing the looks and broadening functionality, I then decided to merge my generic Rainmeter updater skin functionality with SPS PAT.
 
